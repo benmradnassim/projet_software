@@ -2,7 +2,8 @@
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .serializers import InscriptionSerializer, UtilisateurSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import ConnexionSerializer, InscriptionSerializer, ProfilSerializer
 @api_view(["GET"])
 @permission_classes([permissions.AllowAny])
 def health(request):
@@ -13,4 +14,13 @@ def register(request):
     serializer = InscriptionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = serializer.save()
-    return Response(UtilisateurSerializer(user).data, status=status.HTTP_201_CREATED)
+    return Response(
+        {"message": "Votre compte a été créé avec succès.", "utilisateur": ProfilSerializer(user).data},
+        status=status.HTTP_201_CREATED,
+    )
+
+
+class ConnexionView(TokenObtainPairView):
+    """Connexion JWT ; seuls les comptes au statut Actif peuvent se connecter."""
+
+    serializer_class = ConnexionSerializer

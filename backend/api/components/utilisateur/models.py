@@ -36,8 +36,8 @@ class Utilisateur(AbstractUser):
 
     class Statut(models.TextChoices):
         ACTIF = "actif", "Actif"
-        BLOQUE = "bloque", "Bloqué"
-        INACTIF = "inactif", "Inactif"
+        SUSPENDU = "suspendu", "Suspendu"
+        DESACTIVE = "desactive", "Désactivé"
 
     username = None
     email = models.EmailField(unique=True)
@@ -56,6 +56,18 @@ class Utilisateur(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
     objects = UtilisateurManager()
+
+    @property
+    def est_admin(self):
+        return self.is_staff or self.role == self.Role.ADMIN
+
+    def save(self, *args, **kwargs):
+        # Un compte suspendu ou désactivé ne peut plus s'authentifier (connexion et jetons JWT).
+        self.is_active = self.statut == self.Statut.ACTIF
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and "statut" in update_fields:
+            kwargs["update_fields"] = {*update_fields, "is_active"}
+        super().save(*args, **kwargs)
 
     @property
     def nom_complet(self):

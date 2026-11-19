@@ -1,5 +1,11 @@
+# React / Node
 node_modules/
-__pycache__/
-*.pyc
-.env
+build/
+dist/
+
+# Python (au cas où)
 venv/
+env/
+
+# Divers
+.vscode/

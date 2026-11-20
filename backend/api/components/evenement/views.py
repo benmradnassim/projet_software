@@ -1,23 +1,43 @@
 """API endpoints for Evenement."""
-from rest_framework import permissions, viewsets
+from django.db import models
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
+from rest_framework.exceptions import PermissionDenied
 from api.models import Evenement
 from api.serializers import EvenementSerializer
-from api.permissions import IsOwnerOrReadOnly
+from api.permissions import CanManageEvenement
 
 
 class EvenementViewSet(viewsets.ModelViewSet):
     queryset = Evenement.objects.all()
     serializer_class = EvenementSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [CanManageEvenement]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["statut", "ville", "campagne"]
+    search_fields = ["titre", "description", "lieu", "ville"]
+    ordering_fields = ["date_evenement", "titre", "capacite"]
+    ordering = ["date_evenement"]
+
     def get_queryset(self):
         qs = self.queryset
-        if not self.request.user.is_authenticated or not (self.request.user.is_staff or self.request.user.role == "admin"):
-            qs = qs.exclude(statut="brouillon") if self.basename == "campagne" else qs
-        return qs
+        user = self.request.user
+
+        if not user.is_authenticated:
+            return qs.filter(statut=Evenement.Statut.PLANIFIE)
+
+        if user.is_staff or user.role == "admin":
+            return qs
+
+        if user.role == "organisateur":
+            return qs.filter(
+                models.Q(statut=Evenement.Statut.PLANIFIE) | models.Q(organisateur=user)
+            )
+
+        return qs.filter(statut=Evenement.Statut.PLANIFIE)
 
     def perform_create(self, serializer):
-        if self.request.user.role not in ["organisateur", "admin"] and not self.request.user.is_staff:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("Le r?le organisateur est requis pour cr?er cette ressource.")
-        serializer.save(organisateur=self.request.user)
+        user = self.request.user
+        if user.role != "organisateur":
+            raise PermissionDenied("Le r\u00f4le organisateur est requis pour cr\u00e9er cette ressource.")
+        serializer.save(organisateur=user)
 

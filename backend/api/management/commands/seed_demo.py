@@ -1,4 +1,5 @@
 """Create a reusable set of fictional Moubedra data for local testing."""
+import uuid
 from datetime import timedelta
 from decimal import Decimal
 
@@ -217,18 +218,36 @@ class Command(BaseCommand):
             )[1]
             for email, campaign_index, participation_status in campaign_participations
         )
-        counts["participations_evenements"] = sum(
-            DemandeParticipationEvenement.objects.get_or_create(
-                utilisateur=people[email], evenement=events[event_index],
-                defaults={"statut": DemandeParticipationEvenement.Statut.ACCEPTEE if i % 2 == 0 else DemandeParticipationEvenement.Statut.EN_ATTENTE,
-                          "motif": "Je souhaite participer à cet événement."},
-            )[1]
-            for i, (email, event_index) in enumerate([
-                ("nour.saada@example.tn", 0), ("yasmine.ayari@example.tn", 0),
-                ("mehdi.bs@example.tn", 1), ("sana.k@example.tn", 2),
-                ("amine.by@example.tn", 3), ("nour.saada@example.tn", 4),
-            ])
-        )
+        event_participations = [
+            ("nour.saada@example.tn", 0),
+            ("yasmine.ayari@example.tn", 0),
+            ("mehdi.bs@example.tn", 1),
+            ("sana.k@example.tn", 2),
+            ("amine.by@example.tn", 3),
+            ("nour.saada@example.tn", 4),
+        ]
+        created_event_participations = 0
+        for index, (email, event_index) in enumerate(event_participations):
+            participation, created = DemandeParticipationEvenement.objects.get_or_create(
+                utilisateur=people[email],
+                evenement=events[event_index],
+                defaults={
+                    "statut": (
+                        DemandeParticipationEvenement.Statut.ACCEPTEE
+                        if index % 2 == 0
+                        else DemandeParticipationEvenement.Statut.EN_ATTENTE
+                    ),
+                    "motif": "Je souhaite participer à cet événement.",
+                },
+            )
+            created_event_participations += int(created)
+            if (
+                participation.statut == DemandeParticipationEvenement.Statut.ACCEPTEE
+                and participation.code_qr is None
+            ):
+                participation.code_qr = uuid.uuid4()
+                participation.save(update_fields=["code_qr"])
+        counts["participations_evenements"] = created_event_participations
 
         organizer_requests = [
             ("nour.saada@example.tn", "Je souhaite lancer des collectes et du soutien scolaire dans mon quartier."),

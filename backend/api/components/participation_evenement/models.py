@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 
 class DemandeParticipationEvenement(models.Model):
@@ -15,7 +13,7 @@ class DemandeParticipationEvenement(models.Model):
     type = models.CharField(max_length=50, default="benevole")
     motif = models.TextField(blank=True)
     statut = models.CharField(max_length=12, choices=Statut.choices, default=Statut.EN_ATTENTE)
-    code_qr = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    code_qr = models.UUIDField(null=True, blank=True, default=None, unique=True, editable=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["utilisateur", "evenement"], name="unique_participation_evenement")]

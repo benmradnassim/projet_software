@@ -15,6 +15,7 @@ class Evenement(models.Model):
     lieu = models.CharField(max_length=255)
     ville = models.CharField(max_length=100, blank=True)
     capacite = models.PositiveIntegerField()
+    image = models.ImageField(upload_to="events/", blank=True, default="")
     statut = models.CharField(max_length=12, choices=Statut.choices, default=Statut.PLANIFIE)
 
     def __str__(self):

@@ -1,8 +1,8 @@
 # moubedra — template React
 
-Interface responsive en français pour une plateforme de campagnes solidaires en Tunisie. La page d’accueil conserve son bandeau partagé entre texte et photographie, son style chaleureux et ses cartes arrondies. Le template ajoute des espaces de démonstration pour les rôles Utilisateur, Citoyen, Organisateur et Admin.
+Interface responsive en français pour AccessiCity. Les campagnes et les événements sont des espaces distincts : un événement présente une activité concrète (atelier, rencontre ou action), avec son propre lieu, sa date, sa capacité et sa description. La page d’accueil conserve son bandeau partagé entre texte et photographie, son style chaleureux et ses cartes arrondies. Le template ajoute des espaces de démonstration pour les rôles Utilisateur, Citoyen, Organisateur et Admin.
 
-Les pages comprennent l’authentification simulée, les campagnes, participations, dons, événements, publications et commentaires, signalements, notifications, profils et écrans d’administration. Les données réalistes sont centralisées dans `src/mockData.js`. Les actions sont simulées dans le navigateur et les confirmations apparaissent sous forme de toasts. Aucun backend ni paiement réel n’est utilisé. L’actualisation de la page réinitialise les modifications de démonstration.
+Les espaces de démonstration des campagnes, dons, publications et profils utilisent les données centralisées dans `src/mockData.js`. En mode démo Organisateur, les événements sont simulés localement : vous pouvez essayer de créer, modifier et supprimer vos propres événements sans compte serveur; ces changements ne sont pas enregistrés dans SQLite. Le formulaire événement accepte une photo (5 Mo maximum); en mode connecté, Django la conserve dans `backend/media/events/`. Les événements plus anciens sans photo utilisent des visuels de remplacement variés. En mode connecté, l’API Django applique les permissions : les organisateurs gèrent uniquement leurs événements, et l’administrateur ne dispose pas de gestion des événements. Les citoyens et les organisateurs peuvent demander à participer à un événement planifié qui ne leur appartient pas. La demande reste en attente jusqu’à acceptation; le QR code est alors créé pour cette participation. Aucun paiement réel n’est effectué.
 
 ## Démarrer
 
@@ -10,5 +10,7 @@ Les pages comprennent l’authentification simulée, les campagnes, participatio
 npm install
 npm run dev
 ```
+
+Le backend doit être démarré séparément depuis `backend` avec `python manage.py runserver`.
 
 Les icônes proviennent de Lucide React. Les polices et photographies sont chargées depuis Google Fonts et Unsplash.

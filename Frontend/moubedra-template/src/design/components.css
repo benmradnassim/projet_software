@@ -198,10 +198,10 @@ span.chip:hover { border-color: var(--line); }
 
 /* ---------- chronologie ---------- */
 .tl2 { border-left: 2px solid var(--mint); padding-left: 22px; margin-left: 8px; }
-.tl2 > div { position: relative; padding-bottom: 18px; }
-.tl2 > div::before { content: ''; position: absolute; left: -29px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--green); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--green); }
-.tl2 > div.fut::before { background: #fff; box-shadow: 0 0 0 1px var(--line-2); }
-.tl2 > div.fut { opacity: 0.55; }
+.tl2 > li { position: relative; padding-bottom: 18px; }
+.tl2 > li::before { content: ''; position: absolute; left: -29px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--green); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--green); }
+.tl2 > li.fut::before { background: #fff; box-shadow: 0 0 0 1px var(--line-2); }
+.tl2 > li.fut { opacity: 0.55; }
 .tl2 b { font: 700 15px var(--display); color: var(--navy); }
 .tl2 small { display: block; font-size: 13px; color: var(--muted); }
 

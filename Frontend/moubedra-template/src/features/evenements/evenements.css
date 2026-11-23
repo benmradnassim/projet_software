@@ -1,0 +1,28 @@
+/* ===== Événements (repris de la maquette) ===== */
+.evl { display: grid; gap: 14px; }
+.evc { display: flex; gap: 18px; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 14px; align-items: center; position: relative; transition: transform 0.3s var(--out), box-shadow 0.3s; animation: pgin 0.5s var(--out) both; }
+.evc.link:hover { transform: translateY(-3px); box-shadow: 0 18px 36px #1d334f14; }
+.evc > img { width: 180px; height: 120px; border-radius: 14px; object-fit: cover; flex: none; }
+.evc h3 { font-size: 19px; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.evc h3 a::after { content: ''; position: absolute; inset: 0; border-radius: 20px; }
+.evc h3 a:focus-visible { box-shadow: none; }
+.evc h3 a:focus-visible::after { box-shadow: var(--focus); }
+.evc .meta2 { display: block; }
+.evc .meta2 svg { vertical-align: -2px; }
+.evc .pl { width: 200px; flex: none; }
+.evc .pl small { display: block; font-size: 13px; }
+.evc .acts { display: grid; gap: 8px; position: relative; z-index: 1; }
+
+/* scanner jour J */
+.scan { height: 220px; border-radius: 18px; background: #1f2c40; position: relative; overflow: hidden; display: grid; place-items: center; color: #fff; }
+.scan::before { content: ''; position: absolute; inset: 20px 60px 40px; border: 3px solid #ffffffaa; border-radius: 16px; }
+.scan i { position: absolute; left: 60px; right: 60px; height: 2px; background: #7fdc6c; box-shadow: 0 0 12px #7fdc6c; animation: scanl 1.8s ease-in-out infinite alternate; }
+.scan.flash { animation: flash-ok 0.6s; }
+.scan span { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 13px; opacity: 0.85; }
+.scanlog .it { animation: pgin 0.4s var(--out); }
+
+@media (max-width: 1100px) {
+  .evc { flex-wrap: wrap; }
+  .evc > img { width: 100%; height: 160px; }
+  .evc .pl { width: 100%; }
+}

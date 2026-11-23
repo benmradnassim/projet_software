@@ -32,6 +32,6 @@ export function listSignalementsAdmin() {
 
 /** decision : 'classer' (rejete) | 'retirer' (resolu) */
 export function traiterSignalement(id, decision) {
-  // TODO(API): remplacer par PATCH /api/signalements/<id>/ { statut: 'rejete' | 'resolu' } — voir backend/api/components/signalement
+  // TODO(API): remplacer par POST /api/signalements/<id>/traiter/ (annoncé dans backend/README.md) — voir backend/api/components/signalement
   return mockResponse({ id, statut: decision === 'retirer' ? 'resolu' : 'rejete' }, 200);
 }

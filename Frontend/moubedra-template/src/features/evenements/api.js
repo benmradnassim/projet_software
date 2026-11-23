@@ -82,7 +82,7 @@ export function listDemandesRecues() {
 /** decision : 'acceptee' | 'refusee' */
 export function deciderDemande(id, decision) {
   // TODO(API): remplacer par PATCH /api/participations/evenements/<id>/ { statut } — voir backend/api/components/participation_evenement
-  //   (le serializer marque `statut` en lecture seule : une action dédiée est à prévoir côté back)
+  //   (`statut` est en lecture seule : utiliser POST /api/participations/evenements/<id>/traiter/ annoncé dans backend/README.md)
   demandes = demandes.map((d) => (d.id === id ? { ...d, statut: decision } : d));
   return mockResponse({ id, statut: decision }, 200);
 }

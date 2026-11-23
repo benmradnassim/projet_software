@@ -89,7 +89,7 @@ export function getResumeDonsRecus() {
 /** Confirme un paiement D17 reçu. */
 export function confirmerDon(id) {
   // TODO(API): remplacer par PATCH /api/dons/<id>/ { statut: 'confirme' } — voir backend/api/components/don
-  //   (`statut` est en lecture seule dans DonSerializer : une action dédiée est à prévoir côté back)
+  //   (`statut` est en lecture seule : utiliser POST /api/dons/<id>/verifier/ annoncé dans backend/README.md)
   donsRecus = donsRecus.map((d) => (d.id === id ? { ...d, statut: 'confirme' } : d));
   return mockResponse({ id, statut: 'confirme' }, 300);
 }

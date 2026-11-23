@@ -13,8 +13,9 @@ export function connexion({ email, password }) {
 
 /**
  * Profil de l'utilisateur connecté.
- * Il n'existe pas d'endpoint « moi » : on lit `user_id` dans le JWT puis
+ * Il n'existe pas encore d'endpoint « moi » sur main : on lit `user_id` dans le JWT puis
  * GET /api/utilisateurs/<id>/ — voir backend/api/components/utilisateur
+ * TODO(API): passer à GET /api/utilisateurs/moi/ dès qu'il existe (annoncé dans backend/README.md)
  */
 export function getProfil() {
   const payload = decodeJwt(getTokens()?.access || '');

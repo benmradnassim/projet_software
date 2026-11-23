@@ -20,7 +20,7 @@ export function getTableauDeBord() {
 /** Mise à jour du profil. patch : champs de UtilisateurSerializer (prenom, nom, telephone, ville, adresse, date_naissance…) */
 export function modifierProfil(id, patch) {
   // TODO(API): remplacer par PATCH /api/utilisateurs/<id>/ — voir backend/api/components/utilisateur
-  //   (UtilisateurViewSet est aujourd'hui en lecture seule : à passer en ModelViewSet côté back)
+  //   (UtilisateurViewSet est en lecture seule sur main ; PATCH /api/utilisateurs/moi/ est annoncé dans backend/README.md)
   return mockResponse({ id, ...patch }, 400);
 }
 
@@ -62,7 +62,7 @@ export function listDemandesOrganisateur() {
 /** decision : 'acceptee' | 'refusee' | 'infos' ; message facultatif */
 export function traiterDemandeOrganisateur(id, decision, message = '') { // eslint-disable-line no-unused-vars
   // TODO(API): remplacer par PATCH /api/demandes-organisateur/<id>/ { statut } — voir backend/api/components/demande_organisateur
-  //   (`statut` est en lecture seule dans le serializer : une action dédiée est à prévoir côté back)
+  //   (`statut` est en lecture seule : utiliser POST /api/demandes-organisateur/<id>/traiter/ annoncé dans backend/README.md)
   demandes = demandes.map((d) => (d.id === id ? { ...d, statut: decision } : d));
   return mockResponse({ id, statut: decision }, 300);
 }

@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { forwardRef, useId } from 'react';
 
 /**
  * Champs de formulaire.
@@ -44,7 +44,10 @@ export function Textarea(props) {
   return <Input as="textarea" {...props} />;
 }
 
-export function FloatingField({ label, icon: IconCmp, error, valid, right, className = '', id: idProp, as: Tag = 'input', children, shake, ...rest }) {
+export const FloatingField = forwardRef(function FloatingField(
+  { label, icon: IconCmp, error, valid, right, className = '', id: idProp, as: Tag = 'input', children, shake, ...rest },
+  ref,
+) {
   const auto = useId();
   const id = idProp || auto;
   const cls = ['fld', !IconCmp && 'noicon', Tag === 'textarea' && 'ta', error && 'bad', valid && 'valid', shake && 'shake', className]
@@ -52,7 +55,7 @@ export function FloatingField({ label, icon: IconCmp, error, valid, right, class
     .join(' ');
   return (
     <div className={cls}>
-      <Tag id={id} placeholder=" " aria-invalid={!!error || undefined} aria-describedby={error ? `${id}-err` : undefined} {...rest}>
+      <Tag ref={ref} id={id} placeholder=" " aria-invalid={!!error || undefined} aria-describedby={error ? `${id}-err` : undefined} {...rest}>
         {children}
       </Tag>
       <label htmlFor={id}>{label}</label>
@@ -67,4 +70,4 @@ export function FloatingField({ label, icon: IconCmp, error, valid, right, class
       </small>
     </div>
   );
-}
+});

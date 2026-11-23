@@ -232,7 +232,7 @@ textarea.inp3 { height: 130px; padding: 12px 14px; resize: none; line-height: 1.
 .fld label { position: absolute; left: 44px; top: 17px; font: 400 16px var(--body); color: var(--muted); pointer-events: none; transition: all 0.2s var(--out); }
 .fld.noicon label { left: 16px; }
 .fld input:focus, .fld select:focus { border-color: var(--navy); box-shadow: 0 0 0 4px #1f3a6b18; }
-.fld input:focus + label, .fld input:not(:placeholder-shown) + label, .fld select:focus + label, .fld select.has + label { top: 7px; font-size: 13px; font-weight: 600; color: var(--navy); }
+.fld input:focus + label, .fld input:not(:placeholder-shown) + label, .fld select:focus + label, .fld.filled select + label { top: 7px; font-size: 13px; font-weight: 600; color: var(--navy); }
 .fld .ic { position: absolute; left: 15px; top: 19px; line-height: 0; color: var(--muted); }
 .fld .ok { position: absolute; right: 14px; top: 19px; line-height: 0; opacity: 0; transform: scale(0.4); transition: all 0.35s var(--spring); color: var(--green); }
 .fld.valid input { border-color: var(--green); }

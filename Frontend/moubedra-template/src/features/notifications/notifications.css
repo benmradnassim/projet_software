@@ -1,0 +1,10 @@
+/* ===== Notifications (repris de la maquette) ===== */
+.nt { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border-radius: 14px; transition: background 0.3s; position: relative; }
+.nt:hover { background: var(--soft-2); }
+.nt.unread { background: #fbf6f2; }
+.nt::before { content: ''; position: absolute; left: 4px; top: 24px; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); transform: scale(0); transition: transform 0.3s var(--spring); }
+.nt.unread::before { transform: scale(1); }
+.nt b { font: 700 15px var(--display); color: var(--navy); }
+.nt p { font-size: 14.5px; color: var(--text-2); }
+.nt small { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.grp { font: 700 13px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: #7a8696; margin: 16px 0 6px 6px; }

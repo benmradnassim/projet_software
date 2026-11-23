@@ -5,6 +5,7 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import ScrollToTop from './ScrollToTop';
 import PageFallback from './PageFallback';
+import './layout.css';
 
 /** Pages de l'application : en-tête + barre latérale (si connecté) + contenu. */
 export default function Layout() {
@@ -13,7 +14,7 @@ export default function Layout() {
     <>
       <ScrollToTop />
       <Header />
-      <div className={`appv${isAuthenticated ? ' logged' : ''}`}>
+      <div className={`appv${isAuthenticated ? '' : ' guest'}`}>
         {isAuthenticated && <Sidebar />}
         <main id="contenu" className="appmain">
           <Suspense fallback={<PageFallback />}>

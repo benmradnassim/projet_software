@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import ScrollToTop from './ScrollToTop';
 import PageFallback from './PageFallback';
+import './layout.css';
 
 /**
  * Pages publiques pleine largeur.

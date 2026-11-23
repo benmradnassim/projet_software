@@ -61,7 +61,7 @@ export function formatRelative(d, now = new Date()) {
   if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
   if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
   if (diff < 172800) return 'hier';
-  if (diff < 7 * 86400) return date.toLocaleDateString('fr-FR', { weekday: 'short' });
+  if (diff < 7 * 86400) return `il y a ${Math.floor(diff / 86400)} jours`;
   return formatDate(date, { year: date.getFullYear() !== now.getFullYear() });
 }
 

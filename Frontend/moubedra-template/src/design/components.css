@@ -76,6 +76,7 @@ button.kob:hover { transform: scale(1.12); }
 .row { display: flex; gap: 14px; align-items: center; }
 .g2 { display: grid; grid-template-columns: 1.45fr 1fr; gap: 20px; align-items: start; }
 .dg { display: grid; grid-template-columns: 1fr 370px; gap: 24px; align-items: start; }
+.g2 > *, .dg > *, .wiz > * { min-width: 0; } /* évite qu’une rangée d’onglets élargisse la grille (débordement présent dans la maquette) */
 .sticky2 { position: sticky; top: calc(var(--hdr, 78px) + 16px); transition: top 0.35s var(--out); }
 .impact3 { background: var(--mint-l); border-radius: 12px; padding: 10px 12px; font-size: 14px; color: #2f5426; display: flex; gap: 8px; align-items: center; transition: all 0.3s; }
 .impact3.warn { background: var(--wait-bg); color: #7a5408; }

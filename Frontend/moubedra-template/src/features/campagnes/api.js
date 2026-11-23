@@ -5,7 +5,7 @@
  */
 import { api, unwrapList } from '../../lib/api'; // eslint-disable-line no-unused-vars
 import { mockResponse, nextId } from '../../lib/mock';
-import { BESOINS, CAMPAGNES, CAMPAGNES_EN_REVUE, CATEGORIES, DETAILS, FAVORIS, MES_CAMPAGNES, ORG_DASHBOARD } from './mockData';
+import { BESOINS, CAMPAGNES, CAMPAGNES_EN_REVUE, CATEGORIES, DETAILS, FAVORIS, MES_CAMPAGNES, ORG_DASHBOARD, POINTS_DE_CONTROLE } from './mockData';
 
 const favoris = new Set(FAVORIS);
 const mesCampagnes = [...MES_CAMPAGNES];
@@ -13,6 +13,7 @@ let enRevue = [...CAMPAGNES_EN_REVUE];
 
 export const categorieCode = (label) => CATEGORIES.find((c) => c.label === label)?.code || 'sol';
 export const getCategories = () => CATEGORIES;
+export const getPointsDeControle = () => POINTS_DE_CONTROLE;
 
 /** Liste publique. params : { search, categorie, ville, ordering } */
 export function listCampagnes() {

@@ -27,3 +27,5 @@ export { default as DateBadge } from './DateBadge';
 export { default as MapPreview } from './MapPreview';
 export { default as Icon } from './Icon';
 export { confetti, miniBurst } from './Confetti';
+export { default as BarChart } from './BarChart';
+export { default as TodoCards } from './TodoCards';

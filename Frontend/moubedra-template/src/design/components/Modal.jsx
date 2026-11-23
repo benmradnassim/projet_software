@@ -16,6 +16,8 @@ const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:n
 export default function Modal({ open, onClose, title, children, actions, width }) {
   const ref = useRef(null);
   const id = useId();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return undefined;
@@ -27,7 +29,7 @@ export default function Modal({ open, onClose, title, children, actions, width }
     const onKey = (e) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
       }
       if (e.key === 'Tab' && ref.current) {
         const els = [...ref.current.querySelectorAll(FOCUSABLE)];
@@ -49,7 +51,7 @@ export default function Modal({ open, onClose, title, children, actions, width }
       document.body.style.overflow = overflow;
       previous?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   return createPortal(

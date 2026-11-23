@@ -67,6 +67,7 @@ button.kob:hover { transform: scale(1.12); }
 .lnk { color: var(--orange); font-weight: 700; cursor: pointer; }
 .lnk2 { font: 700 14px var(--body); color: var(--orange); cursor: pointer; }
 .muted { color: var(--muted); }
+.meta2 { display: flex; gap: 6px; align-items: center; font-size: 13.5px; color: var(--muted); }
 .cap4 { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
 
 /* ---------- surfaces ---------- */

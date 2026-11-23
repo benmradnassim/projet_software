@@ -105,6 +105,7 @@ export default function NewCampaignPage() {
   return (
     <div className="pg">
       <Breadcrumb items={[{ label: 'Mes campagnes', to: '/organisateur/campagnes' }, 'Nouvelle campagne']} />
+      <h1 className="sr-only">Nouvelle campagne</h1>
       <StepsBar steps={STEPS} current={st} />
       <div className="wiz">
         <div className="panel">

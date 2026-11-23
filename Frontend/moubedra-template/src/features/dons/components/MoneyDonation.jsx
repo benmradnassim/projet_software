@@ -58,6 +58,7 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
   return (
     <div className="pg">
       <Breadcrumb items={[{ label: c.titre, to: `/campagnes/${c.id}` }, 'Faire un don']} />
+      <h1 className="sr-only">Faire un don à « {c.titre} »</h1>
       <StepsBar steps={['Montant', 'Paiement', 'Confirmation']} current={st} />
       <div className="dg">
         <div className="panel">

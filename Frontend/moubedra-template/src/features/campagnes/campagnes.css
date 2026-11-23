@@ -19,7 +19,6 @@
 .cc h3 a::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: 20px; }
 .cc h3 a:focus-visible { box-shadow: none; }
 .cc h3 a:focus-visible::after { box-shadow: var(--focus); }
-.meta2 { display: flex; gap: 6px; align-items: center; font-size: 13.5px; color: var(--muted); }
 .amt2 { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 0 8px; }
 .amt2 b { font: 800 18px var(--display); color: var(--navy); }
 .amt2 span { font-size: 13px; color: var(--muted); }

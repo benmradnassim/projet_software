@@ -117,6 +117,10 @@ svg {
 ul {
   list-style: none;
 }
+/* <small> vaut « smaller » par défaut : on garantit le minimum de 13 px */
+small {
+  font-size: max(13px, 0.85em);
+}
 [hidden] {
   display: none !important;
 }

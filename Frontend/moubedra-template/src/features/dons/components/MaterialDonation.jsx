@@ -53,6 +53,7 @@ export default function MaterialDonation({ campagne: c, besoins, initial = [] })
   return (
     <div className="pg">
       <Breadcrumb items={[{ label: c.titre, to: `/campagnes/${c.id}` }, 'Don de matériel']} />
+      <h1 className="sr-only">Don de matériel pour « {c.titre} »</h1>
       <StepsBar steps={['Articles', 'Remise', 'Confirmation']} current={st} />
       <div className="dg">
         <div className="panel">

@@ -45,7 +45,9 @@ export default function NewCampaignPage() {
     titre: d.titre || 'Titre de votre campagne',
     ville: d.ville,
     categorie: d.categorie,
-    image: `/media/covers/${d.cover}.webp`,
+    image: d.cover
+  ? new URL(`/media/covers/${d.cover}.webp`, window.location.origin).href
+  : '',
     montant_collecte: 0,
     objectif_montant: Number(d.objectif) || 0,
     nb_donateurs: 0,
@@ -54,32 +56,97 @@ export default function NewCampaignPage() {
     statut: 'brouillon',
   };
 
+
   const next = async () => {
-    if (st === 1 && !d.titre.trim()) {
-      setTitleErr('Donnez un titre à votre campagne');
-      toast('Donnez un titre à votre campagne');
-      document.getElementById('w-titre')?.focus();
-      return;
+    if (sending) return;
+
+    // Étape 1 : vérifier les informations essentielles
+    if (st === 1) {
+      if (!d.titre.trim()) {
+        setTitleErr('Donnez un titre à votre campagne');
+        toast('Donnez un titre à votre campagne');
+        document.getElementById('w-titre')?.focus();
+        return;
+      }
+
+      if (!d.description.trim()) {
+        toast('Veuillez saisir une description.');
+        return;
+      }
     }
+
+    // Étape 2 : vérifier l'objectif et les dates
+    if (st === 2) {
+      if (Number(d.objectif) <= 0 || !d.objectif) {
+        toast("L'objectif financier doit être supérieur à zéro.");
+        return;
+      }
+
+      if (!d.debut || !d.fin || d.fin < d.debut) {
+        toast('La date de fin doit être égale ou postérieure à la date de début.');
+        return;
+      }
+    }
+
+    // Passer à l'étape suivante
     if (st < 4) {
       setSt(st + 1);
       return;
     }
+
+    // Construire une URL complète pour la couverture choisie
+    const imageUrl = d.cover
+      ? new URL(
+          `/media/covers/${d.cover}.webp`,
+          window.location.origin
+        ).href
+      : '';
+
+    // Préparer les champs attendus par Django
+
+const payload = {
+  titre: d.titre.trim(),
+  description: d.description.trim(),
+  categorie: d.categorie,
+  ville: d.ville,
+  besoins: d.besoins
+    .filter((b) => b[0].trim())
+    .map((b) => [b[0].trim(), b[1].trim()]),
+  point_collecte: d.point.trim(),
+  date_debut: d.debut,
+  date_fin: d.fin,
+  objectif_montant: d.objectif,
+  image: imageUrl,
+};
+
+
     setSending(true);
-    // TODO(API): POST /api/campagnes/ — voir features/campagnes/api.js (createCampagne)
-    await createCampagne({
-      titre: d.titre,
-      description: d.description,
-      categorie: d.categorie,
-      date_debut: d.debut,
-      date_fin: d.fin,
-      objectif_montant: d.objectif,
-      image: `/media/covers/${d.cover}.webp`,
-    });
-    confetti(sendRef.current);
-    toast('Campagne envoyée en revue');
-    setTimeout(() => navigate('/organisateur/campagnes'), 700);
+
+    try {
+     
+
+      await createCampagne(payload);
+
+      toast('Campagne créée en brouillon avec succès !');
+
+      confetti(sendRef.current);
+
+      setTimeout(() => {
+        navigate('/organisateur/campagnes');
+      }, 700);
+
+    } catch (err) {
+      console.error('Erreur de création :', err);
+
+      toast(
+        err.message || 'Impossible de créer la campagne.'
+      );
+
+    } finally {
+      setSending(false);
+    }
   };
+
 
   const nav = (
     <div className="row" style={{ marginTop: 22 }}>
@@ -97,7 +164,7 @@ export default function NewCampaignPage() {
         icon={st === 4 ? Send : undefined}
         iconRight={st < 4 ? ArrowRight : undefined}
       >
-        {st < 4 ? 'Continuer' : 'Envoyer en revue'}
+        {st < 4 ? 'Continuer' : 'Créer la campagne'}
       </Button>
     </div>
   );

@@ -59,7 +59,7 @@ function DonatePanel({ c, besoins, details, evenements, mode, setMode, ring, pan
                 <small>donateurs</small>
               </div>
               <div>
-                <b style={{ color: 'var(--orange)' }}>{done ? '—' : `${c.jours_restants} j`}</b>
+                <b style={{ color: 'var(--orange)' }}>{done ? '—' : `${c.jours_restants ?? calculerJoursRestants(c.date_fin) ?? '—'} j`}</b>
                 <small>restants</small>
               </div>
             </div>
@@ -132,6 +132,34 @@ function DonatePanel({ c, besoins, details, evenements, mode, setMode, ring, pan
     </aside>
   );
 }
+
+
+
+function calculerJoursRestants(dateFin) {
+  if (!dateFin) return null;
+
+  const fin = new Date(`${dateFin}T23:59:59`);
+
+  if (Number.isNaN(fin.getTime())) return null;
+
+  return Math.max(
+    0,
+    Math.ceil((fin.getTime() - Date.now()) / 86400000)
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default function CampaignDetailPage() {
   const { id } = useParams();

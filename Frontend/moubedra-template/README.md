@@ -25,7 +25,17 @@ Copy-Item .env.example .env        # macOS / Linux : cp .env.example .env
 | `VITE_DEMO` | `true` | `true` : données fictives, connexion démo par rôle et sélecteur de rôle dans la barre latérale. `false` : vraie connexion JWT sur le back |
 
 - Le fichier `.env` n'est pas versionné. Relancez `npm run dev` après l'avoir modifié.
-- Avec `VITE_DEMO=false`, le back doit autoriser l'origine du front (`FRONTEND_URL=http://localhost:5173` dans le `.env` du back).
+- Avec `VITE_DEMO=false`, le back doit autoriser l'origine du front (`FRONTEND_URL=http://localhost:5173` dans le `.env` du back). Ouvrez bien **http://localhost:5173** et non `127.0.0.1:5173` : c'est l'origine autorisée par CORS.
+
+## Modules branchés sur l'API
+
+| Module | Avec `VITE_DEMO=false` |
+|---|---|
+| Auth | connexion JWT, inscription, profil courant (`/utilisateurs/moi/`), refus des comptes suspendus ou désactivés |
+| Utilisateurs | « Mon compte » (profil + mot de passe), admin « Utilisateurs » (liste, suspension confirmée, réactivation, désactivation) |
+| Autres modules | données fictives (voir les `TODO(API)`) |
+
+Comptes de test créés par `python manage.py seed_demo` : `nour.saada@example.tn` / `MoubedraDemo2026!` (citoyenne), `admin@moubedra.tn` / `MoubedraAdmin2026!` (admin).
 
 ## Commandes
 

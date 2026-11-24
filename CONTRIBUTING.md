@@ -371,9 +371,8 @@ Le front affiche déjà des fonctionnalités que le back ne fournit pas encore. 
 
 | Sujet | État sur `main` | Ce que le front attend |
 |---|---|---|
-| Profil courant | pas d'endpoint « moi » : le front lit `user_id` dans le JWT | `GET/PATCH /api/utilisateurs/moi/` (annoncé dans `backend/README.md`) |
-| Modifier son profil | `UtilisateurViewSet` est en lecture seule | `PATCH` du profil |
-| Accepter / refuser (participations, demandes organisateur, signalements) et vérifier un don | `statut` en lecture seule dans les serializers | actions `…/traiter/` et `dons/<id>/verifier/` (annoncées dans `backend/README.md`) |
+| Profil, mot de passe, statut des comptes | ✅ branché (`/utilisateurs/moi/`, `moi/mot-de-passe/`, `{id}/statut/`) | — |
+| Accepter / refuser (participations, demandes organisateur, signalements) et vérifier un don | `statut` en lecture seule dans les serializers | actions `…/traiter/` et `dons/<id>/verifier/` (annoncées dans `backend/README.md`, pas encore codées) |
 | Champs d'affichage des campagnes | `ville`, `nb_donateurs`, `jours_restants`, organisation absents du serializer | voir `versUI` dans l'exemple ci-dessus, ou les ajouter au serializer |
 | Besoins et dons matériels | aucun modèle | nouveau modèle (module Campagnes / Dons) |
 | Types de publication, sondages | `Publication` n'a pas de `type` | champ `type` + détails par type |
@@ -381,6 +380,8 @@ Le front affiche déjà des fonctionnalités que le back ne fournit pas encore. 
 | Favoris, préférences du compte | aucun modèle | à définir |
 
 Dans `mockData.js`, les champs qui n'existent pas encore côté back sont marqués `// UI`.
+
+**Module de référence :** `features/utilisateurs/api.js` est déjà branché. Chaque fonction appelle le vrai back quand `VITE_DEMO=false` et garde les données fictives quand `VITE_DEMO=true`. Inspirez-vous-en pour votre module.
 
 ---
 

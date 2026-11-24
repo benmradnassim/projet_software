@@ -11,10 +11,10 @@ export default function OrgReportsPage() {
   return (
     <div className="pg">
       <PageHeader crumbs={['Communauté', 'Signalements']} title="Signalements sur mes contenus" subtitle="Répondez avant la décision de la modération." />
-      <Panel>
+<Panel>
         {loading ? (
           <SkeletonList />
-        ) : (
+        ) : data.length ? (
           <ul className="list">
             {data.map((s) => (
               <ReportItem
@@ -37,6 +37,8 @@ export default function OrgReportsPage() {
               </ReportItem>
             ))}
           </ul>
+        ) : (
+          <p className="muted">Aucun signalement enregistré sur vos contenus pour le moment.</p>
         )}
       </Panel>
     </div>

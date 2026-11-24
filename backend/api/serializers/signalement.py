@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 from api.models import Signalement
 
@@ -20,7 +21,12 @@ class SignalementSerializer(serializers.ModelSerializer):
     def get_declarant_nom(self, obj):
         if not obj.declarant:
             return "Utilisateur"
-        full_name = f"{getattr(obj.declarant, 'first_name', '')} {getattr(obj.declarant, 'last_name', '')}".strip()
+
+        full_name = (
+            f"{getattr(obj.declarant, 'first_name', '')} "
+            f"{getattr(obj.declarant, 'last_name', '')}"
+        ).strip()
+
         return (
             full_name
             or getattr(obj.declarant, "nom", None)

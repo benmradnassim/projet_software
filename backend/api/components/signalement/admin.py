@@ -1,3 +1,4 @@
+
 from django.contrib import admin
 from api.models import Signalement
 
@@ -22,5 +23,5 @@ class SignalementAdmin(admin.ModelAdmin):
     search_fields = (
         'description',
         'localisation',
-        'declarant__username',
+        'declarant__email',
     )

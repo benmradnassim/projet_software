@@ -15,12 +15,15 @@ export default function AdminReportsPage() {
   const { data, loading } = useApi(listSignalementsAdmin, [], []);
   const [done, setDone] = useState({});
 
-  const act = (s, decision) => {
-    // TODO(API): PATCH /api/signalements/<id>/ — voir features/signalements/api.js (traiterSignalement)
-    traiterSignalement(s.id, decision);
-    const label = decision === 'retirer' ? 'Retiré · auteur averti' : 'Classé sans suite';
-    setDone((d) => ({ ...d, [s.id]: label }));
-    toast(label);
+const act = async (s, decision) => {
+    try {
+      await traiterSignalement(s.id, decision);
+      const label = decision === 'retirer' ? 'Retiré · auteur averti' : 'Classé sans suite';
+      setDone((d) => ({ ...d, [s.id]: label }));
+      toast(label);
+    } catch (err) {
+      toast(err?.message || 'Erreur lors du traitement du signalement');
+    }
   };
 
   return (

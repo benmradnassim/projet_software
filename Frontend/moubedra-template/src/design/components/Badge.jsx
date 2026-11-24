@@ -22,8 +22,8 @@ export const STATUT_BADGES = {
   cloturee: ['grey', 'Terminée'],
   brouillon: ['wait', 'Brouillon'],
   actif: ['ok', 'Actif'],
-  bloque: ['no', 'Bloqué'],
-  inactif: ['wait', 'À vérifier'],
+  suspendu: ['no', 'Suspendu'],
+  desactive: ['grey', 'Désactivé'],
 };
 
 /** Pastille calculée depuis un statut du backend. */

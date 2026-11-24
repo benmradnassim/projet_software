@@ -4,7 +4,8 @@ import { useAuth } from '../../../app/AuthContext';
 import { Badge, Button, Input, Modal, PageHeader, Panel, Toggle, useToast } from '../../../design/components';
 import { formatDate, initials } from '../../../lib/format';
 import { useApi } from '../../../lib/useApi';
-import { getPreferences, modifierProfil } from '../api';
+import { profilVersUI } from '../../auth';
+import { changerMotDePasse, getPreferences, modifierProfil } from '../api';
 import '../utilisateurs.css';
 
 const FIELDS = [
@@ -34,8 +35,13 @@ export default function AccountPage() {
     [user],
   );
   const [form, setForm] = useState(initial);
+  const [errs, setErrs] = useState({});
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pwdOpen, setPwdOpen] = useState(false);
+  const [pwd, setPwd] = useState({ ancien_mot_de_passe: '', nouveau_mot_de_passe: '', confirmation: '' });
+  const [pwdErrs, setPwdErrs] = useState({});
+  const [pwdBusy, setPwdBusy] = useState(false);
   // TODO(API): préférences — pas encore de champs côté back (voir features/utilisateurs/api.js)
   const { data: prefs, setData: setPrefs } = useApi(getPreferences, []);
   const dirty = Object.keys(form).some((k) => form[k] !== initial[k]);
@@ -44,12 +50,37 @@ export default function AccountPage() {
 
   const save = async () => {
     setSaving(true);
-    // TODO(API): PATCH /api/utilisateurs/<id>/ — voir features/utilisateurs/api.js (modifierProfil)
-    const { email, ...patch } = form; // l'e-mail est en lecture seule côté back
-    await modifierProfil(user.id, patch);
-    updateUser({ ...patch, first_name: patch.prenom, last_name: patch.nom, nom_complet: `${patch.prenom} ${patch.nom}`.trim() });
-    setSaving(false);
-    toast('Modifications enregistrées');
+    setErrs({});
+    try {
+      // PATCH /api/utilisateurs/moi/ — voir features/utilisateurs/api.js (modifierProfil)
+      const { nom_organisation, ...patch } = form; // nom_organisation est en lecture seule côté back
+      const res = await modifierProfil(user.id, patch);
+      // sous_titre vidé : profilVersUI le recalcule (ex. « Citoyen·ne · Bizerte ») pour la barre latérale
+      updateUser(profilVersUI({ ...user, ...patch, ...res, first_name: patch.prenom, last_name: patch.nom, nom_complet: `${patch.prenom} ${patch.nom}`.trim(), nom_organisation, sous_titre: '' }));
+      toast('Modifications enregistrées');
+    } catch (err) {
+      setErrs(err.fields || {});
+      toast(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const changePwd = async (e) => {
+    e.preventDefault();
+    setPwdBusy(true);
+    setPwdErrs({});
+    try {
+      // POST /api/utilisateurs/moi/mot-de-passe/ — voir features/utilisateurs/api.js (changerMotDePasse)
+      await changerMotDePasse(pwd);
+      setPwdOpen(false);
+      setPwd({ ancien_mot_de_passe: '', nouveau_mot_de_passe: '', confirmation: '' });
+      toast('Mot de passe modifié avec succès');
+    } catch (err) {
+      setPwdErrs(err.fields && Object.keys(err.fields).length ? err.fields : { confirmation: err.message });
+    } finally {
+      setPwdBusy(false);
+    }
   };
 
   const togglePref = (group, cle) => setPrefs((p) => ({ ...p, [group]: p[group].map((x) => (x.cle === cle ? { ...x, actif: !x.actif } : x)) }));
@@ -87,7 +118,7 @@ export default function AccountPage() {
             <div className="fg2">
               {orga && (
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <Input label="Nom de l’association" value={form.nom_organisation} onChange={set('nom_organisation')} />
+                  <Input label="Nom de l’association" value={form.nom_organisation} readOnly hint="Modifiable par l’équipe moubedra après vérification." />
                 </div>
               )}
               {FIELDS.map(([k, l, type, ac]) => (
@@ -98,13 +129,12 @@ export default function AccountPage() {
                     autoComplete={ac}
                     value={form[k]}
                     onChange={set(k)}
-                    readOnly={k === 'email'}
-                    hint={k === 'email' ? 'Contactez l’équipe pour changer d’adresse.' : undefined}
+                    error={errs[k]}
                   />
                 </div>
               ))}
               <div style={{ gridColumn: '1 / -1' }}>
-                <Input label="Adresse" autoComplete="street-address" value={form.adresse} onChange={set('adresse')} />
+                <Input label="Adresse" autoComplete="street-address" value={form.adresse} onChange={set('adresse')} error={errs.adresse} />
               </div>
             </div>
           </Panel>
@@ -117,7 +147,7 @@ export default function AccountPage() {
                 <h4 style={{ font: '700 16px var(--display)', color: 'var(--navy)' }}>Mot de passe</h4>
                 <small className="muted">Modifié il y a 3 mois</small>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => toast('Un lien de changement vous a été envoyé par e-mail')}>
+              <Button variant="ghost" size="sm" onClick={() => setPwdOpen(true)}>
                 Modifier
               </Button>
             </div>
@@ -167,6 +197,34 @@ export default function AccountPage() {
           )}
         </aside>
       </div>
+      <Modal open={pwdOpen} onClose={() => setPwdOpen(false)} title="Changer le mot de passe">
+        <form onSubmit={changePwd} noValidate>
+          {[
+            ['ancien_mot_de_passe', 'Mot de passe actuel', 'current-password'],
+            ['nouveau_mot_de_passe', 'Nouveau mot de passe', 'new-password'],
+            ['confirmation', 'Confirmer le nouveau mot de passe', 'new-password'],
+          ].map(([k, l, ac]) => (
+            <Input
+              key={k}
+              type="password"
+              label={l}
+              autoComplete={ac}
+              value={pwd[k]}
+              onChange={(e) => setPwd((p) => ({ ...p, [k]: e.target.value }))}
+              error={Array.isArray(pwdErrs[k]) ? pwdErrs[k][0] : pwdErrs[k]}
+              autoFocus={k === 'ancien_mot_de_passe'}
+            />
+          ))}
+          <div className="actions">
+            <Button variant="ghost" onClick={() => setPwdOpen(false)}>
+              Annuler
+            </Button>
+            <Button type="submit" variant="navy" loading={pwdBusy} loadingText="Enregistrement…">
+              Enregistrer
+            </Button>
+          </div>
+        </form>
+      </Modal>
       <Modal
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}

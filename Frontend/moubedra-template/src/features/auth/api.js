@@ -1,4 +1,4 @@
-import { ApiError, IS_DEMO, api, decodeJwt, getTokens } from '../../lib/api';
+import { ApiError, IS_DEMO, api, getTokens } from '../../lib/api';
 import { mockResponse } from '../../lib/mock';
 import { EMAIL_EXISTANT, GOUVERNORATS, PRES_DE_CHEZ_VOUS } from './mockData';
 
@@ -11,21 +11,29 @@ export function connexion({ email, password }) {
   return api.post('/auth/connexion/', { email, password }, { auth: false });
 }
 
+const ROLE_SOUS_TITRE = { citoyen: 'Citoyen·ne', utilisateur: 'Citoyen·ne', organisateur: 'Organisateur', admin: 'Administrateur' };
+
+/** Complète le profil renvoyé par le back avec les champs d'affichage de l'interface. */
+export const profilVersUI = (u) => ({
+  ...u,
+  prenom: u.prenom || u.first_name,
+  nom_complet: u.nom_complet || [u.prenom || u.first_name, u.nom || u.last_name].filter(Boolean).join(' ') || u.email,
+  sous_titre: u.sous_titre || [u.nom_organisation || ROLE_SOUS_TITRE[u.role], u.ville].filter(Boolean).join(' · '),
+});
+
 /**
  * Profil de l'utilisateur connecté.
- * Il n'existe pas encore d'endpoint « moi » sur main : on lit `user_id` dans le JWT puis
- * GET /api/utilisateurs/<id>/ — voir backend/api/components/utilisateur
- * TODO(API): passer à GET /api/utilisateurs/moi/ dès qu'il existe (annoncé dans backend/README.md)
+ * GET /api/utilisateurs/moi/ — voir backend/api/components/utilisateur (ProfilSerializer)
  */
-export function getProfil() {
-  const payload = decodeJwt(getTokens()?.access || '');
-  if (!payload?.user_id) return Promise.reject(new ApiError('Session invalide.', 401));
-  return api.get(`/utilisateurs/${payload.user_id}/`);
+export async function getProfil() {
+  if (!getTokens()?.access) throw new ApiError('Session invalide.', 401);
+  return profilVersUI(await api.get('/utilisateurs/moi/'));
 }
 
 /**
  * Inscription.
  * POST /api/auth/inscription/ { email, password, nom, prenom, telephone, ville }
+ *   -> { message, utilisateur } ; e-mail déjà utilisé : erreur 400 sur le champ `email`.
  * Voir backend/api/views_common.py (register) et InscriptionSerializer.
  * Le compte « Association » crée en plus une demande organisateur (POST /api/demandes-organisateur/).
  */

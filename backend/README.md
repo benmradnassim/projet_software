@@ -25,7 +25,18 @@ API locale : `http://127.0.0.1:8000/api/`. Administration : `http://127.0.0.1:80
 - `POST /api/auth/connexion/` : connexion JWT avec `email` et `password`.
 - `POST /api/auth/renouveler/` : renouvellement du jeton avec `refresh`.
 - Envoyer le jeton d'accès dans `Authorization: Bearer <access>`.
-- `GET/PATCH /api/utilisateurs/moi/` : consulter ou modifier le profil courant.
+- `GET/PATCH /api/utilisateurs/moi/` : consulter ou modifier le profil courant (rôle, statut et date d'inscription non modifiables).
+- `POST /api/utilisateurs/moi/mot-de-passe/` : `ancien_mot_de_passe`, `nouveau_mot_de_passe`, `confirmation`.
+
+## Gestion des utilisateurs (administrateurs)
+
+- `GET /api/utilisateurs/?role=&statut=` : liste des comptes, filtrable par rôle et statut.
+- `GET /api/utilisateurs/{id}/` : fiche d'un compte (« Compte introuvable » si l'id n'existe pas).
+- `POST /api/utilisateurs/{id}/statut/` : `statut` (`actif`, `suspendu`, `desactive`) ; une suspension exige `"confirmation": true`. Un admin ne peut pas modifier son propre statut.
+
+Aucun compte n'est supprimé physiquement : la suppression est logique via le statut `desactive`. Un compte `suspendu` ou `desactive` ne peut plus se connecter et ses jetons existants sont refusés. Aucune réponse ne contient le mot de passe ni son hash.
+
+Tests : `python manage.py test api`.
 
 ## Ressources
 

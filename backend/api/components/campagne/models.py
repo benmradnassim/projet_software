@@ -17,6 +17,11 @@ class Campagne(models.Model):
     montant_collecte = models.DecimalField(max_digits=12, decimal_places=3, default=0)
     statut = models.CharField(max_length=12, choices=Statut.choices, default=Statut.BROUILLON)
     image = models.URLField(blank=True)
+
+    ville = models.CharField(max_length=120, blank=True, default="")
+    besoins = models.JSONField(default=list, blank=True)
+    point_collecte = models.CharField(max_length=255, blank=True, default="")
+
     cree_le = models.DateTimeField(auto_now_add=True)
     modifie_le = models.DateTimeField(auto_now=True)
 

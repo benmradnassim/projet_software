@@ -19,7 +19,6 @@ from api.views import (
     health,
     register,
 )
-
 router = DefaultRouter()
 router.register("utilisateurs", UtilisateurViewSet)
 router.register("campagnes", CampagneViewSet)

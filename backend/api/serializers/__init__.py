@@ -1,5 +1,11 @@
 from .utilisateur import UtilisateurSerializer
-from .utilisateur import InscriptionSerializer
+from .utilisateur import (
+    ChangementMotDePasseSerializer,
+    ChangementStatutSerializer,
+    ConnexionSerializer,
+    InscriptionSerializer,
+    ProfilSerializer,
+)
 from .campagne import CampagneSerializer
 from .evenement import EvenementSerializer
 from .publication import PublicationSerializer

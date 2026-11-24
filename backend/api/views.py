@@ -10,4 +10,4 @@ from .components.participation_campagne.views import DemandeParticipationCampagn
 from .components.participation_evenement.views import DemandeParticipationEvenementViewSet
 from .components.demande_organisateur.views import DemandeOrganisateurViewSet
 from .components.signalement.views import SignalementViewSet
-from .views_common import health, register
+from .views_common import ConnexionView, health, register

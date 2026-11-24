@@ -24,3 +24,12 @@ class IsOwnerOrReadOnly(BasePermission):
 class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS or bool(request.user and request.user.is_staff)
+
+
+class IsAdminRole(BasePermission):
+    """Réservé aux administrateurs (rôle Admin ou staff), vérifié côté serveur."""
+
+    message = "Accès réservé aux administrateurs."
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.est_admin)

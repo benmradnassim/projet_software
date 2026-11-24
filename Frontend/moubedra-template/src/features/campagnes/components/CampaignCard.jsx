@@ -8,7 +8,18 @@ import '../campagnes.css';
 /** Pourcentage financé (plafonné à l'affichage de la barre, pas du texte). */
 export const pctCampagne = (c) => percent(c.montant_collecte, c.objectif_montant);
 export const isTerminee = (c) => c.statut === 'cloturee';
+function calculerJoursRestants(dateFin) {
+  if (!dateFin) return null;
 
+  const fin = new Date(`${dateFin}T23:59:59`);
+
+  if (Number.isNaN(fin.getTime())) return null;
+
+  return Math.max(
+    0,
+    Math.ceil((fin.getTime() - Date.now()) / 86400000)
+  );
+}
 /**
  * Carte de campagne de la maquette (« cc »).
  *   <CampaignCard campagne={c} favori={fav.has(c.id)} onFavori={() => …} materiel />
@@ -19,6 +30,7 @@ export default function CampaignCard({ campagne: c, favori, onFavori, materiel, 
   const [pop, setPop] = useState(0);
   const p = pctCampagne(c);
   const done = isTerminee(c);
+  const joursRestants = c.jours_restants ?? calculerJoursRestants(c.date_fin);
   return (
     <article className={`cc${preview ? ' static' : ''}`} style={{ animationDelay: `${index * 0.05}s` }}>
       <div className="im">
@@ -54,9 +66,11 @@ export default function CampaignCard({ campagne: c, favori, onFavori, materiel, 
             <Package size={13} aria-hidden="true" /> Matériel accepté
           </span>
         )}
-        <div className="meta2">
-          <MapPin size={14} aria-hidden="true" /> {c.ville}
-        </div>
+       {c.ville && (
+  <div className="meta2">
+    <MapPin size={14} aria-hidden="true" /> {c.ville}
+  </div>
+)}
         <h3>{preview ? c.titre : <Link to={`/campagnes/${c.id}`}>{c.titre}</Link>}</h3>
         <div className="meta2">
           <BadgeCheck size={14} aria-hidden="true" /> {c.organisation || c.organisateur_nom}
@@ -70,7 +84,11 @@ export default function CampaignCard({ campagne: c, favori, onFavori, materiel, 
           <span>
             {p} % · {c.nb_donateurs ?? 0} donateurs
           </span>
-          {done ? <span>Clôturée</span> : <b>{c.jours_restants} jours</b>}
+         {done ? (
+  <span>Clôturée</span>
+) : joursRestants !== null ? (
+  <b>{joursRestants === 0 ? 'Date dépassée' : `${joursRestants} jours`}</b>
+) : null}
         </div>
         {!preview && !done && (
           <div className="qa">

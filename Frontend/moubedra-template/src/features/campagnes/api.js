@@ -4,7 +4,7 @@
  * Pour brancher : remplacez le corps par l'appel `api.*` indiqué dans le TODO, sans changer la signature.
  */
 import { api, unwrapList } from '../../lib/api'; // eslint-disable-line no-unused-vars
-import { mockResponse, nextId } from '../../lib/mock';
+import { mockResponse } from '../../lib/mock';
 import { BESOINS, CAMPAGNES, CAMPAGNES_EN_REVUE, CATEGORIES, DETAILS, FAVORIS, MES_CAMPAGNES, ORG_DASHBOARD, POINTS_DE_CONTROLE } from './mockData';
 
 const favoris = new Set(FAVORIS);
@@ -16,18 +16,18 @@ export const getCategories = () => CATEGORIES;
 export const getPointsDeControle = () => POINTS_DE_CONTROLE;
 
 /** Liste publique. params : { search, categorie, ville, ordering } */
-export function listCampagnes() {
-  // TODO(API): remplacer par GET /api/campagnes/ — voir backend/api/components/campagne
-  //   return unwrapList(await api.get('/campagnes/', { params }));
-  return mockResponse(CAMPAGNES);
-}
+/** Liste publique des campagnes publiées. */
+export async function listCampagnes() {
+  const data = await api.get('/campagnes/');
 
+  return unwrapList(data).filter(
+    (campagne) => campagne.statut === 'en_cours'
+  );
+}
 /** Détail d'une campagne. */
-export function getCampagne(id) {
-  // TODO(API): remplacer par GET /api/campagnes/<id>/ — voir backend/api/components/campagne
-  return mockResponse(CAMPAGNES.find((c) => c.id === Number(id)) || null);
+export async function getCampagne(id) {
+  return api.get(`/campagnes/${id}/`);
 }
-
 /** Onglets Histoire / Nouvelles / Utilisation des fonds du détail (UI). */
 export function getCampagneDetails(id) {
   // TODO(API): pas encore d'endpoint — les nouvelles viendront de GET /api/publications/?campagne=<id>
@@ -59,32 +59,15 @@ export function toggleFavori(id) {
 }
 
 /* ---------- espace organisateur ---------- */
-export function listMesCampagnes() {
-  // TODO(API): remplacer par GET /api/campagnes/?organisateur=<moi> — voir backend/api/components/campagne
-  return mockResponse(
-    mesCampagnes.map((o) => (o.etat === 'live' ? { ...CAMPAGNES.find((c) => c.id === o.id), etat: 'live' } : o)),
-  );
+export async function listMesCampagnes() {
+  const data = await api.get('/campagnes/mes-campagnes/');
+  return unwrapList(data);
 }
-
 /** Création d'une campagne (envoyée en revue). data : champs du formulaire de l'assistant. */
 export function createCampagne(data) {
   // TODO(API): remplacer par POST /api/campagnes/ — voir backend/api/components/campagne
   //   (statut 'brouillon' ; les besoins matériels et la revue nécessitent des champs côté back)
-  const created = {
-    id: nextId(),
-    titre: data.titre,
-    description: data.description,
-    categorie: data.categorie,
-    date_debut: data.date_debut,
-    date_fin: data.date_fin,
-    objectif_montant: String(data.objectif_montant),
-    montant_collecte: '0.000',
-    image: data.image,
-    statut: 'brouillon',
-    etat: 'review',
-  };
-  mesCampagnes.splice(1, 0, created);
-  return mockResponse(created, 900);
+return api.post('/campagnes/', data);
 }
 
 export function getOrgDashboard() {
@@ -103,4 +86,20 @@ export function deciderRevue(id, decision) {
   // TODO(API): remplacer par PATCH /api/campagnes/<id>/ { statut: 'en_cours' | 'annulee' } — voir backend/api/components/campagne
   enRevue = enRevue.filter((c) => c.id !== id);
   return mockResponse({ id, decision }, 400);
+}
+/*-----------------------------------------ajouter les focntion -------------------------*/
+export async function updateCampagne(id, data) {
+  return api.patch(`/campagnes/${id}/`, data);
+}
+
+export async function deleteCampagne(id) {
+  return api.delete(`/campagnes/${id}/`);
+}
+
+export async function publierCampagne(id) {
+  return api.post(`/campagnes/${id}/publier/`, {});
+}
+
+export async function cloturerCampagne(id) {
+  return api.post(`/campagnes/${id}/cloturer/`, {});
 }

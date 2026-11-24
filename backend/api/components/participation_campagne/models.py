@@ -1,6 +1,8 @@
 import uuid
 
 from django.db import models
+from django.db.models import Q
+from django.core.validators import RegexValidator
 
 class DemandeParticipationCampagne(models.Model):
     class Statut(models.TextChoices):
@@ -14,8 +16,29 @@ class DemandeParticipationCampagne(models.Model):
     date_demande = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=50, default="benevole")
     motif = models.TextField(blank=True)
+    nom = models.CharField(max_length=100, blank=True, default="")
+    prenom = models.CharField(max_length=100, blank=True, default="")
+    telephone = models.CharField(
+        max_length=30,
+        validators=[RegexValidator(r"^(?:\+216\s*)?(?:\d{2}\s?\d{3}\s?\d{3})$", "Numéro tunisien invalide.")],
+        blank=True,
+        default="",
+    )
+    cin = models.CharField(
+        max_length=8,
+        validators=[RegexValidator(r"^\d{8}$", "Le CIN doit contenir exactement 8 chiffres.")],
+        blank=True,
+        default="",
+    )
+    adresse = models.CharField(max_length=255, blank=True, default="")
     statut = models.CharField(max_length=12, choices=Statut.choices, default=Statut.EN_ATTENTE)
     code_qr = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=["utilisateur", "campagne"], name="unique_participation_campagne")]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["utilisateur", "campagne"],
+                condition=~Q(statut="annulee"),
+                name="unique_participation_campagne",
+            )
+        ]

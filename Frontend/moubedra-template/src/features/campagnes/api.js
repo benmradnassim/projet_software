@@ -1,9 +1,8 @@
 /**
  * API du module Campagnes.
- * Toutes les fonctions renvoient aujourd'hui des données fictives (même forme que CampagneSerializer).
- * Pour brancher : remplacez le corps par l'appel `api.*` indiqué dans le TODO, sans changer la signature.
+ * Les listes restent celles de la maquette; les participations sont enregistrées dans Django.
  */
-import { api, unwrapList } from '../../lib/api'; // eslint-disable-line no-unused-vars
+import { api, IS_DEMO, unwrapList } from '../../lib/api';
 import { mockResponse, nextId } from '../../lib/mock';
 import { BESOINS, CAMPAGNES, CAMPAGNES_EN_REVUE, CATEGORIES, DETAILS, FAVORIS, MES_CAMPAGNES, ORG_DASHBOARD, POINTS_DE_CONTROLE } from './mockData';
 
@@ -17,15 +16,22 @@ export const getPointsDeControle = () => POINTS_DE_CONTROLE;
 
 /** Liste publique. params : { search, categorie, ville, ordering } */
 export function listCampagnes() {
-  // TODO(API): remplacer par GET /api/campagnes/ — voir backend/api/components/campagne
-  //   return unwrapList(await api.get('/campagnes/', { params }));
   return mockResponse(CAMPAGNES);
 }
 
 /** Détail d'une campagne. */
 export function getCampagne(id) {
-  // TODO(API): remplacer par GET /api/campagnes/<id>/ — voir backend/api/components/campagne
   return mockResponse(CAMPAGNES.find((c) => c.id === Number(id)) || null);
+}
+
+async function resolveCampagneId(campagneId) {
+  const displayedCampaign = CAMPAGNES.find((campaign) => campaign.id === Number(campagneId));
+  if (!displayedCampaign) throw new Error('Campagne introuvable.');
+
+  const campaigns = unwrapList(await api.get('/campagnes/'));
+  const storedCampaign = campaigns.find((campaign) => campaign.titre === displayedCampaign.titre);
+  if (!storedCampaign) throw new Error(`Aucune campagne Django ne correspond à « ${displayedCampaign.titre} ».`);
+  return storedCampaign.id;
 }
 
 /** Onglets Histoire / Nouvelles / Utilisation des fonds du détail (UI). */
@@ -39,6 +45,81 @@ export function getCampagneDetails(id) {
 export function getBesoins(id) {
   // TODO(API): pas encore de modèle « besoin matériel » côté back (à créer dans backend/api/components/campagne)
   return mockResponse(BESOINS[Number(id)] || null, 120);
+}
+
+export function demanderParticipationCampagne(campagneId, formulaire) {
+  if (!IS_DEMO) {
+    return resolveCampagneId(campagneId).then((storedCampaignId) => api.post('/participations/campagnes/', {
+      campagne: storedCampaignId,
+      type: formulaire.type,
+      motif: formulaire.motif,
+      nom: formulaire.nom,
+      prenom: formulaire.prenom,
+      telephone: formulaire.telephone,
+      cin: formulaire.cin,
+      adresse: formulaire.adresse,
+    }));
+  }
+  return mockResponse({
+    id: nextId(),
+    utilisateur: 1,
+    campagne: Number(campagneId),
+    date_demande: new Date().toISOString(),
+    type: formulaire.type,
+    motif: formulaire.motif,
+    nom: formulaire.nom,
+    prenom: formulaire.prenom,
+    telephone: formulaire.telephone,
+    cin: formulaire.cin,
+    adresse: formulaire.adresse,
+    statut: 'en_attente',
+  }, 700);
+}
+
+export function getMaParticipationCampagne(campagneId) {
+  if (!IS_DEMO) {
+    return resolveCampagneId(campagneId).then((storedCampaignId) => api.get('/participations/campagnes/', {
+      params: { campagne: storedCampaignId },
+    }).then((data) => unwrapList(data).find((p) => p.statut !== 'annulee') || null));
+  }
+  return mockResponse(null, 80);
+}
+
+export function annulerParticipationCampagne(id) {
+  if (!IS_DEMO) {
+    return api.post(`/participations/campagnes/${id}/annuler/`);
+  }
+  return mockResponse({ id, statut: 'annulee' }, 300);
+}
+
+export function modifierParticipationCampagne(id, formulaire) {
+  if (!IS_DEMO) {
+    return api.patch(`/participations/campagnes/${id}/`, formulaire);
+  }
+  return mockResponse({ id, ...formulaire }, 300);
+}
+
+export function listMesParticipationsCampagnes() {
+  if (!IS_DEMO) {
+    return api.get('/participations/campagnes/').then(async (data) => {
+      const rows = unwrapList(data);
+      return Promise.all(rows.map(async (p) => {
+        try {
+          const campagne = await api.get(`/campagnes/${p.campagne}/`);
+          return { ...p, type_liste: 'campagne', evenement_detail: {
+            id: campagne.id,
+            titre: campagne.titre,
+            lieu: campagne.ville || 'Lieu à confirmer',
+            date_evenement: campagne.date_fin,
+            statut: campagne.statut,
+          } };
+        } catch {
+          return { ...p, type_liste: 'campagne' };
+        }
+      }));
+    });
+  }
+  return mockResponse([]);
 }
 
 /** Toutes les campagnes qui acceptent du matériel → { [id]: besoins } */

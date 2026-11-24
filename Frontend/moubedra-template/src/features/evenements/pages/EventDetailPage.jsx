@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { BadgeCheck, CalendarPlus, Check, ChevronRight, Clock3, MapPin, Navigation } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
-import { AvatarStack, Badge, Breadcrumb, Button, Chip, DateBadge, EmptyState, MapPreview, Panel, ProgressBar, Skeleton, Timeline, confetti, useToast } from '../../../design/components';
+import { AvatarStack, Badge, Breadcrumb, Button, Chip, DateBadge, EmptyState, Input, MapPreview, Modal, Panel, ProgressBar, Select, Skeleton, Timeline, confetti, useToast } from '../../../design/components';
 import { percent } from '../../../lib/format';
 import { useApi } from '../../../lib/useApi';
 import { getCampagne } from '../../campagnes';
@@ -24,6 +24,14 @@ export default function EventDetailPage() {
   // TODO(API): GET /api/campagnes/<id>/ — voir features/campagnes/api.js
   const { data: camp } = useApi(() => (e?.campagne ? getCampagne(e.campagne) : Promise.resolve(null)), [e?.campagne]);
   const [motif, setMotif] = useState('');
+  const [typeParticipation, setTypeParticipation] = useState('benevole');
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
+  const [telephone, setTelephone] = useState('');
+  const [cin, setCin] = useState('');
+  const [adresse, setAdresse] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+  const [formOpen, setFormOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [extra, setExtra] = useState(0);
 
@@ -44,14 +52,46 @@ export default function EventDetailPage() {
       navigate('/connexion', { state: { from: `/evenements/${id}`, message: 'Connectez-vous pour participer' } });
       return;
     }
+    setFormOpen(true);
+  };
+
+  const submitParticipation = async () => {
+    const errors = {};
+    if (nom.trim().length < 2) errors.nom = 'Saisissez votre nom.';
+    if (prenom.trim().length < 2) errors.prenom = 'Saisissez votre prénom.';
+    {
+      const phoneDigits = telephone.trim().replace(/\D/g, '');
+      if (!(phoneDigits.length === 8 || (phoneDigits.startsWith('216') && phoneDigits.length === 11))) {
+        errors.telephone = 'Saisissez 8 chiffres, avec +216 facultatif.';
+      }
+    }
+    if (!/^\d{8}$/.test(cin.trim())) errors.cin = 'Le CIN doit contenir exactement 8 chiffres.';
+    if (adresse.trim().length < 5) errors.adresse = 'Saisissez une adresse complète.';
+    if (motif.trim().length < 10) errors.motif = 'Le motif doit contenir au moins 10 caractères.';
+    setFormErrors(errors);
+    if (Object.keys(errors).length) return;
+
     setSending(true);
-    // TODO(API): POST /api/participations/evenements/ — voir features/evenements/api.js (demanderParticipation)
-    const p = await demanderParticipation(id, motif);
-    setSending(false);
-    setPart(p);
-    setExtra(1);
-    confetti(btnRef.current);
-    toast('Demande envoyée. Vous serez notifié·e de la réponse.');
+    try {
+      const p = await demanderParticipation(id, {
+        type: typeParticipation,
+        motif: motif.trim(),
+        nom: nom.trim(),
+        prenom: prenom.trim(),
+        telephone: telephone.trim(),
+        cin: cin.trim(),
+        adresse: adresse.trim(),
+      });
+      setPart(p);
+      setExtra(1);
+      setFormOpen(false);
+      confetti(btnRef.current);
+      toast('Demande envoyée. Vous serez notifié·e de la réponse.');
+    } catch (error) {
+      toast(error.message || 'Impossible d’envoyer la demande.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -147,10 +187,6 @@ export default function EventDetailPage() {
               </>
             ) : (
               <>
-                <label className="lbl" htmlFor="ev-motif">
-                  Un mot pour l’organisateur (facultatif)
-                </label>
-                <textarea id="ev-motif" className="inp3" style={{ height: 90 }} placeholder="Ex. : je peux venir avec 2 amis" value={motif} onChange={(x) => setMotif(x.target.value)} />
                 <Button ref={btnRef} block icon={CalendarPlus} style={{ marginTop: 12, height: 52 }} loading={sending} loadingText="Envoi…" onClick={join}>
                   Je participe
                 </Button>
@@ -170,6 +206,96 @@ export default function EventDetailPage() {
           </div>
         </aside>
       </div>
+      <Modal
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title="Participer à l’événement"
+        width={520}
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => setFormOpen(false)}>Annuler</Button>
+            <Button icon={CalendarPlus} loading={sending} loadingText="Envoi…" onClick={submitParticipation}>
+              Envoyer ma demande
+            </Button>
+          </>
+        }
+      >
+        <p style={{ color: 'var(--muted)', marginTop: 4 }}>{e.titre}</p>
+        <div style={{ marginTop: 16 }}>
+          <Select
+            label="Type de participation"
+            value={typeParticipation}
+            onChange={(event) => setTypeParticipation(event.target.value)}
+            options={[
+              { value: 'benevole', label: 'Bénévole' },
+              { value: 'accompagnement', label: 'Accompagnement' },
+              { value: 'autre', label: 'Autre' },
+            ]}
+          />
+        </div>
+        <div className="row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 16 }}>
+          <Input
+            label="Nom"
+            value={nom}
+            onChange={(event) => setNom(event.target.value)}
+            error={formErrors.nom}
+            maxLength={100}
+            autoFocus
+          />
+          <Input
+            label="Prénom"
+            value={prenom}
+            onChange={(event) => setPrenom(event.target.value)}
+            error={formErrors.prenom}
+            maxLength={100}
+          />
+        </div>
+        <div className="row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+          <Input
+            label="Téléphone"
+            type="tel"
+            inputMode="tel"
+            value={telephone}
+            onChange={(event) => setTelephone(event.target.value)}
+            error={formErrors.telephone}
+            placeholder="+216 22 333 444"
+            maxLength={30}
+          />
+          <Input
+            label="CIN"
+            inputMode="numeric"
+            value={cin}
+            onChange={(event) => setCin(event.target.value.replace(/\D/g, '').slice(0, 8))}
+            error={formErrors.cin}
+            placeholder="8 chiffres"
+            maxLength={8}
+          />
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <Input
+            label="Adresse"
+            value={adresse}
+            onChange={(event) => setAdresse(event.target.value)}
+            error={formErrors.adresse}
+            maxLength={255}
+          />
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <label className="lbl" htmlFor="ev-motif">
+            Motif de participation
+          </label>
+          <textarea
+            id="ev-motif"
+            className={`inp3${formErrors.motif ? ' bad' : ''}`}
+            style={{ height: 90 }}
+            placeholder="Expliquez brièvement comment vous souhaitez participer"
+            value={motif}
+            onChange={(event) => setMotif(event.target.value)}
+            aria-invalid={!!formErrors.motif}
+          />
+          {formErrors.motif && <small className="field-err" role="alert">{formErrors.motif}</small>}
+        </div>
+      </Modal>
     </div>
   );
 }

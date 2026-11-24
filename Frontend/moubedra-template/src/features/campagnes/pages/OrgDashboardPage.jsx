@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BadgeCheck, Check, Plus, ScanLine, X } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
@@ -15,21 +15,32 @@ export default function OrgDashboardPage() {
   // TODO(API): agrégats organisateur — voir features/campagnes/api.js (getOrgDashboard)
   const { data } = useApi(getOrgDashboard, []);
   // TODO(API): GET /api/participations/evenements/?statut=en_attente — voir features/evenements/api.js
-  const { data: demandes, setData: setDemandes, loading } = useApi(listDemandesRecues, [], []);
+  const { data: demandes, setData: setDemandes, loading, error: demandesError, reload: reloadDemandes } = useApi(listDemandesRecues, [], []);
   const { data: ev } = useApi(() => getEvenement(3), []);
   const [leaving, setLeaving] = useState(null);
 
-  const decide = (d, ok, e) => {
-    if (ok) confetti(e.currentTarget);
-    setLeaving(d.id);
-    // TODO(API): PATCH du statut de la participation — voir features/evenements/api.js (deciderDemande)
-    deciderDemande(d.id, ok ? 'acceptee' : 'refusee');
-    // TODO(API): l'annulation d'un refus doit repasser la demande en « en_attente »
-    toast(ok ? 'Accepté·e : QR code envoyé' : 'Demande refusée', ok ? {} : { undo: () => setDemandes((l) => [d, ...l]) });
-    setTimeout(() => {
-      setDemandes((l) => l.filter((x) => x.id !== d.id));
+  useEffect(() => {
+    const refresh = () => {
+      if (!document.hidden) reloadDemandes();
+    };
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, [reloadDemandes]);
+
+  const decide = async (d, ok, element) => {
+    setLeaving(d.id_liste);
+    try {
+      await deciderDemande(d.id, ok ? 'acceptee' : 'refusee', d.type_liste);
+      if (ok) confetti(element);
+      toast(ok ? 'Participation acceptée.' : 'Participation refusée.');
+      setTimeout(() => {
+        setDemandes((items) => items.filter((item) => item.id_liste !== d.id_liste));
+        setLeaving(null);
+      }, 450);
+    } catch (error) {
       setLeaving(null);
-    }, 450);
+      toast(error.message || "Impossible d'enregistrer la décision.");
+    }
   };
 
   return (
@@ -80,21 +91,23 @@ export default function OrgDashboardPage() {
         >
           {loading ? (
             <SkeletonList rows={3} />
+          ) : demandesError ? (
+            <p className="muted" role="alert">{demandesError.message || 'Impossible de charger les demandes.'}</p>
           ) : demandes.length ? (
             <ul className="list" aria-live="polite">
               {demandes.slice(0, 3).map((d) => (
-                <li key={d.id} className={`it${leaving === d.id ? ' leaving' : ''}`}>
-                  <Avatar name={d.utilisateur_nom} color={d.couleur} />
+                <li key={d.id_liste} className={`it${leaving === d.id_liste ? ' leaving' : ''}`}>
+                  <Avatar name={`${d.prenom || ''} ${d.nom || ''}`.trim()} color={d.couleur} />
                   <div className="gw">
-                    <h4>{d.utilisateur_nom}</h4>
+                    <h4>{`${d.prenom || ''} ${d.nom || ''}`.trim() || `Participant #${d.utilisateur}`}</h4>
                     <small>
-                      {ev?.titre} · {d.experience}
+                      {d.campagne_detail?.titre || d.evenement_detail?.titre || 'Participation'} · {d.type}
                     </small>
                   </div>
-                  <button type="button" className="kob" aria-label={`Refuser ${d.utilisateur_nom}`} onClick={(e) => decide(d, false, e)}>
+                  <button type="button" className="kob" aria-label={`Refuser ${d.nom || 'la participation'}`} disabled={leaving === d.id_liste} onClick={(e) => decide(d, false, e.currentTarget)}>
                     <X size={18} aria-hidden="true" />
                   </button>
-                  <button type="button" className="okb" aria-label={`Accepter ${d.utilisateur_nom}`} onClick={(e) => decide(d, true, e)}>
+                  <button type="button" className="okb" aria-label={`Accepter ${d.nom || 'la participation'}`} disabled={leaving === d.id_liste} onClick={(e) => decide(d, true, e.currentTarget)}>
                     <Check size={18} aria-hidden="true" />
                   </button>
                 </li>

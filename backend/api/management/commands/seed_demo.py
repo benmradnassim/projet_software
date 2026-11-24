@@ -41,6 +41,10 @@ class Command(BaseCommand):
             ("contact@bat.tn", "Banque Alimentaire", "Tunisienne", "organisateur", "Tunis"),
             ("hello@liregrandir.tn", "Lire", "et Grandir", "organisateur", "Kairouan"),
             ("jardins@example.tn", "Jardins", "de quartier", "organisateur", "La Marsa"),
+            ("hatem.jaziri@example.tn", "Hatem", "Jaziri", "organisateur", "Jendouba"),
+            ("rania.mabrouk@example.tn", "Rania", "Mabrouk", "organisateur", "Sousse"),
+            ("sami.chaabane@example.tn", "Sami", "Chaabane", "organisateur", "Siliana"),
+            ("ines.gharbi@example.tn", "Ines", "Gharbi", "organisateur", "Ariana"),
         ]
         people = {}
         created_users = 0
@@ -82,14 +86,16 @@ class Command(BaseCommand):
         counts["utilisateurs"] = created_users
 
         campaigns_data = [
-            ("Un cartable pour chaque rêve", "Éducation", "Sfax", "contact@maindanslamain.tn", 12000, 8450, 16, "Offrons aux enfants les fournitures et les cartables nécessaires pour commencer l'année avec confiance.", "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1000&q=85"),
+            ("Un cartable pour chaque rêve", "Éducation", "Sfax", "marwa.ltifi@example.tn", 12000, 8450, 16, "Offrons aux enfants les fournitures et les cartables nécessaires pour commencer l'année avec confiance.", "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1000&q=85"),
             ("Des repas chauds, des cœurs légers", "Solidarité alimentaire", "Tunis", "contact@bat.tn", 8000, 5200, 13, "Un repas partagé est parfois le premier pas vers un quotidien plus serein.", "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1000&q=85"),
             ("Nos plages, notre héritage", "Environnement", "Mahdia", "bonjour@vertmahdia.tn", 6000, 3680, 21, "Des bénévoles se réunissent pour nettoyer, sensibiliser et protéger le littoral.", "https://images.unsplash.com/photo-1484291470158-b8f8d608850d?auto=format&fit=crop&w=1000&q=85"),
-            ("Un jardin partagé pour tous", "Environnement", "La Marsa", "jardins@example.tn", 4000, 2150, 28, "Créons un lieu de rencontre où petits et grands cultivent ensemble.", "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=85"),
+            ("Un jardin partagé pour tous", "Environnement", "La Marsa", "ines.gharbi@example.tn", 4000, 2150, 28, "Créons un lieu de rencontre où petits et grands cultivent ensemble.", "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=85"),
             ("Une bibliothèque au cœur du village", "Éducation", "Kairouan", "hello@liregrandir.tn", 9500, 7100, 12, "Aménageons un espace de lecture ouvert aux enfants et aux familles.", "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1000&q=85"),
             ("Des visites qui réchauffent", "Solidarité", "Nabeul", "contact@maindanslamain.tn", 3200, 1100, 32, "Des visites régulières et des moments partagés pour rompre l'isolement.", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000&q=85"),
-            ("Un toit sûr après les pluies", "Urgence", "Jendouba", "contact@maindanslamain.tn", 18000, 13700, 14, "Les dons financent les réparations urgentes pour des familles.", "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=1000&q=85"),
+            ("Un toit sûr après les pluies", "Urgence", "Jendouba", "hatem.jaziri@example.tn", 18000, 13700, 14, "Les dons financent les réparations urgentes pour des familles.", "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=1000&q=85"),
             ("Un vélo pour aller à l’école", "Éducation", "Gafsa", "hello@liregrandir.tn", 7500, 2600, 24, "Facilitons les trajets scolaires des jeunes des zones éloignées.", "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1000&q=85"),
+            ("Thé et compagnie pour nos aînés", "Solidarité", "Sousse", "rania.mabrouk@example.tn", 4000, 2100, 20, "Des visites régulières, des jeux et des moments partagés pour rompre l’isolement des aînés.", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1000&q=85"),
+            ("Caravane de dépistage gratuit", "Santé", "Siliana", "sami.chaabane@example.tn", 7000, 1200, 25, "Une caravane médicale parcourt les villages pour dépister gratuitement le diabète et l’hypertension.", "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1000&q=85"),
         ]
         campaigns = []
         created_campaigns = 0
@@ -108,6 +114,12 @@ class Command(BaseCommand):
                     "image": image,
                 },
             )
+            fields_to_update = []
+            if campaign.organisateur_id != people[organizer_email].id:
+                campaign.organisateur = people[organizer_email]
+                fields_to_update.append("organisateur")
+            if fields_to_update:
+                campaign.save(update_fields=fields_to_update)
             campaigns.append(campaign)
             created_campaigns += int(created)
         counts["campagnes"] = created_campaigns
@@ -119,15 +131,22 @@ class Command(BaseCommand):
             ("Plantation au jardin de quartier", "La Marsa", "Jardin partagé, Bhar Lazreg", 3, 35, 14, 23),
             ("Heure du conte en famille", "Kairouan", "Maison des jeunes", 4, 40, 26, 29),
             ("Un après-midi de jeux et de partage", "Nabeul", "Centre de quartier", 5, 30, 12, 34),
+            ("Nettoyons la plage de la Corniche", "Mahdia", "Plage de la Corniche", 2, 40, 21, 17),
+            ("Distribution de couvertures", "Jendouba", "École Ibn Khaldoun", 6, 15, 9, 1),
+            ("Après-midi jeux avec les aînés", "Sousse", "Maison des aînés", 8, 12, 8, 19),
         ]
+        event_organizer_overrides = {
+            "Un cartable, mille sourires": "contact@maindanslamain.tn",
+        }
         events = []
         created_events = 0
         for title, city, venue, campaign_index, capacity, attendees, days in events_data:
             campaign = campaigns[campaign_index]
+            organizer = people.get(event_organizer_overrides.get(title), campaign.organisateur)
             event, created = Evenement.objects.get_or_create(
                 titre=title,
                 defaults={
-                    "organisateur": campaign.organisateur,
+                    "organisateur": organizer,
                     "campagne": campaign,
                     "description": f"Retrouvons-nous pour soutenir la campagne « {campaign.titre} ».",
                     "date_evenement": timezone.now() + timedelta(days=days),
@@ -137,6 +156,9 @@ class Command(BaseCommand):
                     "statut": Evenement.Statut.PLANIFIE,
                 },
             )
+            if event.organisateur_id != organizer.id:
+                event.organisateur = organizer
+                event.save(update_fields=["organisateur"])
             events.append(event)
             created_events += int(created)
         counts["evenements"] = created_events

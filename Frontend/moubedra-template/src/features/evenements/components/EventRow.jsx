@@ -5,7 +5,7 @@ import { formatTime, percent } from '../../../lib/format';
 import '../evenements.css';
 
 /** Heure de début – heure de fin. */
-export const horaire = (e) => `${formatTime(e.date_evenement)} – ${e.heure_fin}`;
+export const horaire = (e) => (e.heure_fin ? `${formatTime(e.date_evenement)} – ${e.heure_fin}` : formatTime(e.date_evenement));
 
 /** Ligne d'événement (« evc ») : image, date, titre, lieu, places. */
 export default function EventRow({ evenement: e, index = 0 }) {

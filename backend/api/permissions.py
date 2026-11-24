@@ -24,3 +24,30 @@ class IsOwnerOrReadOnly(BasePermission):
 class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS or bool(request.user and request.user.is_staff)
+
+
+class IsParticipationOwnerOrOrganizer(BasePermission):
+    """Authorize participation lifecycle actions according to the user's role."""
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        if request.user.is_staff or getattr(request.user, "role", None) == "admin":
+            return True
+
+        if request.method == "POST" and getattr(view, "action", None) == "traiter":
+            target = getattr(obj, "campagne", None) or getattr(obj, "evenement", None)
+            return bool(target and target.organisateur_id == request.user.id)
+
+        if request.method == "POST" and getattr(view, "action", None) == "annuler":
+            return obj.utilisateur_id == request.user.id
+
+        return obj.utilisateur_id == request.user.id
+
+class IsAdminRole(BasePermission):
+    """Réservé aux administrateurs (rôle Admin ou staff), vérifié côté serveur."""
+
+    message = "Accès réservé aux administrateurs."
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.est_admin)

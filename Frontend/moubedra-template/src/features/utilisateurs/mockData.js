@@ -4,16 +4,17 @@
  * Demande : DemandeOrganisateurSerializer
  *   id, utilisateur, motif, date_demande, statut ('en_attente'|'acceptee'|'refusee'), date_traitement, traite_par
  * Champs « UI » : couleur, activite, nom_structure, verifications…
+ * Statut d'un compte (migration 0002) : 'actif' | 'suspendu' | 'desactive'.
  */
 
-/** Liste admin. statut : 'actif' | 'bloque' | 'inactif' (affiché « À vérifier »). */
+/** Liste admin. statut : 'actif' | 'suspendu' | 'desactive'. */
 export const UTILISATEURS = [
   { id: 1, nom_complet: 'Nour Saada', email: 'nour.saada@example.tn', role: 'citoyen', ville: 'Tunis', date_inscription: '2026-09-12T10:00:00+01:00', statut: 'actif', couleur: '#d9472b', activite: '3 dons · 2 actions' },
   { id: 2, nom_complet: 'Marwa Ltifi', email: 'marwa@mainmain.tn', role: 'organisateur', ville: 'Sfax', date_inscription: '2026-05-03T10:00:00+01:00', statut: 'actif', couleur: '#4f7f42', activite: '4 campagnes' },
   { id: 4, nom_complet: 'Yasmine Ayari', email: 'yasmine.ayari@example.tn', role: 'citoyen', ville: 'Tunis', date_inscription: '2026-06-21T10:00:00+01:00', statut: 'actif', couleur: '#1f3a6b', activite: '1 don · 3 actions' },
-  { id: 5, nom_complet: 'Youssef B.', email: 'youssef.b@example.tn', role: 'citoyen', ville: 'Ariana', date_inscription: '2026-10-02T10:00:00+01:00', statut: 'bloque', couleur: '#c98a3a', activite: '3 signalements reçus' },
+  { id: 5, nom_complet: 'Youssef B.', email: 'youssef.b@example.tn', role: 'citoyen', ville: 'Ariana', date_inscription: '2026-10-02T10:00:00+01:00', statut: 'suspendu', couleur: '#c98a3a', activite: '3 signalements reçus' },
   { id: 6, nom_complet: 'Collectif Vert Mahdia', email: 'bonjour@vertmahdia.tn', role: 'organisateur', ville: 'Mahdia', date_inscription: '2026-04-14T10:00:00+01:00', statut: 'actif', couleur: '#2f6f86', activite: '2 campagnes' },
-  { id: 7, nom_complet: 'don_rapide_tn', email: 'contact@donrapide.biz', role: 'citoyen', ville: '—', date_inscription: '2026-11-20T10:00:00+01:00', statut: 'inactif', couleur: '#888888', activite: '1 signalement' },
+  { id: 7, nom_complet: 'don_rapide_tn', email: 'contact@donrapide.biz', role: 'citoyen', ville: '—', date_inscription: '2026-11-20T10:00:00+01:00', statut: 'desactive', couleur: '#888888', activite: '1 signalement' },
 ];
 
 export const RESUME_UTILISATEURS = { total: 1284, nouveaux_semaine: 12 };

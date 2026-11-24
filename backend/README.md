@@ -25,13 +25,24 @@ API locale : `http://127.0.0.1:8000/api/`. Administration : `http://127.0.0.1:80
 - `POST /api/auth/connexion/` : connexion JWT avec `email` et `password`.
 - `POST /api/auth/renouveler/` : renouvellement du jeton avec `refresh`.
 - Envoyer le jeton d'accès dans `Authorization: Bearer <access>`.
-- `GET/PATCH /api/utilisateurs/moi/` : consulter ou modifier le profil courant.
+- `GET/PATCH /api/utilisateurs/moi/` : consulter ou modifier le profil courant (rôle, statut et date d'inscription non modifiables).
+- `POST /api/utilisateurs/moi/mot-de-passe/` : `ancien_mot_de_passe`, `nouveau_mot_de_passe`, `confirmation`.
+
+## Gestion des utilisateurs (administrateurs)
+
+- `GET /api/utilisateurs/?role=&statut=` : liste des comptes, filtrable par rôle et statut.
+- `GET /api/utilisateurs/{id}/` : fiche d'un compte (« Compte introuvable » si l'id n'existe pas).
+- `POST /api/utilisateurs/{id}/statut/` : `statut` (`actif`, `suspendu`, `desactive`) ; une suspension exige `"confirmation": true`. Un admin ne peut pas modifier son propre statut.
+
+Aucun compte n'est supprimé physiquement : la suppression est logique via le statut `desactive`. Un compte `suspendu` ou `desactive` ne peut plus se connecter et ses jetons existants sont refusés. Aucune réponse ne contient le mot de passe ni son hash.
+
+Tests : `python manage.py test api`.
 
 ## Ressources
 
 Les routes CRUD sont disponibles sous `/api/` : `campagnes`, `evenements`, `publications`, `commentaires`, `likes`, `dons`, `participations/campagnes`, `participations/evenements`, `demandes-organisateur`, `signalements`, `utilisateurs`. Les listes utilisent une pagination de 20 éléments et prennent en charge la recherche, le filtrage et le tri selon la ressource.
 
-Les rôles et permissions sont vérifiés côté API : seuls les organisateurs gèrent leurs campagnes et événements, les citoyens ne voient que leurs dons et participations, et le traitement des signalements ou demandes d'organisateur est réservé aux administrateurs. Le navigateur ne doit jamais décider seul de ces permissions. Les actions dédiées sont `POST /api/participations/campagnes/{id}/traiter/`, `POST /api/participations/evenements/{id}/traiter/`, `POST /api/demandes-organisateur/{id}/traiter/`, `POST /api/signalements/{id}/traiter/` et `POST /api/dons/{id}/verifier/`. Le traitement de don met à jour le montant collecté de la campagne une seule fois par confirmation.
+Les rôles et permissions sont vérifiés côté API : seuls les organisateurs gèrent leurs campagnes et événements, les citoyens ne voient que leurs dons et participations, et le traitement des signalements ou demandes d'organisateur est réservé aux administrateurs. Le navigateur ne doit jamais décider seul de ces permissions. Les participations en attente sont modifiables; une participation annulée peut être soumise à nouveau. Les actions dédiées sont `POST /api/participations/campagnes/{id}/traiter/`, `POST /api/participations/evenements/{id}/traiter/`, `POST /api/participations/campagnes/{id}/annuler/`, `POST /api/participations/evenements/{id}/annuler/`, `POST /api/demandes-organisateur/{id}/traiter/`, `POST /api/signalements/{id}/traiter/` et `POST /api/dons/{id}/verifier/`. Le traitement de don met à jour le montant collecté de la campagne une seule fois par confirmation.
 
 ## Données de démonstration
 

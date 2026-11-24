@@ -73,8 +73,8 @@ class CampagneViewSet(viewsets.ModelViewSet):
         url_path="mes-campagnes"
     )
     def mes_campagnes(self, request):
-        # Réservé aux organisateurs
-        if request.user.role != "organisateur":
+        # Réservé aux organisateurs (un visiteur anonyme n'a pas d'attribut `role`)
+        if getattr(request.user, "role", None) != "organisateur":
             return Response(
                 {"detail": "Accès réservé aux organisateurs."},
                 status=status.HTTP_403_FORBIDDEN

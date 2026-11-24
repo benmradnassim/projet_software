@@ -6,7 +6,7 @@ from api.permissions import IsOwnerOrReadOnly
 
 
 class EvenementViewSet(viewsets.ModelViewSet):
-    queryset = Evenement.objects.all()
+    queryset = Evenement.objects.order_by("date_evenement")
     serializer_class = EvenementSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     def get_queryset(self):

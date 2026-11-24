@@ -10,7 +10,7 @@ import {
   useToast
 } from '../../../design/components';
 
-import { api, unwrapList } from '../../../lib/api';
+import { deleteCampagne, listToutesCampagnes, updateCampagne } from '../api';
 import { useApi } from '../../../lib/useApi';
 import { formatNumber } from '../../../lib/format';
 import '../campagnes.css';
@@ -23,11 +23,8 @@ const STATUTS = {
   annulee: ['grey', 'Annulée']
 };
 
-// Charger les campagnes réelles
-async function listToutesCampagnes() {
-  const response = await api.get('/campagnes/');
-  return unwrapList(response);
-}
+// Les campagnes sont chargées par listToutesCampagnes (features/campagnes/api.js) :
+// vrai back si VITE_DEMO=false, données de démo sinon.
 
 // Préparer les valeurs du formulaire de modification
 
@@ -568,7 +565,7 @@ if (
 
     try {
 
-await api.patch(`/campagnes/${editingId}/`, {
+await updateCampagne(editingId, {
   titre: form.titre.trim(),
   description: form.description.trim(),
   categorie: form.categorie.trim(),
@@ -609,7 +606,7 @@ await api.patch(`/campagnes/${editingId}/`, {
     setBusyId(campagne.id);
 
     try {
-      await api.delete(`/campagnes/${campagne.id}/`);
+      await deleteCampagne(campagne.id);
 
       if (editingId === campagne.id) {
         annulerModification();

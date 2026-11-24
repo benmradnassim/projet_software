@@ -1,87 +1,93 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, CheckCheck, X } from 'lucide-react';
-import { Avatar, Button, DataTable, DateBadge, EmptyState, PageHeader, Panel, ProgressBar, SkeletonList, confetti, useToast } from '../../../design/components';
-import { percent } from '../../../lib/format';
+import { Avatar, Button, DataTable, EmptyState, PageHeader, Panel, SkeletonList, confetti, useToast } from '../../../design/components';
 import { useApi } from '../../../lib/useApi';
-import { deciderDemande, getEvenement, listDemandesRecues } from '../api';
+import { deciderDemande, listDemandesRecues } from '../api';
 import '../evenements.css';
 
 /** Demandes de participation : accepter (QR code envoyé), refuser (annulable), tout accepter. */
 export default function ParticipationRequestsPage() {
   const toast = useToast();
-  // TODO(API): GET /api/participations/evenements/?statut=en_attente — voir features/evenements/api.js (listDemandesRecues)
-  const { data: rows, loading, setData } = useApi(listDemandesRecues, [], []);
-  const { data: ev } = useApi(() => getEvenement(3), []);
-  const [accepted, setAccepted] = useState(0);
+  const { data: rows, loading, error, reload, setData } = useApi(listDemandesRecues, [], []);
   const [flash, setFlash] = useState({});
+  const [processing, setProcessing] = useState({});
 
-  const decide = (d, ok, el) => {
-    if (ok && el) confetti(el);
-    setFlash((f) => ({ ...f, [d.id]: ok ? 'ok-flash' : 'no-flash' }));
-    // TODO(API): PATCH du statut — voir features/evenements/api.js (deciderDemande)
-    deciderDemande(d.id, ok ? 'acceptee' : 'refusee');
-    setTimeout(() => setFlash((f) => ({ ...f, [d.id]: `${f[d.id]} leaving` })), 250);
-    setTimeout(() => {
-      setData((l) => l.filter((x) => x.id !== d.id));
-      if (ok) setAccepted((a) => a + 1);
-    }, 700);
+  useEffect(() => {
+    const refresh = () => {
+      if (!document.hidden) reload();
+    };
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, [reload]);
+
+  const decide = async (d, ok, el) => {
+    setProcessing((state) => ({ ...state, [d.id_liste]: true }));
+    try {
+      await deciderDemande(d.id, ok ? 'acceptee' : 'refusee', d.type_liste);
+      if (ok && el) confetti(el);
+      setFlash((state) => ({ ...state, [d.id_liste]: ok ? 'ok-flash' : 'no-flash' }));
+      setTimeout(() => setFlash((state) => ({ ...state, [d.id_liste]: `${state[d.id_liste]} leaving` })), 250);
+      setTimeout(() => setData((items) => items.filter((item) => item.id_liste !== d.id_liste)), 700);
+      toast(ok ? 'Participation acceptée.' : 'Participation refusée.');
+      return true;
+    } catch (error) {
+      toast(error.message || "Impossible d'enregistrer la décision.");
+      return false;
+    } finally {
+      setProcessing((state) => ({ ...state, [d.id_liste]: false }));
+    }
   };
 
-  const acceptAll = () => {
-    rows.forEach((d, i) => setTimeout(() => decide(d, true), i * 150));
-    setTimeout(() => toast('Toutes les demandes sont acceptées'), 700);
+  const acceptAll = async () => {
+    const results = await Promise.all(rows.map((d) => decide(d, true)));
+    if (results.every(Boolean)) toast('Toutes les demandes sont acceptées.');
   };
-
-  const cap = (ev?.nb_participants ?? 0) + accepted;
 
   return (
     <div className="pg">
       <PageHeader
         crumbs={['Mes actions', 'Demandes de participation']}
         title="Demandes de participation"
-        subtitle="Acceptez les bénévoles : ils reçoivent automatiquement leur QR code."
+        subtitle="Consultez et traitez les demandes de participation à vos campagnes et événements."
         actions={
           <Button variant="navy" size="sm" icon={CheckCheck} onClick={acceptAll} disabled={!rows.length}>
             Tout accepter
           </Button>
         }
       />
-      {ev && (
-        <Panel style={{ marginBottom: 16 }}>
-          <div className="row" style={{ gap: 16 }}>
-            <DateBadge date={ev.date_evenement} />
-            <div className="gw">
-              <h4 style={{ font: '700 17px var(--display)', color: 'var(--navy)' }}>{ev.titre}</h4>
-              <small className="muted" aria-live="polite">
-                <b style={{ color: 'var(--navy)' }}>{cap}</b> / {ev.capacite} inscrits · {rows.length} en attente
-              </small>
-              <ProgressBar value={percent(cap, ev.capacite)} label={`${cap} inscrits sur ${ev.capacite}`} />
-            </div>
-          </div>
-        </Panel>
-      )}
       <Panel>
         {loading ? (
           <SkeletonList />
+        ) : error ? (
+          <EmptyState image="campagnes" title="Demandes indisponibles" text={error.message || 'Impossible de charger les demandes.'} />
         ) : rows.length ? (
           <DataTable
             caption="Demandes en attente"
             rows={rows}
-            rowClassName={(d) => flash[d.id]}
+            rowKey="id_liste"
+            rowClassName={(d) => flash[d.id_liste]}
             columns={[
               {
                 key: 'nom',
-                header: 'Bénévole',
+                header: 'Participant·e',
                 render: (d) => (
                   <div className="row" style={{ gap: 10 }}>
-                    <Avatar name={d.utilisateur_nom} color={d.couleur} size={36} />
-                    <b style={{ color: 'var(--navy)' }}>{d.utilisateur_nom}</b>
+                    <Avatar name={`${d.prenom || ''} ${d.nom || ''}`.trim()} color={d.couleur} size={36} />
+                    <div>
+                      <b style={{ color: 'var(--navy)' }}>{`${d.prenom || ''} ${d.nom || ''}`.trim() || `Participant #${d.utilisateur}`}</b>
+                      <small style={{ display: 'block', color: 'var(--muted)' }}>{d.telephone}</small>
+                    </div>
                   </div>
                 ),
               },
-              { key: 'experience', header: 'Expérience' },
+              {
+                key: 'objet',
+                header: 'Demande pour',
+                render: (d) => <span>{d.campagne_detail?.titre || d.evenement_detail?.titre || 'Objet introuvable'}</span>,
+              },
+              { key: 'type', header: 'Type', render: (d) => <span>{d.type || '—'}</span> },
               { key: 'motif', header: 'Message', render: (d) => <span style={{ color: 'var(--muted)', fontSize: 14 }}>{d.motif || '—'}</span> },
-              { key: 'date', header: 'Demandé', render: (d) => <span className="muted">{d.date_demande}</span> },
+              { key: 'date', header: 'Demandé', render: (d) => <span className="muted">{new Date(d.date_demande).toLocaleDateString('fr-TN')}</span> },
               {
                 key: 'actions',
                 header: 'Décision',
@@ -91,27 +97,18 @@ export default function ParticipationRequestsPage() {
                     <button
                       type="button"
                       className="kob"
-                      aria-label={`Refuser ${d.utilisateur_nom}`}
-                      onClick={() => {
-                        decide(d, false);
-                        toast('Demande refusée', {
-                          undo: () => {
-                            setFlash((f) => ({ ...f, [d.id]: undefined }));
-                            setData((l) => [d, ...l]);
-                          },
-                        });
-                      }}
+                      aria-label={`Refuser ${d.prenom || ''} ${d.nom || ''}`}
+                      disabled={processing[d.id_liste]}
+                      onClick={() => decide(d, false)}
                     >
                       <X size={18} aria-hidden="true" />
                     </button>
                     <button
                       type="button"
                       className="okb"
-                      aria-label={`Accepter ${d.utilisateur_nom}`}
-                      onClick={(e) => {
-                        decide(d, true, e.currentTarget);
-                        toast('Accepté·e : QR code envoyé par e-mail');
-                      }}
+                      aria-label={`Accepter ${d.prenom || ''} ${d.nom || ''}`}
+                      disabled={processing[d.id_liste]}
+                      onClick={(e) => decide(d, true, e.currentTarget)}
                     >
                       <Check size={18} aria-hidden="true" />
                     </button>

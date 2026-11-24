@@ -30,7 +30,7 @@ router.register("dons", DonViewSet)
 router.register("participations/campagnes", DemandeParticipationCampagneViewSet)
 router.register("participations/evenements", DemandeParticipationEvenementViewSet)
 router.register("demandes-organisateur", DemandeOrganisateurViewSet)
-router.register("signalements", SignalementViewSet)
+router.register("signalements", SignalementViewSet, basename="signalement")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

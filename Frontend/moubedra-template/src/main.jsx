@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Activity, AlertCircle, ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, BadgeCheck, Bell, CalendarDays, Check, ChevronDown, CircleHelp, Clock3, CreditCard, Edit3, Filter, Flag, Heart, Home, KeyRound, Leaf, LogOut, MapPin, Menu, MessageCircle, MoreHorizontal, Plus, Search, Send, ShieldCheck, Sparkles, Sprout, Trash2, TrendingUp, User, UserCheck, UserPlus, Users, Wallet, X, HandHeart, Megaphone } from 'lucide-react';
 import { initialData, photo, roles } from './mockData';
+import { signalementApi } from './signalementApi';
 import './styles.css';
 
 const protectedPages = new Set(['dashboard','account','posts','reports','notifications','campaigns','campaign-detail','participations','donations','donate','events','event-detail','organizer-request','manage-campaigns','participation-requests','received-donations','manage-events','organizer-reports','admin-users','admin-requests','moderation']);
@@ -20,15 +21,30 @@ function PageHeading({eyebrow,title,description,action}) { return <div className
 function Panel({children,className=''}) { return <section className={`ui-panel ${className}`}>{children}</section>; }
 function EmptyState({title='Rien à afficher pour le moment',text='Les éléments apparaîtront ici dès qu’ils seront disponibles.',action}) { return <div className="empty-state"><span><Sprout size={23}/></span><b>{title}</b><p>{text}</p>{action}</div>; }
 function DemoStates() { return <div className="demo-states"><div><span className="loading-swatch"/><b>Chargement</b><small>Les données arrivent…</small></div><div><span className="empty-swatch"><Leaf size={16}/></span><b>État vide</b><small>Aucun élément à afficher.</small></div><div><span className="error-swatch"><AlertCircle size={16}/></span><b>État d’erreur</b><small>Une erreur est survenue.</small></div></div>; }
-function ConfirmModal({modal,onClose,onConfirm,campaignDraft,setCampaignDraft,saveCampaign,eventDraft,setEventDraft,saveEvent,campaigns}) {
-  if(!modal) return null;
+function ConfirmModal({
+  modal,
+  onClose,
+  onConfirm,
+  campaignDraft,
+  setCampaignDraft,
+  saveCampaign,
+  eventDraft,
+  setEventDraft,
+  saveEvent,
+  campaigns,
+  reportEditDraft,
+  setReportEditDraft,
+  saveReportEdit,
+}) {
+if(!modal) return null;
   const field=(setter,draft,key,value)=>setter({...draft,[key]:value});
-  return <div className="modal-backdrop" onMouseDown={(e)=>e.target===e.currentTarget&&onClose()}><div className={`modal-card ${['campaign','event'].includes(modal.type)?'wide':''}`} role="dialog" aria-modal="true"><button className="modal-close" onClick={onClose} aria-label="Fermer"><X size={18}/></button>
+  return <div className="modal-backdrop" onMouseDown={(e)=>e.target===e.currentTarget&&onClose()}><div className={`modal-card ${['campaign','event','report'].includes(modal.type)?'wide':''}`} role="dialog" aria-modal="true"><button className="modal-close" onClick={onClose} aria-label="Fermer"><X size={18}/></button>
     {modal.type==='confirm'?<><div className="modal-icon warning"><AlertCircle size={22}/></div><h2>{modal.title}</h2><p>{modal.text}</p><div className="modal-actions"><Button onClick={onClose}>Annuler</Button><Button variant="danger" onClick={onConfirm}>Confirmer</Button></div></>:null}
     {modal.type==='text'?<><div className="modal-icon"><Edit3 size={20}/></div><h2>{modal.title}</h2><textarea className="ui-textarea" value={modal.value} onChange={e=>modal.onChange(e.target.value)}/><div className="modal-actions"><Button onClick={onClose}>Annuler</Button><Button variant="primary" onClick={modal.onSave}>Enregistrer</Button></div></>:null}
     {modal.type==='campaign'&&campaignDraft?<><div className="modal-icon"><Megaphone size={20}/></div><h2>{campaignDraft.title?'Modifier la campagne':'Créer une campagne'}</h2><div className="form-grid"><Field label="Titre" value={campaignDraft.title} onChange={v=>field(setCampaignDraft,campaignDraft,'title',v)} placeholder="Nom de l’initiative"/><Field label="Catégorie" value={campaignDraft.category} onChange={v=>field(setCampaignDraft,campaignDraft,'category',v)} options={['Éducation','Solidarité','Solidarité alimentaire','Environnement','Urgence']}/><Field label="Région" value={campaignDraft.region} onChange={v=>field(setCampaignDraft,campaignDraft,'region',v)}/><Field label="Objectif (TND)" type="number" value={campaignDraft.goal} onChange={v=>field(setCampaignDraft,campaignDraft,'goal',v)}/><Field label="Date de fin" type="date" value={campaignDraft.end} onChange={v=>field(setCampaignDraft,campaignDraft,'end',v)}/><Field label="Image de couverture" value={campaignDraft.image} onChange={v=>field(setCampaignDraft,campaignDraft,'image',v)} options={Object.entries(photo).map(([name,url])=>({name,url}))}/><div className="span-two"><Field label="Description" value={campaignDraft.description} onChange={v=>field(setCampaignDraft,campaignDraft,'description',v)} type="textarea" placeholder="Racontez votre projet et son impact."/></div></div><div className="modal-actions"><Button onClick={onClose}>Annuler</Button><Button variant="primary" onClick={saveCampaign}>Enregistrer en brouillon</Button></div></>:null}
     {modal.type==='event'&&eventDraft?<><div className="modal-icon"><CalendarDays size={20}/></div><h2>{eventDraft.title?'Modifier l’événement':'Ajouter un événement'}</h2><div className="form-grid"><Field label="Titre" value={eventDraft.title} onChange={v=>field(setEventDraft,eventDraft,'title',v)} placeholder="Nom du rendez-vous"/><Field label="Campagne liée" value={eventDraft.campaignId} onChange={v=>field(setEventDraft,eventDraft,'campaignId',Number(v))} options={campaigns.map(c=>({name:c.title,value:c.id}))}/><Field label="Date" type="date" value={eventDraft.date} onChange={v=>field(setEventDraft,eventDraft,'date',v)}/><Field label="Heure" type="time" value={eventDraft.time} onChange={v=>field(setEventDraft,eventDraft,'time',v)}/><Field label="Région" value={eventDraft.region} onChange={v=>field(setEventDraft,eventDraft,'region',v)}/><Field label="Lieu" value={eventDraft.location} onChange={v=>field(setEventDraft,eventDraft,'location',v)} placeholder="Adresse"/><Field label="Capacité" type="number" value={eventDraft.capacity} onChange={v=>field(setEventDraft,eventDraft,'capacity',v)}/></div><div className="modal-actions"><Button onClick={onClose}>Annuler</Button><Button variant="primary" onClick={saveEvent}>Enregistrer</Button></div></>:null}
-    {!['confirm','text','campaign','event'].includes(modal.type)&&<><div className="modal-icon"><CircleHelp size={20}/></div><h2>{modal.title}</h2><p>{modal.text}</p><div className="modal-actions"><Button onClick={onClose}>Fermer</Button></div></>}
+    {modal.type==='report'&&reportEditDraft?<><div className="modal-icon"><Edit3 size={20}/></div><h2>Modifier le signalement</h2><div className="form-grid"><Field label="Lien ou contenu concerné" value={reportEditDraft.target} onChange={v=>field(setReportEditDraft,reportEditDraft,'target',v)} placeholder="Publication, commentaire, campagne…"/><Field label="Motif" value={reportEditDraft.reason} onChange={v=>field(setReportEditDraft,reportEditDraft,'reason',v)} options={['Contenu inapproprié','Harcèlement','Information trompeuse','Autre']}/><div className="span-two"><Field label="Détails" type="textarea" value={reportEditDraft.details} onChange={v=>field(setReportEditDraft,reportEditDraft,'details',v)} placeholder="Expliquez-nous la situation."/></div></div><div className="modal-actions"><Button onClick={onClose}>Annuler</Button><Button variant="primary" onClick={saveReportEdit}>Enregistrer</Button></div></>:null}
+    {!['confirm','text','campaign','event','report'].includes(modal.type)&&<><div className="modal-icon"><CircleHelp size={20}/></div><h2>{modal.title}</h2><p>{modal.text}</p><div className="modal-actions"><Button onClick={onClose}>Fermer</Button></div></>}
   </div></div>;
 }
 function CampaignCard({campaign,onOpen,index=0,manage=false,onEdit,onDelete,onPublish,onClose}) { const percent = campaign.goal?Math.round(campaign.raised/campaign.goal*100):0; return <article className={`cause-card cause-${index%3}`}><button className="cause-image" onClick={()=>onOpen?.(campaign)}><img src={campaign.image} alt=""/><span className="cause-label">{campaign.category}</span><span className="cause-arrow"><ArrowUpRight size={18}/></span></button><div className="cause-copy"><div className="cause-place"><MapPin size={13}/>{campaign.region}, Tunisie</div><button className="cause-title-button" onClick={()=>onOpen?.(campaign)}><h3>{campaign.title}</h3></button><div className="cause-amount"><b>{money(campaign.raised)}</b><span>sur {money(campaign.goal)}</span></div><div className="cause-progress"><span style={{width:`${percent}%`}}/></div><div className="cause-foot"><span>{percent}% financé</span><span><CalendarDays size={13}/>{dateFr(campaign.end)}</span></div>{manage&&<div className="card-actions"><StatusBadge status={campaign.status}/><span/><button onClick={()=>onEdit?.(campaign)} title="Modifier"><Edit3 size={15}/></button><button onClick={()=>onPublish?.(campaign)} title={campaign.status==='Brouillon'?'Publier':'Clôturer'}>{campaign.status==='Brouillon'?<Send size={15}/>:<Check size={15}/>}</button><button onClick={()=>onDelete?.(campaign)} title="Supprimer"><Trash2 size={15}/></button></div>}</div></article>; }
@@ -50,6 +66,7 @@ function App() {
   const [mobileOpen,setMobileOpen]=useState(false);
   const [postDraft,setPostDraft]=useState('');
   const [reportDraft,setReportDraft]=useState({target:'',reason:'Contenu inapproprié',details:''});
+  const [reportEditDraft, setReportEditDraft] = useState(null);
   const [amount,setAmount]=useState('50');
   const [profile,setProfile]=useState({name:'Nour Saada',email:'nour.saada@example.tn',region:'Tunis',bio:'Citoyenne engagée, j’aime aider près de chez moi.'});
   const [campaignDraft,setCampaignDraft]=useState(null);
@@ -68,6 +85,26 @@ function App() {
   const patchData=(key,updater)=>setData(current=>({...current,[key]:typeof updater==='function'?updater(current[key]):updater}));
   const updateRow=(key,id,patch)=>patchData(key,rows=>rows.map(row=>row.id===id?{...row,...patch}:row));
   const currentName=session?.name||profile.name;
+  useEffect(() => {
+  if (!session) return;
+  let active = true;
+
+// Dans useEffect de main.jsx :
+signalementApi
+  .list(currentName)
+  .then((rows) => {
+    console.log('Signalements reçus :', rows);
+    if (active) patchData('reports', rows);
+  })
+  .catch((err) => {
+    console.error('Erreur GET /signalements/ :', err);
+    notify(err.message || 'Erreur lors du chargement des signalements.', 'error');
+  });
+
+  return () => {
+    active = false;
+  };
+}, [session,currentName]);
   const protectedGo=(target)=>{if(protectedPages.has(target)&&!session){setPage('login');setAuthMode('login');notify('Connectez-vous pour accéder à cet espace.','info');return;}setPage(target);setMobileOpen(false);window.scrollTo({top:0,behavior:'smooth'});};
   const enterDemo=(chosenRole=role,chosenName=null)=>{const name=chosenName|| (chosenRole==='Admin'?'Admin moubedra':chosenRole==='Organisateur'?'Marwa Ltifi':profile.name);setRole(chosenRole);setSession({name,role:chosenRole,email:chosenRole==='Admin'?'admin@moubedra.tn':profile.email});setPage(chosenRole==='Utilisateur'?'account':'dashboard');notify(`Mode démo : ${chosenRole}`);};
   const changeRole=(next)=>{setRole(next);if(session){const name=next==='Admin'?'Admin moubedra':next==='Organisateur'?'Marwa Ltifi':profile.name;setSession({...session,role:next,name});setPage(next==='Utilisateur'?'account':'dashboard');notify(`Espace ${next} activé.`);}else enterDemo(next);};
@@ -83,7 +120,76 @@ function App() {
   const requestParticipation=(campaign)=>{if(data.participations.some(p=>p.campaignId===campaign.id&&p.citizen===currentName&&p.status!=='Annulée')){notify('Votre demande est déjà enregistrée.','info');return;}patchData('participations',rows=>[{id:Date.now(),citizen:currentName,campaignId:campaign.id,date:campaign.end,status:'En attente'},...rows]);notify('Votre demande de participation a été envoyée.');};
   const submitDonation=()=>{const value=Number(amount);if(!value||value<1){notify('Saisissez un montant valide.','error');return;}const item={id:Date.now(),donor:currentName,campaignId:selectedCampaign.id,amount:value,method:'Carte bancaire',status:'En attente',date:new Date().toISOString().slice(0,10)};patchData('donations',rows=>[item,...rows]);setData(current=>({...current,campaigns:current.campaigns.map(c=>c.id===selectedCampaign.id?{...c,raised:c.raised+value}:c)}));notify(`Don de ${money(value)} enregistré en mode démo.`);setPage('donations');};
   const submitPost=()=>{const clean=postDraft.trim();if(!clean)return;const inappropriate=/idiot|stupide|insulte|menace/i.test(clean);if(inappropriate){setModal({type:'notice',title:'Modération IA',text:'Ce contenu semble inapproprié. Modifiez votre message avant de le publier.'});notify('La modération IA demande une vérification.','error');return;}patchData('posts',rows=>[{id:Date.now(),author:currentName,role,avatar:currentName.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),time:'À l’instant',text:clean,likes:0,campaignId:null,comments:[]} ,...rows]);setPostDraft('');notify('Publication ajoutée au fil. Contenu analysé par l’IA.');};
-  const submitReport=()=>{if(!reportDraft.target.trim()||!reportDraft.details.trim()){notify('Complétez le contenu visé et les détails.','error');return;}patchData('reports',rows=>[{id:Date.now(),reporter:currentName,target:reportDraft.target,reason:reportDraft.reason,status:'En attente',date:new Date().toISOString().slice(0,10),details:reportDraft.details},...rows]);setReportDraft({target:'',reason:'Contenu inapproprié',details:''});notify('Votre signalement a été transmis.');};
+  const submitReport = async () => {
+    if (!reportDraft.target.trim() || !reportDraft.details.trim()) {
+      notify('Complétez le contenu visé et les détails.', 'error');
+      return;
+    }
+
+    try {
+      const created = await signalementApi.create(
+        {
+          ...reportDraft,
+          reporter: currentName,
+          localisation: reportDraft.target.trim(),
+        },
+        currentName
+      );
+      patchData('reports', (rows) => [created, ...rows]);
+      setReportDraft({ target: '', reason: 'Contenu inapproprié', details: '' });
+      notify('Votre signalement a été transmis.');
+    } catch (err) {
+      notify(err.message || 'Impossible d’envoyer le signalement.', 'error');
+    }
+  };
+  const openReportEditor = (report) => {
+  setReportEditDraft({
+    id: report.id,
+    target: report.target || '',
+    reason: report.reason || 'Contenu inapproprié',
+    details: report.details || '',
+  });
+  setModal({ type: 'report' });
+};
+
+const saveReportEdit = async () => {
+  if (!reportEditDraft.target.trim() || !reportEditDraft.details.trim()) {
+    notify('Complétez le contenu visé et les détails.', 'error');
+    return;
+  }
+  try {
+    const updated = await signalementApi.update(
+      reportEditDraft.id,
+      reportEditDraft,
+      currentName
+    );
+    updateRow('reports', reportEditDraft.id, updated);
+    setModal(null);
+    setReportEditDraft(null);
+    notify('Signalement modifié.');
+  } catch (err) {
+    notify(err.message || 'Impossible de modifier le signalement.', 'error');
+  }
+};
+  const handleReportStatutChange = async (reportId, nextStatusLabel) => {
+    try {
+      const updated = await signalementApi.updateStatut(reportId, nextStatusLabel);
+      updateRow('reports', reportId, updated);
+      patchData('notifications', (rows) => [
+        {
+          id: Date.now(),
+          title: 'Mise à jour de statut',
+          text: `Signalement · ${updated.status}`,
+          date: 'À l’instant',
+          read: false,
+        },
+        ...rows,
+      ]);
+      notify(`Statut mis à jour : ${updated.status}.`);
+    } catch (err) {
+      notify(err.message || 'Erreur lors de la mise à jour du statut.', 'error');
+    }
+  };
   const openCampaignEditor=(campaign=null)=>{setCampaignDraft(campaign?{...campaign}:{id:Date.now(),title:'',category:'Éducation',region:'Tunis',organizer:currentName,goal:5000,raised:0,status:'Brouillon',start:new Date().toISOString().slice(0,10),end:'2026-12-31',participants:0,image:photo.school,description:''});setModal({type:'campaign'});};
   const saveCampaign=()=>{if(!campaignDraft.title.trim()||!campaignDraft.description.trim()){notify('Ajoutez un titre et une description.','error');return;}const exists=data.campaigns.some(c=>c.id===campaignDraft.id);const normalized={...campaignDraft,goal:Number(campaignDraft.goal)||0,raised:Number(campaignDraft.raised)||0,participants:Number(campaignDraft.participants)||0};patchData('campaigns',rows=>exists?rows.map(c=>c.id===campaignDraft.id?normalized:c):[normalized,...rows]);setModal(null);notify(exists?'Campagne modifiée.':'Campagne créée en brouillon.');};
   const openEventEditor=(event=null)=>{setEventDraft(event?{...event}:{id:Date.now(),title:'',date:'2026-12-15',time:'10:00',region:'Tunis',location:'',campaignId:data.campaigns[0]?.id||1,capacity:30,attendees:0,organizer:currentName});setModal({type:'event'});};
@@ -131,9 +237,119 @@ function App() {
 
   const PostsPage=()=> <><PageHeading eyebrow="LA COMMUNAUTÉ MOUBEDRA" title="Publications" description="Les nouvelles, les idées et les petits gestes qui rapprochent."/><Panel className="post-composer"><Avatar name={currentName}/><textarea value={postDraft} onChange={e=>setPostDraft(e.target.value)} placeholder="Une belle nouvelle à partager ?"/><div className="composer-footer"><span><ShieldCheck size={14}/> Modération IA activée · Contenu analysé avant publication</span><Button variant="primary" icon={Send} onClick={submitPost}>Publier</Button></div></Panel><div className="feed-list">{data.posts.map(post=><Panel className="feed-post" key={post.id}><div className="feed-author"><Avatar name={post.author}/><span><b>{post.author} {post.role==='Organisateur'&&<BadgeCheck size={13}/>}</b><small>{post.role} · {post.time}</small></span><StatusBadge status="Modération IA · analysé"/><button className="icon-action" onClick={()=>openTextModal('Signaler une publication',post.author,(v)=>{patchData('reports',rows=>[{id:Date.now(),reporter:currentName,target:`Publication de ${post.author}`,reason:'Contenu inapproprié',details:v,status:'En attente',date:new Date().toISOString().slice(0,10)},...rows]);setModal(null);notify('Publication signalée.');})}><MoreHorizontal size={18}/></button></div><p className="feed-text">{post.text}</p>{post.campaignId&&<button className="post-campaign-link" onClick={()=>openCampaign(campaignById(post.campaignId))}><Megaphone size={14}/>{campaignById(post.campaignId)?.title}</button>}<div className="post-actions"><button onClick={()=>toggleLike(post)} className={post.liked?'liked':''}><Heart size={16} fill={post.liked?'currentColor':'none'}/>{post.likes} J’aime</button><button type="button" className="post-comments-toggle" aria-expanded={!!commentsOpen[post.id]} onClick={()=>setCommentsOpen(current=>({...current,[post.id]:!current[post.id]}))}><MessageCircle size={16}/>{post.comments.length} commentaires</button></div>{commentsOpen[post.id]&&<div className="comments-panel"><div className="comment-list">{post.comments.map(comment=><div className="comment-row" key={comment.id}><span><b>{comment.author}</b>{comment.text}</span>{comment.author===currentName&&<><button onClick={()=>editComment(post,comment)} aria-label="Modifier le commentaire"><Edit3 size={13}/></button><button onClick={()=>removeComment(post,comment)} aria-label="Supprimer le commentaire"><Trash2 size={13}/></button></>}{role==="Admin"&&comment.author!==currentName&&<button onClick={()=>removeComment(post,comment)} aria-label="Modérer le commentaire"><Trash2 size={13}/></button>}</div>)}</div><div className="comment-box"><input value={commentDraft[post.id]||''} onChange={e=>setCommentDraft({...commentDraft,[post.id]:e.target.value})} placeholder="Écrire un commentaire…"/><button onClick={()=>addComment(post)} aria-label="Envoyer"><Send size={16}/></button></div></div>}{post.author===currentName&&<div className="own-post-actions"><Button onClick={()=>openTextModal('Modifier la publication',post.text,(v)=>{patchData('posts',rows=>rows.map(p=>p.id===post.id?{...p,text:v}:p));setModal(null);notify('Publication modifiée.');})}>Modifier</Button><Button variant="danger" onClick={()=>removePost(post)}>Supprimer</Button></div>}</Panel>)}</div></>;
 
-  const ReportsPage=({organizer=false})=>{const rows=data.reports.filter(r=>organizer?role==='Admin'||data.campaigns.some(c=>c.organizer===currentName):r.reporter===currentName);return <><PageHeading eyebrow={organizer?'ESPACE ORGANISATEUR':'SÉCURITÉ DE LA COMMUNAUTÉ'} title={organizer?'Signalements à traiter':'Mes signalements'} description={organizer?'Suivez les signalements liés à vos campagnes.':'Signalez un problème et consultez son suivi.'}/>{!organizer&&<Panel className="report-form"><h3>Créer un signalement</h3><div className="form-grid"><Field label="Lien ou contenu concerné" value={reportDraft.target} onChange={v=>setReportDraft({...reportDraft,target:v})} placeholder="Publication, commentaire, campagne…"/><Field label="Motif" value={reportDraft.reason} onChange={v=>setReportDraft({...reportDraft,reason:v})} options={['Contenu inapproprié','Harcèlement','Information trompeuse','Autre']}/><div className="span-two"><Field label="Détails" type="textarea" value={reportDraft.details} onChange={v=>setReportDraft({...reportDraft,details:v})} placeholder="Expliquez-nous la situation."/></div></div><Button variant="primary" icon={Send} onClick={submitReport}>Envoyer le signalement</Button></Panel>}<Panel className="top-gap"><div className="panel-head"><div><b>{organizer?'Signalements reçus':'Mes signalements'}</b><small>{rows.length} éléments</small></div></div><Table headers={['Cible','Motif','Date','Statut',...(organizer?['Traitement']:['Action'])]}>{rows.map(r=><tr key={r.id}><td>{r.target}</td><td>{r.reason}</td><td>{dateFr(r.date)}</td><td><StatusBadge status={r.status}/></td><td>{organizer&&['En attente','Pris en charge'].includes(r.status)?<select value={r.status} onChange={e=>updateStatus('reports',r.id,e.target.value)}>{['Pris en charge','Résolu','Rejeté'].map(x=><option key={x}>{x}</option>)}</select>:!organizer&&r.status==='En attente'?<Button variant="danger" onClick={()=>askConfirm('Annuler ce signalement ?',r.target,()=>{patchData('reports',list=>list.filter(x=>x.id!==r.id));setModal(null);notify('Signalement annulé.');})}>Annuler</Button>:null}</td></tr>)}</Table>{!rows.length&&<EmptyState title="Aucun signalement"/>}</Panel></>};
+const ReportsPage = ({ organizer = false } = {}) => {
+  const campaignList = Array.isArray(data?.campaigns) ? data.campaigns : [];
+  const reportList = Array.isArray(data?.reports) ? data.reports : [];
 
-  const NotificationsPage=()=> <><PageHeading eyebrow="RESTEZ DANS LA BOUCLE" title="Notifications" description="Les nouvelles liées à vos actions sur moubedra." action={<Button onClick={()=>patchData('notifications',rows=>rows.map(n=>({...n,read:true})))}>Tout marquer comme lu</Button>}/><Panel>{data.notifications.map(n=><div className={`notification-row ${n.read?'':'unread'}`} key={n.id}><span className="notification-icon"><Bell size={17}/></span><span><b>{n.title}</b><small>{n.text} · {n.date}</small></span>{!n.read&&<i/>}</div>)}</Panel></>;
+  const rows = organizer
+    ? role === 'Admin'
+      ? reportList
+      : reportList.filter((r) => campaignList.some((c) => c.organizer === currentName))
+    : reportList;
+
+  return (
+    <>
+      <PageHeading
+        eyebrow={organizer ? 'ESPACE ORGANISATEUR' : 'SÉCURITÉ DE LA COMMUNAUTÉ'}
+        title={organizer ? 'Signalements à traiter' : 'Mes signalements'}
+        description={
+          organizer
+            ? 'Suivez les signalements liés à vos campagnes.'
+            : 'Signalez un problème et consultez son suivi.'
+        }
+      />
+
+      {!organizer && (
+        <Panel className="report-form">
+          <h3>Créer un signalement</h3>
+          <div className="form-grid">
+            <Field
+              label="Lien ou contenu concerné"
+              value={reportDraft.target}
+              onChange={(v) => setReportDraft({ ...reportDraft, target: v })}
+              placeholder="Publication, commentaire, campagne…"
+            />
+            <Field
+              label="Motif"
+              value={reportDraft.reason}
+              onChange={(v) => setReportDraft({ ...reportDraft, reason: v })}
+              options={['Contenu inapproprié', 'Harcèlement', 'Information trompeuse', 'Autre']}
+            />
+            <div className="span-two">
+              <Field
+                label="Détails"
+                type="textarea"
+                value={reportDraft.details}
+                onChange={(v) => setReportDraft({ ...reportDraft, details: v })}
+                placeholder="Expliquez-nous la situation."
+              />
+            </div>
+          </div>
+          <Button variant="primary" icon={Send} onClick={submitReport}>
+            Envoyer le signalement
+          </Button>
+        </Panel>
+      )}
+
+      <Panel className="top-gap">
+        <div className="panel-head">
+          <div>
+            <b>{organizer ? 'Signalements reçus' : 'Mes signalements'}</b>
+            <small>{rows.length} éléments</small>
+          </div>
+        </div>
+
+        <Table headers={['Cible', 'Motif', 'Date', 'Statut', ...(organizer ? ['Traitement'] : ['Action'])]}>
+          {rows.map((r) => (
+            <tr key={r.id}>
+              <td>{r.target}</td>
+              <td>{r.reason}</td>
+              <td>{dateFr(r.date)}</td>
+              <td><StatusBadge status={r.status} /></td>
+              <td>
+                {organizer && ['En attente', 'Pris en charge'].includes(r.status) ? (
+                  <select
+                    value={r.status}
+                    onChange={(e) => handleReportStatutChange(r.id, e.target.value)}
+                  >
+                    {['Pris en charge', 'Résolu', 'Rejeté'].map((x) => (
+                      <option key={x}>{x}</option>
+                    ))}
+                  </select>
+) : !organizer && r.status === 'En attente' ? (
+  <div className="inline-actions">
+    <Button onClick={() => openReportEditor(r)}>
+      Modifier
+    </Button>
+    <Button
+      variant="danger"
+      onClick={() =>
+        askConfirm('Annuler ce signalement ?', r.target, async () => {
+          try {
+            await signalementApi.remove(r.id);
+            patchData('reports', (list) => list.filter((x) => x.id !== r.id));
+            setModal(null);
+            notify('Signalement annulé.');
+          } catch (err) {
+            notify(err.message || 'Impossible d’annuler ce signalement.', 'error');
+          }
+        })
+      }
+    >
+      Annuler
+    </Button>
+  </div>
+) : null}
+              </td>
+            </tr>
+          ))}
+        </Table>
+
+        {!rows.length && <EmptyState title="Aucun signalement" />}
+      </Panel>
+    </>
+  );
+};  const NotificationsPage=()=> <><PageHeading eyebrow="RESTEZ DANS LA BOUCLE" title="Notifications" description="Les nouvelles liées à vos actions sur moubedra." action={<Button onClick={()=>patchData('notifications',rows=>rows.map(n=>({...n,read:true})))}>Tout marquer comme lu</Button>}/><Panel>{data.notifications.map(n=><div className={`notification-row ${n.read?'':'unread'}`} key={n.id}><span className="notification-icon"><Bell size={17}/></span><span><b>{n.title}</b><small>{n.text} · {n.date}</small></span>{!n.read&&<i/>}</div>)}</Panel></>;
 
   const ParticipationRequests=()=>{const rows=data.participations.filter(p=>data.campaigns.some(c=>c.id===p.campaignId&&c.organizer===currentName)&&p.status==='En attente');return <><PageHeading eyebrow="RENFORCEZ VOTRE ÉQUIPE" title="Demandes de participation" description="Acceptez ou refusez les demandes des citoyens."/><Panel><Table headers={['Citoyen','Campagne','Date demandée','Statut','Actions']}>{rows.map(p=><tr key={p.id}><td>{p.citizen}</td><td>{campaignById(p.campaignId)?.title}</td><td>{dateFr(p.date)}</td><td><StatusBadge status={p.status}/></td><td><div className="inline-actions"><Button variant="primary" onClick={()=>updateStatus('participations',p.id,'Acceptée')}>Accepter</Button><Button variant="danger" onClick={()=>updateStatus('participations',p.id,'Refusée')}>Refuser</Button></div></td></tr>)}</Table>{!rows.length&&<EmptyState title="Aucune demande en attente"/>}</Panel></>};
 
@@ -143,12 +359,44 @@ function App() {
 
   const AdminRequests=()=> <><PageHeading eyebrow="EXAMEN DES DEMANDES" title="Demandes organisateur" description="Validez les associations qui rejoignent la plateforme."/><Panel><Table headers={['Organisation','Contact','Motivation','Date','Statut','Décision']}>{data.organizerRequests.map(r=><tr key={r.id}><td><b>{r.name}</b></td><td>{r.contact}</td><td className="reason-cell">{r.reason}</td><td>{dateFr(r.date)}</td><td><StatusBadge status={r.status}/></td><td>{r.status==='En attente'&&<div className="inline-actions"><Button variant="primary" onClick={()=>{updateStatus('organizerRequests',r.id,'Acceptée');const user=data.users.find(u=>u.email===r.contact);if(user)updateRow('users',user.id,{role:'Organisateur'});}}>Accepter</Button><Button variant="danger" onClick={()=>updateStatus('organizerRequests',r.id,'Refusée')}>Refuser</Button></div>}</td></tr>)}</Table></Panel></>;
 
-  const Moderation=()=> <><PageHeading eyebrow="SÉCURITÉ DE LA COMMUNAUTÉ" title="Modération" description="Contenus signalés et publications récentes."/><div className="moderation-columns"><Panel><div className="panel-head"><div><b>Contenus signalés</b><small>Publications et commentaires à examiner.</small></div></div>{data.reports.filter(r=>['En attente','Pris en charge'].includes(r.status)).map(r=><div className="moderation-row" key={r.id}><Flag size={16}/><span><b>{r.target}</b><small>{r.reason} · signalé par {r.reporter}</small></span><select value={r.status} onChange={e=>updateStatus('reports',r.id,e.target.value)}>{['En attente','Pris en charge','Résolu','Rejeté'].map(x=><option key={x}>{x}</option>)}</select></div>)}</Panel><Panel><div className="panel-head"><div><b>Publications récentes</b><small>Retirez un contenu inapproprié.</small></div></div>{data.posts.slice(0,6).map(p=><div className="moderation-row" key={p.id}><MessageCircle size={16}/><span><b>{p.author}</b><small>{p.text.slice(0,88)}…</small></span><button className="icon-action danger-icon" onClick={()=>removePost(p)}><Trash2 size={15}/></button></div>)}</Panel></div></>;
+const Moderation=()=> <><PageHeading eyebrow="SÉCURITÉ DE LA COMMUNAUTÉ" title="Modération" description="Contenus signalés et publications récentes."/><div className="moderation-columns"><Panel><div className="panel-head"><div><b>Contenus signalés</b><small>Publications et commentaires à examiner.</small></div></div>{data.reports.filter(r=>['En attente','Pris en charge'].includes(r.status)).map(r=><div className="moderation-row" key={r.id}><Flag size={16}/><span><b>{r.target}</b><small>{r.reason} · signalé par {r.reporter}</small></span><select value={r.status} onChange={e=>handleReportStatutChange(r.id,e.target.value)}>{['En attente','Pris en charge','Résolu','Rejeté'].map(x=><option key={x}>{x}</option>)}</select></div>)}</Panel><Panel><div className="panel-head"><div><b>Publications récentes</b><small>Retirez un contenu inapproprié.</small></div></div>{data.posts.slice(0,6).map(p=><div className="moderation-row" key={p.id}><MessageCircle size={16}/><span><b>{p.author}</b><small>{p.text.slice(0,88)}…</small></span><button className="icon-action danger-icon" onClick={()=>removePost(p)}><Trash2 size={15}/></button></div>)}</Panel></div></>;
 
-  const renderContent=()=>{if(page==='home')return HomePage();if(page==='login'||page==='register'||page==='forgot')return <div className="auth-layout"><div className="auth-image"><img src={photo.people} alt="Communauté moubedra"/><div className="auth-image-caption"><span className="brand-mark"><Heart size={17} fill="currentColor"/></span><h3>Les petits gestes<br/>font les grands <em>demain.</em></h3><p>Rejoignez celles et ceux qui font la différence.</p></div></div><Panel className="auth-card"><Logo onClick={()=>protectedGo('home')}/><div className="auth-tabs"><button className={page==='login'?'active':''} onClick={()=>{setPage('login');setAuthMode('login')}}>Connexion</button><button className={page==='register'?'active':''} onClick={()=>{setPage('register');setAuthMode('register')}}>Créer un compte</button></div><h2>{page==='login'?'Ravie de vous revoir !':page==='register'?'Bienvenue chez moubedra':'Mot de passe oublié ?'}</h2><p>{page==='forgot'?'Entrez votre e-mail pour recevoir les instructions de réinitialisation.':'Connectez-vous pour continuer votre aventure solidaire.'}</p>{page==='register'&&<Field label="Nom complet" value={authName} onChange={setAuthName} placeholder="Votre nom"/>}<Field label="Adresse e-mail" value={authEmail} onChange={setAuthEmail} placeholder="vous@exemple.tn" type="email"/>{page!=='forgot'&&<Field label="Mot de passe" value={authPassword} onChange={setAuthPassword} placeholder="Au moins 8 caractères" type="password"/>}<div className="auth-links">{page==='login'&&<button onClick={()=>setPage('forgot')}>Mot de passe oublié ?</button>}{page==='forgot'&&<button onClick={()=>setPage('login')}>Retour à la connexion</button>}</div><Button variant="primary" onClick={()=>{if(page==='forgot'){notify('Si ce compte existe, un e-mail de réinitialisation sera envoyé (simulation).');setPage('login');}else enterDemo(role,page==='register'&&authName.trim()?authName.trim():null);}}>{page==='login'?'Se connecter':page==='register'?'Créer mon compte':'Envoyer les instructions'}</Button><div className="demo-login-note"><ShieldCheck size={14}/> Connexion de démonstration · aucun mot de passe n’est vérifié.</div></Panel></div>;
+const handleAuth = async () => {
+  try {
+    const res = await fetch('http://localhost:8000/api/token/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: authEmail, password: authPassword }),
+    });
+    if (!res.ok) throw new Error('E-mail ou mot de passe incorrect.');
+    const result = await res.json();
+    localStorage.setItem('access_token', result.access);
+    localStorage.setItem('refresh_token', result.refresh);
+    enterDemo(role, page==='register'&&authName.trim()?authName.trim():null);
+  } catch (err) {
+    notify(err.message || 'Connexion impossible.', 'error');
+  }
+};
+
+const renderContent=()=>{if(page==='home')return HomePage();if(page==='login'||page==='register'||page==='forgot')return <div className="auth-layout"><div className="auth-image"><img src={photo.people} alt="Communauté moubedra"/><div className="auth-image-caption"><span className="brand-mark"><Heart size={17} fill="currentColor"/></span><h3>Les petits gestes<br/>font les grands <em>demain.</em></h3><p>Rejoignez celles et ceux qui font la différence.</p></div></div><Panel className="auth-card"><Logo onClick={()=>protectedGo('home')}/><div className="auth-tabs"><button className={page==='login'?'active':''} onClick={()=>{setPage('login');setAuthMode('login')}}>Connexion</button><button className={page==='register'?'active':''} onClick={()=>{setPage('register');setAuthMode('register')}}>Créer un compte</button></div><h2>{page==='login'?'Ravie de vous revoir !':page==='register'?'Bienvenue chez moubedra':'Mot de passe oublié ?'}</h2><p>{page==='forgot'?'Entrez votre e-mail pour recevoir les instructions de réinitialisation.':'Connectez-vous pour continuer votre aventure solidaire.'}</p>{page==='register'&&<Field label="Nom complet" value={authName} onChange={setAuthName} placeholder="Votre nom"/>}<Field label="Adresse e-mail" value={authEmail} onChange={setAuthEmail} placeholder="vous@exemple.tn" type="email"/>{page!=='forgot'&&<Field label="Mot de passe" value={authPassword} onChange={setAuthPassword} placeholder="Au moins 8 caractères" type="password"/>}<div className="auth-links">{page==='login'&&<button onClick={()=>setPage('forgot')}>Mot de passe oublié ?</button>}{page==='forgot'&&<button onClick={()=>setPage('login')}>Retour à la connexion</button>}</div><Button variant="primary" onClick={()=>{if(page==='forgot'){notify('Si ce compte existe, un e-mail de réinitialisation sera envoyé (simulation).');setPage('login');}else if(page==='login'){handleAuth();}else{enterDemo(role,authName.trim()?authName.trim():null);}}}>{page==='login'?'Se connecter':page==='register'?'Créer mon compte':'Envoyer les instructions'}</Button><div className="demo-login-note"><ShieldCheck size={14}/> {page==='login'?'Connexion sécurisée via le serveur.':'Inscription de démonstration · aucun compte réel n’est créé.'}</div></Panel></div>;
     if(page==='dashboard')return HomeConnectedDashboard();if(page==='account')return ProfilePage();if(page==='posts')return PostsPage();if(page==='reports')return ReportsPage();if(page==='organizer-reports')return ReportsPage({organizer:true});if(page==='notifications')return NotificationsPage();if(page==='campaigns')return CampaignListPage();if(page==='campaign-detail')return CampaignDetailPage();if(page==='participations')return MyParticipations();if(page==='donations')return DonationsPage();if(page==='donate')return DonationForm();if(page==='events')return EventsPage();if(page==='event-detail')return EventDetail();if(page==='organizer-request')return OrganizerRequestPage();if(page==='manage-campaigns')return CampaignManagement();if(page==='participation-requests')return ParticipationRequests();if(page==='received-donations')return DonationsPage({received:true});if(page==='manage-events')return EventsPage({manage:true});if(page==='admin-users')return AdminUsers();if(page==='admin-requests')return AdminRequests();if(page==='moderation')return Moderation();return HomePage();};
-
-  return <div className="site app-site" id="top"><Header/>{session?<div className="connected-shell"><Sidebar/><main className="connected-content"><div className="content-wrap">{page!=='home'&&page!=='dashboard'&&pageTitles[page]&&<div className="breadcrumb"><button onClick={()=>protectedGo('home')}>Accueil</button><span>/</span><b>{pageTitles[page]}</b></div>}{renderContent()}</div><footer className="app-footer"><Logo onClick={()=>protectedGo('home')}/><span>Mode démo — données fictives, aucune action n’est transmise à un serveur.</span></footer></main></div>:<main className="public-main"><div className="public-content">{renderContent()}</div><footer className="site-footer"><div className="footer-bottom"><span>© 2026 moubedra</span><span>Fait avec soin en Tunisie <Heart size={13}/></span><div><button>Confidentialité</button><button>Accessibilité</button></div></div></footer></main>}<ConfirmModal modal={modal} onClose={()=>setModal(null)} onConfirm={()=>modal.onConfirm?.()} campaignDraft={campaignDraft} setCampaignDraft={setCampaignDraft} saveCampaign={saveCampaign} eventDraft={eventDraft} setEventDraft={setEventDraft} saveEvent={saveEvent} campaigns={data.campaigns}/>{toast&&<div className={`toast ${toast.type}`}><span>{toast.type==='error'?<AlertCircle size={17}/>:<Check size={17}/>}</span>{toast.message}<button onClick={()=>setToast(null)}><X size={15}/></button></div>}</div>;
+    
+  return <div className="site app-site" id="top"><Header/>{session?<div className="connected-shell"><Sidebar/><main className="connected-content"><div className="content-wrap">{page!=='home'&&page!=='dashboard'&&pageTitles[page]&&<div className="breadcrumb"><button onClick={()=>protectedGo('home')}>Accueil</button><span>/</span><b>{pageTitles[page]}</b></div>}{renderContent()}</div><footer className="app-footer"><Logo onClick={()=>protectedGo('home')}/><span>Mode démo — données fictives, aucune action n’est transmise à un serveur.</span></footer></main></div>:<main className="public-main"><div className="public-content">{renderContent()}</div><footer className="site-footer"><div className="footer-bottom"><span>© 2026 moubedra</span><span>Fait avec soin en Tunisie <Heart size={13}/></span><div><button>Confidentialité</button><button>Accessibilité</button></div></div></footer></main>}
+  <ConfirmModal
+  modal={modal}
+  onClose={() => setModal(null)}
+  onConfirm={() => modal.onConfirm?.()}
+  campaignDraft={campaignDraft}
+  setCampaignDraft={setCampaignDraft}
+  saveCampaign={saveCampaign}
+  eventDraft={eventDraft}
+  setEventDraft={setEventDraft}
+  saveEvent={saveEvent}
+  campaigns={data.campaigns}
+  reportEditDraft={reportEditDraft}
+  setReportEditDraft={setReportEditDraft}
+  saveReportEdit={saveReportEdit}
+/>{toast&&<div className={`toast ${toast.type}`}><span>{toast.type==='error'?<AlertCircle size={17}/>:<Check size={17}/>}</span>{toast.message}<button onClick={()=>setToast(null)}><X size={15}/></button></div>}</div>;
 }
 
 createRoot(document.getElementById('root')).render(<App/>);

@@ -1,19 +1,24 @@
-"""API endpoints for Signalement."""
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets, permissions
+
 from api.models import Signalement
 from api.serializers import SignalementSerializer
-from api.permissions import IsOwnerOrReadOnly
-
+from rest_framework.exceptions import PermissionDenied
 
 class SignalementViewSet(viewsets.ModelViewSet):
-    queryset = Signalement.objects.all()
+
     serializer_class = SignalementSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        if self.request.user.is_staff or self.request.user.role == "admin":
-            return self.queryset
-        return self.queryset.filter(declarant=self.request.user)
+        return Signalement.objects.filter(
+            declarant=self.request.user
+        )
+
     def perform_create(self, serializer):
         serializer.save(declarant=self.request.user)
 
+# À ajouter dans SignalementViewSet (views.py) :
+def perform_destroy(self, instance):
+    if instance.statut != Signalement.Statut.EN_ATTENTE:
+        raise PermissionDenied("Vous ne pouvez annuler qu'un signalement en attente.")
+    instance.delete()

@@ -30,7 +30,7 @@ router.register("dons", DonViewSet)
 router.register("participations/campagnes", DemandeParticipationCampagneViewSet)
 router.register("participations/evenements", DemandeParticipationEvenementViewSet)
 router.register("demandes-organisateur", DemandeOrganisateurViewSet)
-router.register("signalements", SignalementViewSet)
+router.register("signalements", SignalementViewSet, basename="signalement")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -39,4 +39,6 @@ urlpatterns = [
     path("api/auth/connexion/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/renouveler/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/", include(router.urls)),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

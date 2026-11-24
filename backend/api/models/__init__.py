@@ -8,4 +8,4 @@ from api.components.don.models import Don
 from api.components.participation_campagne.models import DemandeParticipationCampagne
 from api.components.participation_evenement.models import DemandeParticipationEvenement
 from api.components.demande_organisateur.models import DemandeOrganisateur
-from api.components.signalement.models import Signalement
+from .signalement import Signalement

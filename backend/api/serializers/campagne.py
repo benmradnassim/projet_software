@@ -21,6 +21,7 @@ class CampagneSerializer(serializers.ModelSerializer):
             "statut",
             "cree_le",
             "modifie_le",
+            "photo",
         ]
 
     # Validation du titre
@@ -88,3 +89,21 @@ class CampagneSerializer(serializers.ModelSerializer):
             })
 
         return attrs
+
+
+class CampagnePhotoSerializer(serializers.Serializer):
+    """Envoi de la photo d'une campagne (multipart/form-data, champ `photo`)."""
+
+    TAILLE_MAX = 5 * 1024 * 1024  # 5 Mo
+    FORMATS = {"JPEG", "PNG", "WEBP"}
+
+    photo = serializers.ImageField()
+
+    def validate_photo(self, value):
+        if value.size > self.TAILLE_MAX:
+            raise serializers.ValidationError("La photo ne doit pas dépasser 5 Mo.")
+        # `image` est l'objet Pillow ouvert pendant la validation de l'ImageField.
+        fmt = getattr(getattr(value, "image", None), "format", None)
+        if fmt not in self.FORMATS:
+            raise serializers.ValidationError("Formats acceptés : JPG, PNG ou WebP.")
+        return value

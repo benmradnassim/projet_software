@@ -10,6 +10,7 @@
  *   DELETE /api/campagnes/<id>/            suppression
  *   POST   /api/campagnes/<id>/publier/    brouillon -> en cours
  *   POST   /api/campagnes/<id>/cloturer/   en cours -> clôturée
+ *   POST   /api/campagnes/<id>/photo/      envoi de la photo (multipart, champ `photo`)
  * Avec VITE_DEMO=true, les mêmes fonctions travaillent sur une copie des données fictives (mockData.js).
  * Les participations aux campagnes sont branchées sur /api/participations/campagnes/.
  */
@@ -209,6 +210,26 @@ export async function createCampagne(data) {
 export async function updateCampagne(id, data) {
   if (IS_DEMO) return mockResponse(majDemo(id, data), 500);
   return api.patch(`/campagnes/${id}/`, data);
+}
+
+/** Formats et taille acceptés pour la photo d'une campagne (mêmes règles que le back). */
+export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const PHOTO_TAILLE_MAX = 5 * 1024 * 1024;
+
+/** Message d'erreur si le fichier ne convient pas, sinon ''. */
+export function verifierPhoto(file) {
+  if (!file) return 'Aucun fichier sélectionné.';
+  if (!PHOTO_TYPES.includes(file.type)) return 'Formats acceptés : JPG, PNG ou WebP.';
+  if (file.size > PHOTO_TAILLE_MAX) return 'La photo ne doit pas dépasser 5 Mo.';
+  return '';
+}
+
+/** Envoie (ou remplace) la photo d'une campagne. Renvoie la campagne mise à jour (`image` = URL de la photo). */
+export async function uploadPhotoCampagne(id, file) {
+  if (IS_DEMO) return mockResponse(majDemo(id, { image: URL.createObjectURL(file) }), 700);
+  const form = new FormData();
+  form.append('photo', file);
+  return api.post(`/campagnes/${id}/photo/`, form);
 }
 
 export async function deleteCampagne(id) {

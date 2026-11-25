@@ -26,6 +26,7 @@ class CampagnePermission(BasePermission):
                 "update",
                 "partial_update",
                 "destroy",
+                "photo",
             ]
 
         # L'organisateur peut gérer ses campagnes.
@@ -37,6 +38,7 @@ class CampagnePermission(BasePermission):
                 "destroy",
                 "publier",
                 "cloturer",
+                "photo",
             ]
 
         return False
@@ -53,6 +55,7 @@ class CampagnePermission(BasePermission):
                 "update",
                 "partial_update",
                 "destroy",
+                "photo",
             ]
 
         if user.role == "organisateur":

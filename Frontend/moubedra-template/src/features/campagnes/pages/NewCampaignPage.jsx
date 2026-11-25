@@ -1,11 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CircleCheck, Eye, Package, Plus, Send, ShieldCheck, Upload, X } from 'lucide-react';
+import { ArrowRight, CircleCheck, Eye, Package, Plus, Send, ShieldCheck, Trash2, Upload, X } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
 import { Breadcrumb, Button, Input, Panel, Select, StepsBar, Textarea, confetti, useToast } from '../../../design/components';
 import { formatNumber } from '../../../lib/format';
 import { getGouvernorats } from '../../auth';
-import { createCampagne, getCategories } from '../api';
+import { PHOTO_TYPES, createCampagne, getCategories, uploadPhotoCampagne, verifierPhoto } from '../api';
 import CampaignCard from '../components/CampaignCard';
 import '../campagnes.css';
 
@@ -36,6 +36,28 @@ export default function NewCampaignPage() {
     ownCover: false,
     point: 'Local Main dans la Main, 14 rue Habib Thameur, Sfax',
   });
+  // Photo choisie par l'organisateur : { file, url } (url = aperçu local), envoyée après la création.
+  const [photo, setPhoto] = useState(null);
+  const [survol, setSurvol] = useState(false);
+  const fileRef = useRef(null);
+
+  // Libère l'URL d'aperçu quand la photo change ou que la page se ferme.
+  useEffect(() => () => photo && URL.revokeObjectURL(photo.url), [photo]);
+
+  const choisirPhoto = (file) => {
+    const err = verifierPhoto(file);
+    if (err) {
+      toast(err);
+      return;
+    }
+    setPhoto({ file, url: URL.createObjectURL(file) });
+  };
+  const onDrop = (e) => {
+    e.preventDefault();
+    setSurvol(false);
+    choisirPhoto(e.dataTransfer.files?.[0]);
+  };
+
   const set = (k) => (e) => setD((x) => ({ ...x, [k]: e.target.value }));
   const jours = Math.max(1, Math.round((new Date(d.fin) - new Date(d.debut)) / 864e5));
   const besoins = d.besoins.filter((b) => b[0].trim());
@@ -45,9 +67,11 @@ export default function NewCampaignPage() {
     titre: d.titre || 'Titre de votre campagne',
     ville: d.ville,
     categorie: d.categorie,
-    image: d.cover
-  ? new URL(`/media/covers/${d.cover}.webp`, window.location.origin).href
-  : '',
+    image: photo
+      ? photo.url
+      : d.cover
+        ? new URL(`/media/covers/${d.cover}.webp`, window.location.origin).href
+        : '',
     montant_collecte: 0,
     objectif_montant: Number(d.objectif) || 0,
     nb_donateurs: 0,
@@ -125,9 +149,20 @@ const payload = {
     try {
      
 
-      await createCampagne(payload);
+      const creee = await createCampagne(payload);
 
-      toast('Campagne créée en brouillon avec succès !');
+      // La couverture reste l'image de secours si l'envoi de la photo échoue.
+      let photoOk = true;
+      if (photo) {
+        try {
+          await uploadPhotoCampagne(creee.id, photo.file);
+        } catch (err) {
+          photoOk = false;
+          toast(`Campagne créée, mais la photo n’a pas été envoyée : ${err.message}`);
+        }
+      }
+
+      if (photoOk) toast('Campagne créée en brouillon avec succès !');
 
       confetti(sendRef.current);
 
@@ -266,19 +301,70 @@ const payload = {
             {st === 3 && (
               <>
                 <h2 style={{ fontSize: 26 }}>Photos</h2>
-                <button type="button" className="drop" onClick={() => toast('Démo : utilisez une couverture moubedra')}>
-                  <Upload size={26} aria-hidden="true" />
-                  <br />
-                  <b style={{ color: 'var(--navy)' }}>Glissez vos photos ici</b>
-                  <br />
-                  JPG ou PNG · une vraie photo de votre action donne confiance
-                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept={PHOTO_TYPES.join(',')}
+                  hidden
+                  onChange={(e) => {
+                    choisirPhoto(e.target.files?.[0]);
+                    e.target.value = ''; // permet de rechoisir le même fichier
+                  }}
+                />
+                {photo ? (
+                  <div className="photo-choisie">
+                    <img src={photo.url} alt="Photo choisie pour la campagne" />
+                    <div className="gw">
+                      <b>{photo.file.name}</b>
+                      <small className="cap4">{photo.file.size < 1024 * 1024 ? `${Math.max(1, Math.round(photo.file.size / 1024))} Ko` : `${(photo.file.size / 1024 / 1024).toFixed(1).replace('.', ',')} Mo`} · envoyée à la création</small>
+                    </div>
+                    <Button variant="ghost" size="sm" icon={Upload} onClick={() => fileRef.current?.click()}>
+                      Changer
+                    </Button>
+                    <button type="button" className="kob" aria-label="Retirer la photo" onClick={() => setPhoto(null)}>
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className={`drop${survol ? ' on' : ''}`}
+                    onClick={() => fileRef.current?.click()}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setSurvol(true);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'copy';
+                    }}
+                    onDragLeave={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) setSurvol(false);
+                    }}
+                    onDrop={onDrop}
+                  >
+                    <Upload size={26} aria-hidden="true" />
+                    <br />
+                    <b style={{ color: 'var(--navy)' }}>{survol ? 'Déposez la photo' : 'Glissez votre photo ici ou cliquez pour choisir'}</b>
+                    <br />
+                    JPG, PNG ou WebP · 5 Mo max · une vraie photo de votre action donne confiance
+                  </button>
+                )}
                 <span className="lbl" id="cov-lbl" style={{ marginTop: 16 }}>
-                  Pas encore de photo ? Utilisez une couverture moubedra
+                  {photo ? 'Ou utilisez plutôt une couverture moubedra' : 'Pas encore de photo ? Utilisez une couverture moubedra'}
                 </span>
                 <div className="covpick" role="group" aria-labelledby="cov-lbl">
                   {COVERS.map((v) => (
-                    <button key={v} type="button" aria-pressed={v === d.cover} aria-label={`Couverture ${v}`} onClick={() => setD((x) => ({ ...x, cover: v, ownCover: true }))}>
+                    <button
+                      key={v}
+                      type="button"
+                      aria-pressed={!photo && v === d.cover}
+                      aria-label={`Couverture ${v}`}
+                      onClick={() => {
+                        setPhoto(null);
+                        setD((x) => ({ ...x, cover: v, ownCover: true }));
+                      }}
+                    >
                       <img src={`/media/covers/${v}.webp`} alt="" />
                     </button>
                   ))}
@@ -295,6 +381,7 @@ const payload = {
                     ['Objectif', `${formatNumber(Number(d.objectif) || 0)} TND`],
                     ['Période', `${d.debut} → ${d.fin}`],
                     ['Besoins matériels', besoins.map((b) => `${b[1]} ${b[0]}`).join(', ') || 'aucun'],
+                    ['Photo', photo ? photo.file.name : `Couverture moubedra (${d.cover})`],
                   ].map(([k, v]) => (
                     <div className="it" key={k}>
                       <div className="gw">

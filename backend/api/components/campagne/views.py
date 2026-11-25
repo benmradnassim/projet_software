@@ -6,10 +6,11 @@ from django.db.models.deletion import ProtectedError
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from api.models import Campagne
-from api.serializers.campagne import CampagneSerializer
+from api.serializers.campagne import CampagnePhotoSerializer, CampagneSerializer
 from api.components.campagne.permissions import CampagnePermission
 
 
@@ -134,3 +135,29 @@ class CampagneViewSet(viewsets.ModelViewSet):
             "message": "Campagne clôturée avec succès.",
             "campagne": self.get_serializer(campagne).data
         })
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="photo",
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def photo(self, request, pk=None):
+        """Envoie (ou remplace) la photo de la campagne : multipart, champ `photo`."""
+        campagne = self.get_object()
+
+        serializer = CampagnePhotoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        ancienne = campagne.photo.name if campagne.photo else None
+        campagne.photo = serializer.validated_data["photo"]
+        campagne.save(update_fields=["photo", "modifie_le"])
+
+        # `image` reste le seul champ lu par le front : il reçoit l'URL de la photo.
+        campagne.image = request.build_absolute_uri(campagne.photo.url)
+        campagne.save(update_fields=["image", "modifie_le"])
+
+        if ancienne and ancienne != campagne.photo.name:
+            campagne.photo.storage.delete(ancienne)
+
+        return Response(self.get_serializer(campagne).data)

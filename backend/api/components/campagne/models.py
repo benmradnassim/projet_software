@@ -17,6 +17,9 @@ class Campagne(models.Model):
     montant_collecte = models.DecimalField(max_digits=12, decimal_places=3, default=0)
     statut = models.CharField(max_length=12, choices=Statut.choices, default=Statut.BROUILLON)
     image = models.URLField(blank=True)
+    # Photo envoyée par l'organisateur (POST /campagnes/<id>/photo/).
+    # Quand elle existe, `image` contient son URL absolue : le front n'affiche que `image`.
+    photo = models.ImageField(upload_to="campagnes/%Y/%m/", blank=True, null=True)
 
     ville = models.CharField(max_length=120, blank=True, default="")
     besoins = models.JSONField(default=list, blank=True)

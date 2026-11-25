@@ -1,125 +1,107 @@
-import { useEffect, useState } from 'react';
-import { Check, CheckCheck, X } from 'lucide-react';
-import { Avatar, Button, DataTable, EmptyState, PageHeader, Panel, SkeletonList, confetti, useToast } from '../../../design/components';
-import { useApi } from '../../../lib/useApi';
-import { deciderDemande, listDemandesRecues } from '../api';
-import '../evenements.css';
+import { useEffect, useMemo, useState } from "react";
+import { Check, QrCode, X } from "lucide-react";
+import { Badge, Button, EmptyState, Input, PageHeader, Panel, SkeletonList, useToast } from "../../../design/components";
+import { useApi } from "../../../lib/useApi";
+import { api, unwrapList } from "../../../lib/api";
+import { listParticipations, traiterParticipation, verifyParticipationQr } from "../api";
+import "../evenements.css";
 
-/** Demandes de participation : accepter (QR code envoyé), refuser (annulable), tout accepter. */
 export default function ParticipationRequestsPage() {
   const toast = useToast();
-  const { data: rows, loading, error, reload, setData } = useApi(listDemandesRecues, [], []);
-  const [flash, setFlash] = useState({});
+  const params = new URLSearchParams(window.location.search);
+  const eventFilter = params.get("evenement") || "";
+  const [eventId, setEventId] = useState(eventFilter);
+  const [qrCode, setQrCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState(null);
   const [processing, setProcessing] = useState({});
+  const { data: rows, loading, error, reload, setData } = useApi(
+    () => listParticipations(eventFilter ? { evenement: eventFilter } : {}),
+    [eventFilter],
+    [],
+  );
 
-  useEffect(() => {
-    const refresh = () => {
-      if (!document.hidden) reload();
-    };
-    window.addEventListener('focus', refresh);
-    return () => window.removeEventListener('focus', refresh);
-  }, [reload]);
+  useEffect(() => { setEventId(eventFilter); }, [eventFilter]);
 
-  const decide = async (d, ok, el) => {
-    setProcessing((state) => ({ ...state, [d.id_liste]: true }));
+  const pending = useMemo(() => (rows || []).filter((r) => r.statut === "en_attente"), [rows]);
+  const visible = rows || [];
+
+  const decide = async (p, action) => {
+    setProcessing((s) => ({ ...s, [p.id]: true }));
     try {
-      await deciderDemande(d.id, ok ? 'acceptee' : 'refusee', d.type_liste);
-      if (ok && el) confetti(el);
-      setFlash((state) => ({ ...state, [d.id_liste]: ok ? 'ok-flash' : 'no-flash' }));
-      setTimeout(() => setFlash((state) => ({ ...state, [d.id_liste]: `${state[d.id_liste]} leaving` })), 250);
-      setTimeout(() => setData((items) => items.filter((item) => item.id_liste !== d.id_liste)), 700);
-      toast(ok ? 'Participation acceptée.' : 'Participation refusée.');
-      return true;
-    } catch (error) {
-      toast(error.message || "Impossible d'enregistrer la décision.");
-      return false;
+      const updated = await traiterParticipation(p.id, action);
+      setData((items) => items.map((it) => (it.id === p.id ? { ...it, ...updated } : it)));
+      toast(action === "accepter" ? "Participation acceptée." : "Participation refusée.");
+    } catch (err) {
+      toast(err.message || "Impossible de traiter la demande.");
     } finally {
-      setProcessing((state) => ({ ...state, [d.id_liste]: false }));
+      setProcessing((s) => ({ ...s, [p.id]: false }));
     }
   };
 
-  const acceptAll = async () => {
-    const results = await Promise.all(rows.map((d) => decide(d, true)));
-    if (results.every(Boolean)) toast('Toutes les demandes sont acceptées.');
+  const onVerify = async () => {
+    if (!qrCode.trim()) return;
+    setVerifying(true);
+    setVerifyResult(null);
+    try {
+      const res = await verifyParticipationQr(qrCode.trim());
+      if (res?.valide && eventFilter && String(res.participation?.evenement) !== String(eventFilter)) {
+        setVerifyResult({ valide: false, detail: "Ce QR code appartient à un autre événement." });
+        return;
+      }
+      setVerifyResult(res);
+      if (res?.valide) toast(res.message || "Présence confirmée.");
+    } catch (err) {
+      setVerifyResult({ valide: false, detail: err.message || "Vérification impossible." });
+    } finally {
+      setVerifying(false);
+    }
   };
 
   return (
     <div className="pg">
       <PageHeader
-        crumbs={['Mes actions', 'Demandes de participation']}
-        title="Demandes de participation"
-        subtitle="Consultez et traitez les demandes de participation à vos campagnes et événements."
-        actions={
-          <Button variant="navy" size="sm" icon={CheckCheck} onClick={acceptAll} disabled={!rows.length}>
-            Tout accepter
-          </Button>
-        }
+        crumbs={["Mes actions", "Demandes de participation"]}
+        title="Gérer les participations"
+        subtitle="Acceptez, refusez les demandes et vérifiez les QR codes."
       />
-      <Panel>
-        {loading ? (
-          <SkeletonList />
-        ) : error ? (
-          <EmptyState image="campagnes" title="Demandes indisponibles" text={error.message || 'Impossible de charger les demandes.'} />
-        ) : rows.length ? (
-          <DataTable
-            caption="Demandes en attente"
-            rows={rows}
-            rowKey="id_liste"
-            rowClassName={(d) => flash[d.id_liste]}
-            columns={[
-              {
-                key: 'nom',
-                header: 'Participant·e',
-                render: (d) => (
-                  <div className="row" style={{ gap: 10 }}>
-                    <Avatar name={`${d.prenom || ''} ${d.nom || ''}`.trim()} color={d.couleur} size={36} />
-                    <div>
-                      <b style={{ color: 'var(--navy)' }}>{`${d.prenom || ''} ${d.nom || ''}`.trim() || `Participant #${d.utilisateur}`}</b>
-                      <small style={{ display: 'block', color: 'var(--muted)' }}>{d.telephone}</small>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                key: 'objet',
-                header: 'Demande pour',
-                render: (d) => <span>{d.campagne_detail?.titre || d.evenement_detail?.titre || 'Objet introuvable'}</span>,
-              },
-              { key: 'type', header: 'Type', render: (d) => <span>{d.type || '—'}</span> },
-              { key: 'motif', header: 'Message', render: (d) => <span style={{ color: 'var(--muted)', fontSize: 14 }}>{d.motif || '—'}</span> },
-              { key: 'date', header: 'Demandé', render: (d) => <span className="muted">{new Date(d.date_demande).toLocaleDateString('fr-TN')}</span> },
-              {
-                key: 'actions',
-                header: 'Décision',
-                align: 'right',
-                render: (d) => (
-                  <div className="row" style={{ justifyContent: 'flex-end', gap: 8 }}>
-                    <button
-                      type="button"
-                      className="kob"
-                      aria-label={`Refuser ${d.prenom || ''} ${d.nom || ''}`}
-                      disabled={processing[d.id_liste]}
-                      onClick={() => decide(d, false)}
-                    >
-                      <X size={18} aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      className="okb"
-                      aria-label={`Accepter ${d.prenom || ''} ${d.nom || ''}`}
-                      disabled={processing[d.id_liste]}
-                      onClick={(e) => decide(d, true, e.currentTarget)}
-                    >
-                      <Check size={18} aria-hidden="true" />
-                    </button>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        ) : (
-          <EmptyState image="campagnes" title="Aucune demande en attente" text="Les nouvelles demandes apparaîtront ici." />
+
+      <Panel title="Vérifier un QR code">
+        <div className="row" style={{ gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <Input label="Code QR" value={qrCode} onChange={(e) => setQrCode(e.target.value)} placeholder="Coller le code QR" />
+          </div>
+          <Button icon={QrCode} loading={verifying} onClick={onVerify}>Vérifier</Button>
+        </div>
+        {verifyResult && (
+          <div style={{ marginTop: 12 }}>
+            <Badge tone={verifyResult.valide ? "ok" : "no"}>{verifyResult.valide ? "Valide" : "Invalide"}</Badge>
+            <p style={{ marginTop: 8 }}>{verifyResult.message || verifyResult.detail}</p>
+          </div>
         )}
+      </Panel>
+
+      <Panel title={eventFilter ? `Demandes pour l'événement #${eventFilter}` : "Demandes reçues"}>
+        {loading ? <SkeletonList /> : error ? <EmptyState title="Erreur" text={error.message || "Impossible de charger."} /> : visible.length ? (
+          <ul className="list">
+            {visible.map((p) => (
+              <li key={p.id} className="it">
+                <div className="gw">
+                  <b>{p.utilisateur_nom || `Utilisateur #${p.utilisateur}`}</b>
+                  <small style={{ display: "block", color: "var(--muted)" }}>{p.evenement_titre || `Événement #${p.evenement}`} · {p.type || "benevole"}</small>
+                  {p.motif && <small style={{ display: "block", color: "var(--muted)" }}>{p.motif}</small>}
+                </div>
+                <Badge tone={p.statut === "acceptee" ? "ok" : p.statut === "en_attente" ? "wait" : p.statut === "refusee" ? "no" : "grey"}>{p.statut}</Badge>
+                {p.statut === "en_attente" && (
+                  <div className="row" style={{ gap: 8 }}>
+                    <button type="button" className="okb" aria-label="Accepter" disabled={processing[p.id]} onClick={() => decide(p, "accepter")}><Check size={16} /></button>
+                    <button type="button" className="kob" aria-label="Refuser" disabled={processing[p.id]} onClick={() => decide(p, "refuser")}><X size={16} /></button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : <EmptyState title="Aucune demande" text="Aucune participation ? afficher." />}
       </Panel>
     </div>
   );

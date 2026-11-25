@@ -64,16 +64,13 @@ export default function PulsePopover({ open, id }) {
       <div className="ql">
         <Link to="/" tabIndex={open ? 0 : -1}>
           <Home size={18} aria-hidden="true" />
-          Accueil
-        </Link>
+          Accueil ? </Link>
         <Link to="/campagnes" tabIndex={open ? 0 : -1}>
           <Heart size={18} aria-hidden="true" />
-          Donner
-        </Link>
+          Donner ? </Link>
         <Link to={isAuthenticated ? homePath : '/connexion'} tabIndex={open ? 0 : -1}>
           <LayoutDashboard size={18} aria-hidden="true" />
-          Mon espace
-        </Link>
+          Mon espace ? </Link>
         <button type="button" tabIndex={open ? 0 : -1} onClick={() => toast('La version arabe arrive bientôt')}>
           <Languages size={18} aria-hidden="true" />
           FR · عربي

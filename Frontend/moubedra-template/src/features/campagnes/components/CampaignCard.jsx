@@ -82,8 +82,7 @@ export default function CampaignCard({ campagne: c, favori, onFavori, materiel, 
         <ProgressBar value={Math.min(100, p)} label={`${p} % financé`} />
         <div className="ft2">
           <span>
-            {p} % · {c.nb_donateurs ?? 0} donateurs
-          </span>
+            {p} % · {c.nb_donateurs ?? 0} donateurs ? </span>
          {done ? (
   <span>Clôturée</span>
 ) : joursRestants !== null ? (
@@ -93,11 +92,9 @@ export default function CampaignCard({ campagne: c, favori, onFavori, materiel, 
         {!preview && !done && (
           <div className="qa">
             <Button size="sm" onClick={() => navigate(`/campagnes/${c.id}/don`)}>
-              Donner
-            </Button>
+              Donner ? </Button>
             <Button size="sm" variant="ghost" to={`/campagnes/${c.id}`} tabIndex={-1}>
-              Voir
-            </Button>
+              Voir ? </Button>
           </div>
         )}
       </div>

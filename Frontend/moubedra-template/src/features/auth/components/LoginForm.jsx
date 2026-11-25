@@ -126,8 +126,7 @@ export default function LoginForm() {
       <p className="switch">
         Pas encore de compte ?{' '}
         <Link className="lnk" to="/inscription">
-          Créer un compte
-        </Link>
+          Créer un compte ? </Link>
       </p>
       {isDemo && (
         <div className="demo2">

@@ -1,0 +1,2 @@
+Frontend\moubedra-template\src\features\evenements\pages\EventsPage.jsx:150:: <EmptyState title="Aucun événement" text={tab === "participated"  "Vous n'avez pas encore participé à un événement." : "Aucun événement ne correspond ? ces cr
+Frontend\moubedra-template\src\features\evenements\pages\MyEventsPage.jsx:162:text={tab === "created"  "Créez votre premier événement pour sensibiliser la communauté." : "Aucun événement d'autres organisateurs ne correspond ? ces crit?res

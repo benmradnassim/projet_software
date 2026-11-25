@@ -87,14 +87,11 @@ export default function HomePage() {
           <div>
             <span className="eyebrow">Petits gestes, belles histoires</span>
             <h2 id="h-causes">
-              Une cause vous attend
-              <br />
-              près de chez vous.
-            </h2>
+              Une cause vous attend ? <br />
+              près de chez vous. ? </h2>
           </div>
           <Button variant="ghost" to="/campagnes" iconRight={ArrowRight} arrow>
-            Voir toutes les campagnes
-          </Button>
+            Voir toutes les campagnes ? </Button>
         </Reveal>
         <Reveal className="chips" role="group" aria-label="Filtrer par catégorie">
           {CHIPS.map((c) => (
@@ -113,11 +110,9 @@ export default function HomePage() {
             actions={
               <>
                 <Button variant="navy" icon={Bell} onClick={() => toast('Alerte créée : vous serez prévenu·e')}>
-                  Créer une alerte
-                </Button>
+                  Créer une alerte ? </Button>
                 <Button variant="ghost" onClick={() => setChip('all')}>
-                  Voir toutes les campagnes
-                </Button>
+                  Voir toutes les campagnes ? </Button>
               </>
             }
           />
@@ -141,14 +136,11 @@ export default function HomePage() {
           <div>
             <span className="eyebrow">En direct de la communauté</span>
             <h2 id="h-communaute">
-              Ce qui se passe
-              <br />
-              en ce moment.
-            </h2>
+              Ce qui se passe ? <br />
+              en ce moment. ? </h2>
           </div>
           <Button variant="ghost" to="/communaute" iconRight={ArrowRight} arrow>
-            Ouvrir le fil
-          </Button>
+            Ouvrir le fil ? </Button>
         </Reveal>
         <div className="cgrid">
           {apercu.map((p, i) => (
@@ -204,8 +196,7 @@ export default function HomePage() {
           <p>Créez votre campagne en 10 minutes.</p>
         </div>
         <Button variant="white" size="lg" icon={Megaphone} to={launchTo}>
-          Lancer une campagne
-        </Button>
+          Lancer une campagne ? </Button>
       </Reveal>
     </div>
   );

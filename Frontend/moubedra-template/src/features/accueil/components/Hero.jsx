@@ -82,8 +82,7 @@ export default function Hero({ contenus }) {
       <div className="hero-bg" aria-hidden="true" />
       <div>
         <span className="eyebrow fade" style={{ animationDelay: '.05s' }}>
-          ● La plateforme solidaire tunisienne
-        </span>
+          ● La plateforme solidaire tunisienne ? </span>
         <h1 aria-label="La solidarité fait grandir nos horizons.">
           {WORDS.map((w, i) => (
             <span key={w} aria-hidden="true">
@@ -103,15 +102,12 @@ export default function Hero({ contenus }) {
           ))}
         </h1>
         <p className="lead fade" style={{ animationDelay: '.8s' }}>
-          Soutenez une cause, rejoignez une action bénévole ou lancez votre propre campagne — partout en Tunisie.
-        </p>
+          Soutenez une cause, rejoignez une action bénévole ou lancez votre propre campagne — partout en Tunisie. ? </p>
         <div className="ctas fade" style={{ animationDelay: '.95s' }}>
           <Button size="lg" to="/campagnes" iconRight={ArrowRight} arrow>
-            Soutenir une campagne
-          </Button>
+            Soutenir une campagne ? </Button>
           <Button size="lg" variant="ghost" icon={HandHeart} to="/evenements">
-            Devenir bénévole
-          </Button>
+            Devenir bénévole ? </Button>
         </div>
         <form className="search fade" style={{ animationDelay: '1.1s' }} role="search" onSubmit={onSearch}>
           <Search size={18} aria-hidden="true" />
@@ -125,11 +121,9 @@ export default function Hero({ contenus }) {
             aria-label="Rechercher une cause, une ville ou une association"
           />
           <div className="r">
-            <MapPin size={16} color="var(--orange)" aria-hidden="true" /> Toute la Tunisie
-          </div>
+            <MapPin size={16} color="var(--orange)" aria-hidden="true" /> Toute la Tunisie ? </div>
           <Button type="submit" variant="navy">
-            Rechercher
-          </Button>
+            Rechercher ? </Button>
         </form>
         <div className="trust fade" style={{ animationDelay: '1.25s' }}>
           <AvatarStack people={contenus.engages.avatars} />
@@ -140,8 +134,7 @@ export default function Hero({ contenus }) {
             citoyens déjà engagés
           </span>
           <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <BadgeCheck size={16} color="var(--green)" aria-hidden="true" /> Associations vérifiées
-          </span>
+            <BadgeCheck size={16} color="var(--green)" aria-hidden="true" /> Associations vérifiées ? </span>
         </div>
       </div>
 
@@ -163,8 +156,7 @@ export default function Hero({ contenus }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="pill urg">
               <i />
-              Urgence
-            </span>
+              Urgence ? </span>
             <span style={{ fontSize: 13, color: 'var(--muted)' }}>{une.ville}</span>
           </div>
           <h4>{une.titre}</h4>
@@ -176,8 +168,7 @@ export default function Hero({ contenus }) {
               <b>
                 <Count value={une.collecte} start={started} />
               </b>{' '}
-              / {formatNumber(une.objectif)} TND
-            </span>
+              / {formatNumber(une.objectif)} TND ? </span>
             <span>{p} %</span>
           </div>
           <div className="n" style={{ marginTop: 4 }}>
@@ -185,16 +176,14 @@ export default function Hero({ contenus }) {
             <span style={{ color: 'var(--orange)', fontWeight: 700 }}>{une.jours} jours restants</span>
           </div>
           <Button icon={Heart} to={`/campagnes/${une.id}/don`} tabIndex={-1}>
-            Je donne
-          </Button>
+            Je donne ? </Button>
         </div>
         <div className={`dtoast${out ? ' out' : ''}`}>
           <i>
             <Heart size={16} />
           </i>
           <span>
-            <b>{nom}</b> a donné {montant} · à l’instant
-          </span>
+            <b>{nom}</b> a donné {montant} · à l’instant ? </span>
         </div>
       </div>
     </div>

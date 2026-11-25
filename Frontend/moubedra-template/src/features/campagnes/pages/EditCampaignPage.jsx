@@ -281,8 +281,7 @@ export default function EditCampaignPage() {
           variant="ghost"
           onClick={() => navigate('/organisateur/campagnes')}
         >
-          Retour à mes campagnes
-        </Button>
+          Retour à mes campagnes ? </Button>
       </div>
     );
   }
@@ -301,8 +300,7 @@ export default function EditCampaignPage() {
 
       <div className="panel" style={{ maxWidth: 850 }}>
         <h2 style={{ marginBottom: 12 }}>
-          Modifier ma campagne
-        </h2>
+          Modifier ma campagne ? </h2>
 
         <p
           style={{
@@ -311,8 +309,7 @@ export default function EditCampaignPage() {
           }}
         >
           Modifiez les informations de votre campagne,
-          puis enregistrez vos changements.
-        </p>
+          puis enregistrez vos changements. ? </p>
 
         <div style={{ display: 'grid', gap: 18 }}>
 
@@ -337,8 +334,7 @@ export default function EditCampaignPage() {
               htmlFor="edit-categorie"
               className="lbl"
             >
-              Catégorie
-            </label>
+              Catégorie ? </label>
 
             <select
               id="edit-categorie"
@@ -403,16 +399,14 @@ export default function EditCampaignPage() {
           {/* Besoins matériels */}
           <div>
             <h3 style={{ marginBottom: 8 }}>
-              Besoins matériels
-            </h3>
+              Besoins matériels ? </h3>
 
             <p
               className="muted"
               style={{ fontSize: 13, marginBottom: 12 }}
             >
               Ajoutez les articles dont votre campagne a besoin.
-              Cette section est facultative.
-            </p>
+              Cette section est facultative. ? </p>
 
             {form.besoins.map((besoin, index) => (
               <div
@@ -467,8 +461,7 @@ export default function EditCampaignPage() {
               icon={Plus}
               onClick={ajouterBesoin}
             >
-              Ajouter un article
-            </Button>
+              Ajouter un article ? </Button>
           </div>
 
           {/* Point de collecte */}
@@ -518,16 +511,14 @@ export default function EditCampaignPage() {
                 navigate('/organisateur/campagnes')
               }
             >
-              Annuler
-            </Button>
+              Annuler ? </Button>
 
             <Button
               onClick={enregistrer}
               loading={saving}
               loadingText="Enregistrement..."
             >
-              Enregistrer les modifications
-            </Button>
+              Enregistrer les modifications ? </Button>
           </div>
         </div>
       </div>

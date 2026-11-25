@@ -28,8 +28,7 @@ export default function CitizenDashboardPage() {
         <Panel className="impact-panel">
           <span className="eyebrow">Votre impact en 2026</span>
           <h2>
-            Merci {prenom}, vous avez aidé {tdb?.nb_causes ?? 3} causes.
-          </h2>
+            Merci {prenom}, vous avez aidé {tdb?.nb_causes ?? 3} causes. </h2>
           <p>Voici ce que vos gestes ont rendu possible cette année.</p>
           <div className="vals">
             {tdb?.impact.map((k) => (
@@ -56,11 +55,9 @@ export default function CitizenDashboardPage() {
               </div>
               <div className="row" style={{ marginTop: 16, gap: 10 }}>
                 <Button variant="navy" size="sm" icon={QrCode} to={`/evenements/${rdv.id}`}>
-                  Mon QR code
-                </Button>
+                  Mon QR code ? </Button>
                 <Button variant="ghost" size="sm" icon={CalendarPlus} onClick={() => toast('Ajouté à votre agenda')}>
-                  Agenda
-                </Button>
+                  Agenda ? </Button>
               </div>
             </>
           )}
@@ -72,8 +69,7 @@ export default function CitizenDashboardPage() {
             title="Mon activité récente"
             action={
               <Link className="lnk2" to="/espace/notifications">
-                Tout voir
-              </Link>
+                Tout voir ? </Link>
             }
           >
             {!tdb ? (
@@ -105,8 +101,7 @@ export default function CitizenDashboardPage() {
             style={{ marginTop: 20 }}
             action={
               <Link className="lnk2" to="/campagnes">
-                Explorer
-              </Link>
+                Explorer ? </Link>
             }
           >
             <ul className="list">
@@ -117,8 +112,7 @@ export default function CitizenDashboardPage() {
                     <div className="gw">
                       <h4>{c.titre}</h4>
                       <small>
-                        {c.ville} · {c.jours_restants} jours restants
-                      </small>
+                        {c.ville} · {c.jours_restants} jours restants ? </small>
                       <ProgressBar value={pctCampagne(c)} label={`${pctCampagne(c)} % financé`} />
                     </div>
                     <b style={{ font: '800 18px var(--display)', color: 'var(--navy)' }}>{pctCampagne(c)} %</b>

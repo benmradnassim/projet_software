@@ -107,8 +107,7 @@ export default function SignupForm({ acct, setAcct }) {
       <>
         Un compte existe déjà avec cet e-mail.{' '}
         <Link className="lnk" to="/connexion">
-          Se connecter
-        </Link>
+          Se connecter ? </Link>
       </>
     ) : (
       errs.email
@@ -199,8 +198,7 @@ export default function SignupForm({ acct, setAcct }) {
             ))}
           </ul>
           <Button variant="navy" size="wide" iconRight={ArrowRight} onClick={next1}>
-            Continuer
-          </Button>
+            Continuer ? </Button>
         </section>
       )}
 
@@ -258,8 +256,7 @@ export default function SignupForm({ acct, setAcct }) {
             <input id="s-tel" inputMode="tel" placeholder=" " autoComplete="tel-national" value={f.tel} onChange={(e) => setF((x) => ({ ...x, tel: formatPhone(e.target.value) }))} aria-describedby="tel-hint" />
             <label htmlFor="s-tel">Téléphone (facultatif)</label>
             <small className="field-hint" id="tel-hint">
-              Pour que l’organisateur puisse vous joindre le jour d’un événement.
-            </small>
+              Pour que l’organisateur puisse vous joindre le jour d’un événement. ? </small>
           </div>
           <label className={`ck2 cgu${errs.cgu ? ' shake' : ''}`}>
             <input type="checkbox" checked={f.cgu} onChange={(e) => setF((x) => ({ ...x, cgu: e.target.checked }))} aria-describedby="cgu-err" aria-invalid={!!errs.cgu || undefined} />
@@ -275,11 +272,9 @@ export default function SignupForm({ acct, setAcct }) {
           </small>
           <div className="row3">
             <Button variant="ghost" onClick={() => go(1)}>
-              ← Retour
-            </Button>
+              ← Retour ? </Button>
             <Button size="wide" icon={Heart} loading={creating} loadingText="Création…" onClick={create}>
-              Créer mon compte
-            </Button>
+              Créer mon compte ? </Button>
           </div>
         </section>
       )}
@@ -332,8 +327,7 @@ export default function SignupForm({ acct, setAcct }) {
                 </li>
               </ol>
               <Button size="wide" icon={Megaphone} style={{ marginTop: 14 }} to="/espace/devenir-organisateur">
-                Préparer ma première campagne
-              </Button>
+                Préparer ma première campagne ? </Button>
             </div>
           ) : (
             <nav className="next3" aria-label="Premiers pas">
@@ -376,8 +370,7 @@ export default function SignupForm({ acct, setAcct }) {
         <p className="switch">
           Déjà inscrit·e ?{' '}
           <Link className="lnk" to="/connexion">
-            Se connecter
-          </Link>
+            Se connecter ? </Link>
         </p>
       )}
     </div>

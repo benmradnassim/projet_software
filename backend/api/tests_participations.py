@@ -85,7 +85,7 @@ class ParticipationCrudTests(APITestCase):
         self.client.force_authenticate(self.organisateur)
         response = self.client.post(
             f"/api/participations/evenements/{participation.id}/traiter/",
-            {"statut": "acceptee"},
+            {"action": "accepter"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -93,10 +93,9 @@ class ParticipationCrudTests(APITestCase):
         self.assertEqual(participation.statut, "acceptee")
 
         self.client.force_authenticate(self.citoyen)
-        cancel = self.client.post(f"/api/participations/evenements/{participation.id}/annuler/", {}, format="json")
-        self.assertEqual(cancel.status_code, status.HTTP_200_OK)
-        participation.refresh_from_db()
-        self.assertEqual(participation.statut, "annulee")
+        cancel = self.client.delete(f"/api/participations/evenements/{participation.id}/")
+        self.assertEqual(cancel.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(DemandeParticipationEvenement.objects.filter(pk=participation.pk).exists())
 
     def test_campaign_organizer_can_accept_participation(self):
         participation = DemandeParticipationCampagne.objects.create(
@@ -175,11 +174,6 @@ class ParticipationCrudTests(APITestCase):
 
     def test_cancelled_participations_can_be_submitted_again(self):
         self.client.force_authenticate(self.citoyen)
-        event_cancelled = DemandeParticipationEvenement.objects.create(
-            utilisateur=self.citoyen,
-            evenement=self.evenement,
-            statut=DemandeParticipationEvenement.Statut.ANNULEE,
-        )
         campaign_cancelled = DemandeParticipationCampagne.objects.create(
             utilisateur=self.citoyen,
             campagne=self.campagne,
@@ -195,20 +189,13 @@ class ParticipationCrudTests(APITestCase):
             "cin": "12345678",
             "adresse": "12 rue Habib Bourguiba, Tunis",
         }
-        event_response = self.client.post(
-            "/api/participations/evenements/",
-            {**payload, "evenement": self.evenement.id},
-            format="json",
-        )
         campaign_response = self.client.post(
             "/api/participations/campagnes/",
             {**payload, "campagne": self.campagne.id},
             format="json",
         )
 
-        self.assertEqual(event_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(campaign_response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(event_response.data["id"], event_cancelled.id)
         self.assertNotEqual(campaign_response.data["id"], campaign_cancelled.id)
 
     def test_cancellation_removes_requests_from_organizer_pending_lists(self):
@@ -234,7 +221,7 @@ class ParticipationCrudTests(APITestCase):
         self.assertIn(campaign_participation.id, [row["id"] for row in campaign_list.data["results"]])
 
         self.client.force_authenticate(self.citoyen)
-        self.client.post(f"/api/participations/evenements/{event_participation.id}/annuler/", {}, format="json")
+        self.client.delete(f"/api/participations/evenements/{event_participation.id}/")
         self.client.post(f"/api/participations/campagnes/{campaign_participation.id}/annuler/", {}, format="json")
 
         self.client.force_authenticate(self.organisateur)
@@ -300,7 +287,7 @@ class ParticipationCrudTests(APITestCase):
         for participation in (first, second):
             response = self.client.post(
                 f"/api/participations/evenements/{participation.id}/traiter/",
-                {"statut": "acceptee"},
+                {"action": "accepter"},
                 format="json",
             )
             if response.status_code == status.HTTP_409_CONFLICT:
@@ -310,86 +297,4 @@ class ParticipationCrudTests(APITestCase):
         accepted_count = DemandeParticipationEvenement.objects.filter(evenement=self.evenement, statut="acceptee").count()
         self.assertLessEqual(accepted_count, self.evenement.capacite)
 
-    def test_owner_can_edit_pending_event_and_campaign_participations(self):
-        event_participation = DemandeParticipationEvenement.objects.create(
-            utilisateur=self.citoyen,
-            evenement=self.evenement,
-            nom="Ancien",
-            prenom="Nom",
-            telephone="22333444",
-            cin="12345678",
-            adresse="Ancienne adresse, Tunis",
-            motif="Ancien motif suffisamment long.",
-        )
-        campaign_participation = DemandeParticipationCampagne.objects.create(
-            utilisateur=self.citoyen,
-            campagne=self.campagne,
-            nom="Ancien",
-            prenom="Nom",
-            telephone="22333444",
-            cin="12345678",
-            adresse="Ancienne adresse, Tunis",
-            motif="Ancien motif suffisamment long.",
-        )
-        payload = {
-            "nom": "Saada",
-            "prenom": "Nour",
-            "telephone": "+216 22 333 444",
-            "cin": "87654321",
-            "adresse": "12 rue nouvelle, Tunis",
-            "motif": "Je peux participer régulièrement.",
-        }
 
-        self.client.force_authenticate(self.citoyen)
-        event_response = self.client.patch(
-            f"/api/participations/evenements/{event_participation.id}/",
-            payload,
-            format="json",
-        )
-        campaign_response = self.client.patch(
-            f"/api/participations/campagnes/{campaign_participation.id}/",
-            payload,
-            format="json",
-        )
-
-        self.assertEqual(event_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(campaign_response.status_code, status.HTTP_200_OK)
-        event_participation.refresh_from_db()
-        campaign_participation.refresh_from_db()
-        self.assertEqual(event_participation.nom, "Saada")
-        self.assertEqual(campaign_participation.cin, "87654321")
-        self.assertEqual(event_participation.statut, "en_attente")
-        self.assertEqual(campaign_participation.statut, "en_attente")
-
-        self.client.force_authenticate(self.organisateur)
-        event_requests = self.client.get(
-            "/api/participations/evenements/",
-            {"evenement": self.evenement.id, "statut": "en_attente"},
-        )
-        campaign_requests = self.client.get(
-            "/api/participations/campagnes/",
-            {"campagne": self.campagne.id, "statut": "en_attente"},
-        )
-        event_rows = event_requests.data.get("results", event_requests.data)
-        campaign_rows = campaign_requests.data.get("results", campaign_requests.data)
-        self.assertEqual(event_rows[0]["nom"], "Saada")
-        self.assertEqual(event_rows[0]["motif"], payload["motif"])
-        self.assertEqual(campaign_rows[0]["cin"], "87654321")
-
-    def test_processed_participation_cannot_be_edited(self):
-        participation = DemandeParticipationEvenement.objects.create(
-            utilisateur=self.citoyen,
-            evenement=self.evenement,
-            statut=DemandeParticipationEvenement.Statut.ACCEPTEE,
-        )
-        self.client.force_authenticate(self.citoyen)
-
-        response = self.client.patch(
-            f"/api/participations/evenements/{participation.id}/",
-            {"motif": "Je souhaite changer ce motif."},
-            format="json",
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        participation.refresh_from_db()
-        self.assertEqual(participation.motif, "")

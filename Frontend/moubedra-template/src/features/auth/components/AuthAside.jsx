@@ -68,8 +68,7 @@ export default function AuthAside({ variant }) {
         <div>
           <small>
             <span className="dot2" aria-hidden="true" />
-            Aujourd’hui
-          </small>
+            Aujourd’hui ? </small>
           <b>{dons} dons</b>
         </div>
         <div>

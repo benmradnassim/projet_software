@@ -86,7 +86,7 @@ export async function getResumeUtilisateurs() {
   if (IS_DEMO) return mockResponse(RESUME_UTILISATEURS, 50);
   const data = await api.get('/utilisateurs/');
   // TODO(API): « nouveaux cette semaine » nécessite un filtre date_inscription côté back
-  return { total: data?.count ?? unwrapList(data).length, nouveaux_semaine: null };
+  return { total: data?.count ? unwrapList(data).length : 0, nouveaux_semaine: null };
 }
 
 /**

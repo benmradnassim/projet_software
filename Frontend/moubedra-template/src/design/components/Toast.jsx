@@ -38,8 +38,7 @@ export function ToastProvider({ children }) {
         <span>{state.msg}</span>
         {state.undo && state.show && (
           <button type="button" className="undo" onClick={onUndo}>
-            <Undo2 size={16} aria-hidden="true" /> Annuler
-          </button>
+            <Undo2 size={16} aria-hidden="true" /> Annuler ? </button>
         )}
         <span className="tbar" key={state.n} aria-hidden="true" />
       </div>

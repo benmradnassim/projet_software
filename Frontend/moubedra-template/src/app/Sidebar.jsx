@@ -99,8 +99,7 @@ export default function Sidebar() {
         {isDemo && (
           <div className="rolebox2">
             <span id="role-demo">
-              <FlaskConical size={13} aria-hidden="true" /> Mode démo, changer de rôle
-            </span>
+              <FlaskConical size={13} aria-hidden="true" /> Mode démo, changer de rôle ? </span>
             <div className="seg3" role="group" aria-labelledby="role-demo">
               {ROLES.map((r) => (
                 <button key={r} type="button" aria-pressed={r === role} onClick={() => changeRole(r)}>

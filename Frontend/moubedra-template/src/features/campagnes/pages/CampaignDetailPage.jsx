@@ -37,11 +37,9 @@ function DonatePanel({ c, besoins, details, evenements, mode, setMode, ring, pan
           <div className={`dtype${mode === 'mat' ? ' r' : ''}`} role="tablist" aria-label="Type de don">
             <span className="ind3" aria-hidden="true" />
             <button type="button" role="tab" aria-selected={mode === 'money'} onClick={() => setMode('money')}>
-              <Heart size={15} aria-hidden="true" /> De l’argent
-            </button>
+              <Heart size={15} aria-hidden="true" /> De l’argent ? </button>
             <button type="button" role="tab" aria-selected={mode === 'mat'} onClick={() => setMode('mat')}>
-              <Package size={15} aria-hidden="true" /> Du matériel
-            </button>
+              <Package size={15} aria-hidden="true" /> Du matériel ? </button>
           </div>
         )}
         {mode === 'money' || !besoins ? (
@@ -59,7 +57,7 @@ function DonatePanel({ c, besoins, details, evenements, mode, setMode, ring, pan
                 <small>donateurs</small>
               </div>
               <div>
-                <b style={{ color: 'var(--orange)' }}>{done ? '—' : `${c.jours_restants ?? calculerJoursRestants(c.date_fin) ?? '—'} j`}</b>
+                                <b style={{ color: 'var(--orange)' }}>{done ? '—' : `${c.jours_restants ?? calculerJoursRestants(c.date_fin) ?? '—'} j`}</b>
                 <small>restants</small>
               </div>
             </div>
@@ -71,13 +69,11 @@ function DonatePanel({ c, besoins, details, evenements, mode, setMode, ring, pan
             ) : (
               <>
                 <b id="amt-lbl" style={{ font: '700 16px var(--display)', color: 'var(--navy)' }}>
-                  Choisissez un montant
-                </b>
+                  Choisissez un montant ? </b>
                 <div className="amts3" role="group" aria-labelledby="amt-lbl">
                   {[20, 50, 100].map((a) => (
                     <button key={a} type="button" aria-pressed={a === amt} onClick={() => setAmt(a)}>
-                      {a} TND
-                    </button>
+                      {a} TND ? </button>
                   ))}
                 </div>
                 <div className="impact3" aria-live="polite" key={amt} style={{ animation: 'pgin .3s var(--out)' }}>
@@ -93,20 +89,17 @@ function DonatePanel({ c, besoins, details, evenements, mode, setMode, ring, pan
             </Button>
             {participation?.statut === 'en_attente' ? (
               <Button block variant="ghost" icon={HandHeart} style={{ marginTop: 10 }} disabled>
-                Participation en attente
-              </Button>
+                Participation en attente ? </Button>
             ) : participation?.statut === 'acceptee' ? (
               <Button block variant="ghost" icon={HandHeart} style={{ marginTop: 10 }} disabled>
                 Participation acceptée
               </Button>
             ) : (
               <Button block variant="ghost" icon={HandHeart} style={{ marginTop: 10 }} onClick={openParticipation}>
-                Je veux participer
-              </Button>
+                Je veux participer ? </Button>
             )}
             <p className="cap4" style={{ justifyContent: 'center', marginTop: 12 }}>
-              <Lock size={14} aria-hidden="true" /> Paiement sécurisé · Carte · D17 · Virement
-            </p>
+              <Lock size={14} aria-hidden="true" /> Paiement sécurisé · Carte · D17 · Virement ? </p>
           </div>
         ) : (
           <div className="slide-in" role="tabpanel">
@@ -311,8 +304,7 @@ export default function CampaignDetailPage() {
             <Clock3 size={14} aria-hidden="true" /> {besoins.horaires}
           </p>
           <Button block icon={Package} style={{ marginTop: 14 }} onClick={goMaterial}>
-            Je donne du matériel
-          </Button>
+            Je donne du matériel ? </Button>
         </Panel>
       </div>
     ),
@@ -388,8 +380,7 @@ export default function CampaignDetailPage() {
               <img key={g} src={g} alt="Photo de terrain" loading="lazy" />
             ))}
             <button type="button" onClick={() => toast('La galerie complète arrive bientôt')}>
-              +{details?.photos_supplementaires ?? 0} photos
-            </button>
+              +{details?.photos_supplementaires ?? 0} photos ? </button>
           </div>
           <h1 className="dtitle">{c.titre}</h1>
           <div className="dmeta">
@@ -404,8 +395,7 @@ export default function CampaignDetailPage() {
               <BadgeCheck size={16} aria-hidden="true" /> {c.organisation}
             </span>
             <button type="button" onClick={() => toast('Lien copié, prêt à partager sur WhatsApp')}>
-              <Share2 size={16} aria-hidden="true" /> Partager
-            </button>
+              <Share2 size={16} aria-hidden="true" /> Partager ? </button>
           </div>
           <Tabs tabs={tabs} value={tab} onChange={setTab} label="Sections de la campagne" style={{ marginTop: 22 }}>
             {content[tab]}
@@ -433,8 +423,7 @@ export default function CampaignDetailPage() {
           <>
             <Button variant="ghost" onClick={() => setFormOpen(false)}>Annuler</Button>
             <Button icon={HandHeart} loading={sending} loadingText="Envoi…" onClick={submitParticipation}>
-              Envoyer ma demande
-            </Button>
+              Envoyer ma demande ? </Button>
           </>
         }
       >

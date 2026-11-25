@@ -68,8 +68,7 @@ export default function Composer({ onPublished }) {
         <Avatar name={user.nom_complet} color={user.couleur} />
         <div style={{ flex: 1 }}>
           <label htmlFor="composer" className="sr-only">
-            Votre publication
-          </label>
+            Votre publication ? </label>
           <textarea id="composer" ref={taRef} value={text} onChange={onChange} placeholder={current.placeholder} maxLength={MAX} />
         </div>
       </div>
@@ -98,11 +97,9 @@ export default function Composer({ onPublished }) {
       </div>
       <div className="tools">
         <button type="button" className="tool" onClick={() => toast('Ajout de photo : bientôt disponible')}>
-          <Image size={16} aria-hidden="true" /> Photo
-        </button>
+          <Image size={16} aria-hidden="true" /> Photo ? </button>
         <button type="button" className="tool" onClick={() => toast('Lien vers une campagne : bientôt disponible')}>
-          <Megaphone size={16} aria-hidden="true" /> Lier une campagne
-        </button>
+          <Megaphone size={16} aria-hidden="true" /> Lier une campagne ? </button>
         <span className="count" aria-live="polite">
           {text.length} / {MAX}
         </span>

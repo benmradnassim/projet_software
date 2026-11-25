@@ -6,7 +6,6 @@ export default [
   { to: '/espace/compte', label: 'Mon compte', icon: User, roles: ['citoyen', 'admin'], group: 'Compte', order: 0 },
   { to: '/espace/compte', label: 'Profil de l’association', icon: Building2, roles: ['organisateur'], group: 'Compte', order: 0 },
   { to: '/espace/devenir-organisateur', label: 'Devenir organisateur', icon: UserPlus, roles: ['citoyen'], group: 'Compte', order: 1 },
-  // TODO(API): compteur = demandes organisateur en attente
-  { to: '/admin/organisateurs', label: 'Organisateurs', icon: UserCheck, roles: ['admin'], group: 'File d’attente', order: 0, badge: 3 },
+  // TODO(API): compteur = demandes organisateur en attente ? { to: '/admin/organisateurs', label: 'Organisateurs', icon: UserCheck, roles: ['admin'], group: 'File d’attente', order: 0, badge: 3 },
   { to: '/admin/utilisateurs', label: 'Utilisateurs', icon: Users, roles: ['admin'], group: 'Plateforme', order: 0 },
 ];

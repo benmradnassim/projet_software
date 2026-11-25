@@ -79,13 +79,11 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                         setOther('');
                       }}
                     >
-                      {a} TND
-                    </button>
+                      {a} TND ? </button>
                   ))}
                 </div>
                 <label className="lbl" htmlFor="oth">
-                  Autre montant
-                </label>
+                  Autre montant ? </label>
                 <div className="inp2">
                   <input
                     id="oth"
@@ -101,14 +99,12 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                   <b style={{ color: 'var(--muted)' }}>TND</b>
                 </div>
                 <Toggle checked={fee} onChange={setFee}>
-                  Ajouter 4 % pour couvrir les frais de la plateforme
-                </Toggle>
+                  Ajouter 4 % pour couvrir les frais de la plateforme ? </Toggle>
                 <Toggle checked={rec} onChange={setRec}>
                   Donner chaque mois (don récurrent)
                 </Toggle>
                 <Button size="wide" iconRight={ArrowRight} style={{ marginTop: 22 }} onClick={() => setSt(2)}>
-                  Continuer
-                </Button>
+                  Continuer ? </Button>
               </>
             )}
             {st === 2 && (
@@ -130,8 +126,7 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                   {pm === 'carte' && (
                     <>
                       <label className="lbl" htmlFor="ccn">
-                        Numéro de carte
-                      </label>
+                        Numéro de carte ? </label>
                       <div className="inp2">
                         <CreditCard size={18} aria-hidden="true" />
                         <input
@@ -146,16 +141,14 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                       <div className="fg2">
                         <div>
                           <label className="lbl" htmlFor="cexp">
-                            Expiration
-                          </label>
+                            Expiration ? </label>
                           <div className="inp2">
                             <input id="cexp" autoComplete="cc-exp" placeholder="MM / AA" />
                           </div>
                         </div>
                         <div>
                           <label className="lbl" htmlFor="ccvc">
-                            CVC
-                          </label>
+                            CVC ? </label>
                           <div className="inp2">
                             <input id="ccvc" autoComplete="cc-csc" inputMode="numeric" placeholder="•••" />
                             <Info size={16} aria-label="Les 3 chiffres au dos de la carte" />
@@ -167,8 +160,7 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                   {pm === 'd17' && (
                     <>
                       <label className="lbl" htmlFor="d17">
-                        Numéro de téléphone D17
-                      </label>
+                        Numéro de téléphone D17 ? </label>
                       <div className="inp2">
                         <b>+216</b>
                         <input id="d17" inputMode="tel" placeholder="22 123 456" />
@@ -184,12 +176,10 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                   )}
                 </div>
                 <Toggle checked={anon} onChange={setAnon}>
-                  Faire ce don de façon anonyme
-                </Toggle>
+                  Faire ce don de façon anonyme ? </Toggle>
                 <div className="row" style={{ marginTop: 22 }}>
                   <Button variant="ghost" style={{ height: 54 }} onClick={() => setSt(1)}>
-                    ← Retour
-                  </Button>
+                    ← Retour ? </Button>
                   <Button icon={Lock} loading={paying} loadingText="Paiement en cours…" style={{ flex: 1, justifyContent: 'center', height: 54, fontSize: 17 }} onClick={pay}>
                     Payer {tnd(total)} en toute sécurité
                   </Button>
@@ -232,14 +222,11 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
                 </div>
                 <div className="row" style={{ justifyContent: 'center', marginTop: 18, gap: 10, flexWrap: 'wrap' }}>
                   <Button variant="ghost" size="sm" icon={Download} onClick={() => toast('Le reçu PDF sera disponible une fois l’API branchée')}>
-                    Reçu PDF
-                  </Button>
+                    Reçu PDF ? </Button>
                   <Button variant="ghost" size="sm" icon={Share2} onClick={() => toast('Lien copié : « J’ai soutenu cette cause sur moubedra »')}>
-                    Partager
-                  </Button>
+                    Partager ? </Button>
                   <Button variant="navy" size="sm" to={`/campagnes/${c.id}`}>
-                    Retour à la campagne
-                  </Button>
+                    Retour à la campagne ? </Button>
                 </div>
               </div>
             )}
@@ -249,8 +236,7 @@ export default function MoneyDonation({ campagne: c, initialAmount = 50 }) {
           <div className="panel don-side">
             <img src={c.image} alt="" style={{ objectPosition: c.image_position }} />
             <span className="eyebrow" style={{ display: 'block', marginTop: 14 }}>
-              Votre don soutient
-            </span>
+              Votre don soutient ? </span>
             <h3>{c.titre}</h3>
             <div className="li3">
               <span>Don</span>

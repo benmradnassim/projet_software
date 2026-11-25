@@ -1,0 +1,7 @@
+features/evenements/components/EventFormModal.jsx:72:'toast(err.message || "Impossible d\'enregistrer l\'\xe9v\xe9nement.");'
+features/evenements/pages/MyParticipationsPage.jsx:57:') : <EmptyState title="Aucune participation" text="Vous n\'avez pas encore de participation." actions={<Button to="/evenements" size="sm">Voir les ?v?nements</Button>} />}'
+features/evenements/pages/EventsPage.jsx:97:'{IS_DEMO && <div className="panel" style={{ marginBottom: 16, borderLeft: "4px solid var(--orange, #e67e22)" }}>Mode d\xe9mo : les actions sont locales et ne sont pas enregistr?es sur le serveur.</div>}'
+features/evenements/pages/MyEventsPage.jsx:99:'{IS_DEMO && <div className="panel" style={{ marginBottom: 16, borderLeft: "4px solid var(--orange, #e67e22)" }}>Mode d\xe9mo : les actions sont locales et ne sont pas enregistr?es sur le serveur.</div>}'
+features/campagnes/mockData.js:316:"{ icone: 'package', fond: '#e6edf8', bord: '#cfdbef', texte: '#1f3a6b', valeur: '3', libelle: 'd\xe9p\xf4ts de mat\xe9riel attendus', to: '/organisateur/dons?type=materiel' },"
+features/dons/routes.jsx:9:'// /campagnes/:id/don (argent) et /campagnes/:id/don?type=materiel&q=1.1.0 (mat\xe9riel)'
+features/dons/pages/DonatePage.jsx:10:'* /campagnes/:id/don?type=materiel&q=1.1.0   don mat\xe9riel (q = quantit\xe9s par article)'

@@ -50,8 +50,7 @@ export default function DataTable({ columns, rows, rowKey = 'id', selectable, bu
           <span aria-live="polite">{count} sélectionné(s)</span>
           {count > 0 && bulkActions?.([...selected], clear)}
           <button type="button" className="btn sm" style={{ marginLeft: 'auto' }} onClick={clear} tabIndex={count ? 0 : -1}>
-            Annuler
-          </button>
+            Annuler ? </button>
         </div>
       )}
       <div className={`table-wrap ${className}`}>

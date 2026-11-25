@@ -86,8 +86,7 @@ function Row({
         >
           {formatNumber(c.montant_collecte)}
           {' / '}
-          {formatNumber(c.objectif_montant)} TND
-        </b>
+          {formatNumber(c.objectif_montant)} TND ? </b>
 
         <ProgressBar
           value={Math.min(100, p)}
@@ -113,16 +112,14 @@ function Row({
               icon={Pencil}
               to={`/organisateur/campagnes/${c.id}/modifier`}
             >
-              Modifier
-            </Button>
+              Modifier ? </Button>
 
             <Button
               size="sm"
               disabled={enCours}
               onClick={() => onPublier(c)}
             >
-              Publier
-            </Button>
+              Publier ? </Button>
 
             <Button
               size="sm"
@@ -130,8 +127,7 @@ function Row({
               disabled={enCours}
               onClick={() => onDelete(c)}
             >
-              Supprimer
-            </Button>
+              Supprimer ? </Button>
           </>
         )}
 
@@ -144,8 +140,7 @@ function Row({
               icon={Eye}
               to={`/campagnes/${c.id}`}
             >
-              Voir
-            </Button>
+              Voir ? </Button>
 
             <Button
               variant="ghost"
@@ -153,16 +148,14 @@ function Row({
               icon={Pencil}
               to={`/organisateur/campagnes/${c.id}/modifier`}
             >
-              Modifier
-            </Button>
+              Modifier ? </Button>
 
             <Button
               size="sm"
               disabled={enCours}
               onClick={() => onCloturer(c)}
             >
-              Clôturer
-            </Button>
+              Clôturer ? </Button>
           </>
         )}
 
@@ -175,8 +168,7 @@ function Row({
               icon={Pencil}
               to={`/organisateur/campagnes/${c.id}/modifier`}
             >
-              Modifier
-            </Button>
+              Modifier ? </Button>
           </>
         )}
 
@@ -296,8 +288,7 @@ const handleCloturer = async (campagne) => {
         subtitle="Suivez, modifiez et publiez vos campagnes."
         actions={
           <Button to="/organisateur/campagnes/nouvelle" icon={Plus}>
-            Nouvelle campagne
-          </Button>
+            Nouvelle campagne ? </Button>
         }
       />
       <Tabs tabs={tabs} value={tab} onChange={setTab} label="Filtrer mes campagnes">

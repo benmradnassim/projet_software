@@ -1,0 +1,197 @@
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\AuthContext.jsx:109:const updateUser = useCallback((patch) => setUser((u) => (u  { ...u, ...patch } : u)), []);
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\Header.jsx:61:<header className={`site-header${hidden  ' hide' : ''}${shadow  ' shadow' : ''}`} onFocus={show}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\Header.jsx:65:className={`logo${ready  ' ready' : ''}${pulseOpen  ' beating' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\Header.jsx:80:<NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive && !(n.to === '/' && hash)  'active' : '')}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\Header.jsx:96:<Link to="/espace/notifications" className="bellb notif" aria-label={unread  `Notifications, ${unread} non lues` : 'Notifications'}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\Layout.jsx:17:<div className={`appv${isAuthenticated  '' : ' guest'}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\PulsePopover.jsx:39:<div className={`pulse${open  ' open' : ''}`} id={id} role="dialog" aria-label="Le pouls solidaire du jour" aria-hidden={!open}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\PulsePopover.jsx:61:<i key={i} style={{ height: bars  `${h}%` : 0, transitionDelay: `${0.06 + i * 0.045}s` }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\app\Sidebar.jsx:72:<span className={`n${it.pulse  ' npul' : ''}`} aria-label={`${it.badge} en attente`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\api.js:36:tokens = next  { ...tokens, ...next } : null;
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\api.js:116:setTokens({ access: data.access, ...(data.refresh  { refresh: data.refresh } : {}) });
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\api.js:128:const url = new URL(path.startsWith('http')  path : `${API_URL}${path.startsWith('/')  '' : '/'}${path}`);
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\format.js:30:return withNumber  `${formatNumber(n)}${NBSP}${word}` : word;
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\format.js:34:const toDate = (d) => (d instanceof Date  d : new Date(String(d).length === 10  `${d}T12:00:00` : d));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\format.js:41:...(year  { year: 'numeric' } : {}),
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\lib\format.js:42:...(weekday  { weekday: 'short' } : {}),
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\api.js:31:const maj = (c) => (c.id === Number(id)  { ...c, ...patch } : c);
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\api.js:46:jours_restants: c.jours_restants  (c.date_fin  daysLeft(c.date_fin) : null),
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\api.js:93:donsRecus = donsRecus.map((d) => (d.id === id  { ...d, statut: 'confirme' } : d));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\api.js:132:demoParticipations = demoParticipations.map((p) => (p.id === Number(id)  { ...p, statut: "annulee" } : p));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\api.js:147:demoEvents = demoEvents.map((e) => e.id === p.evenement  { ...e, nb_participants: (e.nb_participants || 0) + 1 } : e);
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\api.js:98:utilisateurs = utilisateurs.map((u) => (u.id === id  { ...u, statut } : u));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\api.js:114:demandes = demandes.map((d) => (d.id === id  { ...d, statut: decision } : d));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AccountPage.jsx:86:const togglePref = (group, cle) => setPrefs((p) => ({ ...p, [group]: p[group].map((x) => (x.cle === cle  { ...x, actif: !x.actif } : x)) }));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AccountPage.jsx:91:crumbs={['Compte', orga  'Profil de l’association' : 'Mon compte']}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AccountPage.jsx:92:title={orga  'Profil de l’association' : 'Mon compte'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AccountPage.jsx:169:<div className={`savebar${dirty  ' on' : ''}`} role="region" aria-label="Modifications non enregistrées" aria-hidden={!dirty}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminOrganizerRequestsPage.jsx:30:setData((l) => l.map((x) => (x.id === r.id  { ...x, statut } : x)));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminOrganizerRequestsPage.jsx:46:) : !list.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminOrganizerRequestsPage.jsx:86:<span className={r.verifications[i]  'okb' : 'kob'} aria-hidden="true">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminOrganizerRequestsPage.jsx:91:<span className="sr-only">{r.verifications[i]  ' : oui' : ' : non'}</span>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminOrganizerRequestsPage.jsx:104:<span>{r.motif.length < 60  'Présentation trop courte et aucune structure : demandez plus d’informations.' : 'Justificatif manquant : vous pouvez valider ou le demander.'
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminUsersPage.jsx:40:setData((l) => l.map((u) => (u.id === id  { ...u, ...utilisateur, statut } : u)));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminUsersPage.jsx:62:if (ok.length) toast(ok.length > 1  `${ok.length} comptes suspendus` : MESSAGES.suspendu);
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminUsersPage.jsx:78:subtitle={resume  `${formatNumber(resume.total)} comptes${resume.nouveaux_semaine  ` · ${resume.nouveaux_semaine} nouveaux cette semaine` : ''}` : '…'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminUsersPage.jsx:96:) : error  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminUsersPage.jsx:140:<span key={pop[u.id]} style={{ display: 'inline-block', animation: pop[u.id]  'scale-in .35s var(--out)' : undefined }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\AdminUsersPage.jsx:173:title={nomsASuspendre.length > 1  `Suspendre ${nomsASuspendre.length} comptes ?` : 'Suspendre ce compte ?'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\utilisateurs\pages\OrganizerRequestPage.jsx:29:document.getElementById(e.nom  'o-nom' : 'o-motif')?.focus();
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\signalements\pages\AdminReportsPage.jsx:39:rowClassName={(s) => (done[s.id]  'done-row' : undefined)}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\signalements\pages\AdminReportsPage.jsx:66:{ key: 'nb', header: 'Signalé par', render: (s) => `${s.nb_signalants} personne${s.nb_signalants > 1  's' : ''}` },
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\signalements\pages\AdminReportsPage.jsx:76:<Badge tone={done[s.id].startsWith('Retiré')  'ok' : 'grey'}>{done[s.id]}</Badge>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\signalements\pages\MyReportsPage.jsx:17:) : data.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\signalements\pages\OrgReportsPage.jsx:17:) : data.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\signalements\pages\OrgReportsPage.jsx:25:aside={<Badge tone={s.a_traiter  'wait' : 'ok'}>{s.a_traiter  'À traiter' : 'Résolu'}</Badge>}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\Composer.jsx:83:className={`ct${locked  ' lock' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\Composer.jsx:86:aria-describedby={locked  `tip-${t.type}` : undefined}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:61:{post.auteur_verifie && <BadgeCheck size={16} color={goal  '#9fd08f' : '#4f7f42'} aria-label="vérifié" />}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:89:setDir(next  'up' : 'down');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:164:const besoins = post.details.besoins.map((b, i) => (i === 1 && helped  { ...b, recu: b.recu + 1 } : b));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:196:{helped  'Vous êtes inscrit·e' : 'Je viens aider'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:254:{joined  'Inscrit·e · samedi 08:30' : 'Je participe'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:299:<span style={{ width: visible  `${base}%` : 0 }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:497:<span className={`stamp${stamp  ' on' : ''}`}>✓ Vérifié par moubedra</span>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:524:<div className={`opts${voted  ' voted' : ''}`} role="group" aria-labelledby={`q-${post.id}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:529:className={`opt${me === i  ' me' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:538:<span className="fill" style={{ width: voted  `${pct}%` : 0 }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\components\PostCard.jsx:586:const cls = ['pc', typeClass, fresh  'fresh' : 'enter', gone && 'gone', className].filter(Boolean).join(' ');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\pages\FeedPage.jsx:13:const FILTRES = getFiltres().map((f) => ({ ...f, icon: f.icon  (p) => <Icon name={f.icon} {...p} /> : undefined }));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\pages\FeedPage.jsx:145:<button type="button" className={`newpill${pill  ' show' : ''}`} onClick={showIncoming} tabIndex={pill  0 : -1} aria-hidden={!pill}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\pages\FeedPage.jsx:155:) : visible.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\pages\ModerationPage.jsx:79:) : !queue.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\pages\ModerationPage.jsx:85:const col = sc > 70  '#d9472b' : sc > 40  '#e8963a' : '#4f7f42';
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\publications\pages\ModerationPage.jsx:89:className={`panel mqi${i === cur  ' cur' : ''}${leaving === m.id  ' leaving' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\notifications\pages\NotificationsPage.jsx:23:data.filter((n) => !n.lu).forEach((n, i) => setTimeout(() => setData((l) => l.map((x) => (x.id === n.id  { ...x, lu: true } : x))), 300 + i * 90));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\notifications\pages\NotificationsPage.jsx:37:subtitle={unread  `Ce qui s’est passé pour vous · ${unread} non lue${unread > 1  's' : ''}` : 'Ce qui s’est passé pour vous.'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\notifications\pages\NotificationsPage.jsx:47:) : !data.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\notifications\pages\NotificationsPage.jsx:58:<Link to={n.lien} className={`nt${n.lu  '' : ' unread'}${reading && n.lu  ' read-anim' : ''}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\components\EventFormModal.jsx:20:date: d  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` : "",
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\components\EventFormModal.jsx:21:heure: d  `${pad(d.getHours())}:${pad(d.getMinutes())}` : "",
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\components\EventFormModal.jsx:82:title={isEdit  "Modifier l'événement" : "Créer un événement"}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\components\EventFormModal.jsx:87:<Button loading={saving} loadingText="Enregistrement…" onClick={submit}>{isEdit  "Enregistrer" : "Cr?er"}</Button>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\components\EventRow.jsx:32:{e.description && <p style={{ margin: 0, color: "var(--muted)" }}>{e.description.length > 160  `${e.description.slice(0, 160)}?` : e.description}</p>}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\EventsPage.jsx:63:toast(id  "Événement mis à jour." : "Événement créé.");
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\MyEventsPage.jsx:59:toast(id  "Événement mis à jour." : "Événement créé.");
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\MyParticipationsPage.jsx:40:{loading  <SkeletonList /> : rows.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\MyParticipationsPage.jsx:48:<small style={{ color: "var(--muted)" }}>{e.date_evenement  new Date(e.date_evenement).toLocaleString("fr-TN") : ""} {e.lieu  ` ${e.lieu}` : ""}</small>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\ParticipationRequestsPage.jsx:19:() => listParticipations(eventFilter  { evenement: eventFilter } : {}),
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\ParticipationRequestsPage.jsx:33:setData((items) => items.map((it) => (it.id === p.id  { ...it, ...updated } : it)));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\ParticipationRequestsPage.jsx:78:<Badge tone={verifyResult.valide  "ok" : "no"}>{verifyResult.valide  "Valide" : "Invalide"}</Badge>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\ParticipationRequestsPage.jsx:84:<Panel title={eventFilter  `Demandes pour l'événement #${eventFilter}` : "Demandes reçues"}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\evenements\pages\ParticipationRequestsPage.jsx:85:{loading  <SkeletonList /> : error  <EmptyState title="Erreur" text={error.message || "Impossible de charger."} /> : visible.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MaterialDonation.jsx:37:['event', CalendarDays, 'Je les apporte à l’événement', ev  `${ev.titre} · ${dateParts(ev.date_evenement).slice(0, 2).join(' ')}` : '…'],
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MaterialDonation.jsx:65:<div ref={listRef} className={nudge  'nudge' : undefined} key={nudge}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MaterialDonation.jsx:210:{total} article{total > 1  's' : ''}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MaterialProgress.jsx:9:<div role="img" aria-label={`Suivi du don : ${ETAPES[etape]}${etape < 3  `, prochaine étape : ${ETAPES[etape + 1]}` : ''}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MaterialProgress.jsx:13:<i className={i <= etape  'ok' : i === etape + 1  'cur' : undefined}>{i <= etape && <Check size={12} />}</i>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MaterialProgress.jsx:14:{i < 3 && <b className={i < etape  'ok' : undefined} />}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MoneyDonation.jsx:17:a >= 100  `Avec ${formatNumber(a)} TND, ${Math.floor(a / 50)} enfants reçoivent un cartable.` : a >= 50  'Avec ce don, 1 enfant reçoit un cartable complet.' : `Avec ${for
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\components\MoneyDonation.jsx:221:{rec  ' / mois' : ''}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\pages\MyDonationsPage.jsx:34:.map((it, k) => (m.quantites[k]  `${m.quantites[k]} ${m.quantites[k] > 1  it.libelle.toLowerCase() : it.singulier}` : null))
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\pages\MyDonationsPage.jsx:91:<Badge tone={m.etape  'ok' : 'wait'}>{m.etape  'Réceptionné' : 'À déposer'}</Badge>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\pages\MyDonationsPage.jsx:102:) : list.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\pages\ReceivedDonationsPage.jsx:29:setData((l) => l.map((x) => (x.id === d.id  { ...x, statut: 'confirme' } : x)));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\pages\ReceivedDonationsPage.jsx:36:setDepots((l) => l.map((x) => (x.id === m.id  { ...x, recu: true } : x)));
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\dons\pages\ReceivedDonationsPage.jsx:89:<Badge tone={tone} key={d.statut} style={{ animation: flash[d.id]  'scale-in .3s' : undefined }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\components\CampaignCard.jsx:35:<article className={`cc${preview  ' static' : ''}`} style={{ animationDelay: `${index * 0.05}s` }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\components\CampaignCard.jsx:50:className={`fv${pop  ' pop' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\components\CampaignCard.jsx:52:aria-label={favori  `Retirer « ${c.titre} » des favoris` : `Enregistrer « ${c.titre} »`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\components\CampaignCard.jsx:89:) : joursRestants !== null  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\components\CampaignCard.jsx:90:<b>{joursRestants === 0  'Date dépassée' : `${joursRestants} jours`}</b>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\AdminCampaignsPage.jsx:464:{saving  'Enregistrement...' : 'Enregistrer'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\AdminCampaignsPage.jsx:642:) : loading  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\AdminCampaignsPage.jsx:646:) : data.length === 0  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:35:<div className={`panel donate-panel${ring  ' ring' : ''}`} key={ring}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:48:<div className={besoins  'slide-in' : undefined} role={besoins  'tabpanel' : undefined}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:62:<b style={{ color: 'var(--orange)' }}>{done  '—' : `${c.jours_restants  calculerJoursRestants(c.date_fin)  '—'} j`}</b>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:92:Donner {done  '' : `${amt} TND`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:124:{total  `Je donne ${total} article${total > 1  's' : ''}` : 'Choisissez au moins un article'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:396:<Badge tone={done  'grey' : 'ok'}>● {done  'Terminée' : 'En cours'}</Badge>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignDetailPage.jsx:487:className={`inp3${formErrors.motif  ' bad' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignsPage.jsx:51:toast(on  'Campagne enregistrée' : 'Retirée des favoris');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignsPage.jsx:57:<PageHeader crumbs={['Agir', 'Campagnes']} title="Campagnes solidaires" subtitle={<span aria-live="polite">{loading  '…' : list.length} initiatives partout en Tunisie</sp
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignsPage.jsx:103:) : list.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignsPage.jsx:112:title={region  `Pas encore de campagne à ${region}` : k === 'fav'  'Aucun favori pour l’instant' : 'Aucun résultat'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\CampaignsPage.jsx:113:text={region  'Soyez prévenu·e dès qu’une association lance une action dans votre région.' : 'Essayez un autre mot-clé ou une autre catégorie.'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\MyCampaignsPage.jsx:308:) : list.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\NewCampaignPage.jsx:232:{st < 4  'Continuer' : 'Créer la campagne'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\NewCampaignPage.jsx:354:<small className="cap4">{photo.file.size < 1024 * 1024  `${Math.max(1, Math.round(photo.file.size / 1024))} Ko` : `${(photo.file.size / 1024 / 1024).toFixed(1).replace('.
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\NewCampaignPage.jsx:366:className={`drop${survol  ' on' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\NewCampaignPage.jsx:383:<b style={{ color: 'var(--navy)' }}>{survol  'Déposez la photo' : 'Glissez votre photo ici ou cliquez pour choisir'}</b>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\NewCampaignPage.jsx:389:{photo  'Ou utilisez plutôt une couverture moubedra' : 'Pas encore de photo  Utilisez une couverture moubedra'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\OrgDashboardPage.jsx:33:await traiterParticipation(d.id, ok  'accepter' : 'refuser');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\OrgDashboardPage.jsx:35:toast(ok  'Participation acceptée.' : 'Participation refusée.');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\OrgDashboardPage.jsx:94:) : demandesError  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\OrgDashboardPage.jsx:96:) : demandes.length  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\campagnes\pages\OrgDashboardPage.jsx:99:<li key={d.id_liste} className={`it${leaving === d.id_liste  ' leaving' : ''}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\LoginForm.jsx:12:<button type="button" className="eye" onClick={onToggle} aria-label={shown  'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={shown}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\LoginForm.jsx:38:if (!emailOk(em)) next.email = em  'Cette adresse e-mail ne semble pas valide.' : 'Entrez votre adresse e-mail.';
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\LoginForm.jsx:65:<form className={`pane${shake  ' shake' : ''}`} key={shake} onSubmit={submit} noValidate aria-labelledby="login-title">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\LoginForm.jsx:91:type={show  'text' : 'password'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\LoginForm.jsx:110:<div className={`formerr${formErr  ' on' : ''}`} role="alert">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:59:if (!emailOk(f.email)) e.email = f.email  'Cette adresse e-mail ne semble pas valide.' : 'Entrez votre adresse e-mail.';
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:81:await inscription({ email: f.email, password: f.password, nom: f.nom, prenom: f.prenom, telephone: f.tel  `+216 ${f.tel}` : '', ville: f.ville });
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:90:setErrs(err.fields?.email  { email: err.fields.email } : { cgu: err.message });
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:119:<StepsBar compact lastIsCheck steps={['Vous', asso  'Votre association' : 'Votre ville', 'Bienvenue']} current={step} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:122:<section className={`sl${back  ' back' : ''}`} aria-labelledby="signup-title">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:151:{asso  'Votre compte est créé tout de suite ; votre association est vérifiée par notre équipe sous 48 h.' : ''}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:180:type={show  'text' : 'password'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:195:<li key={k} className={pw.r[k]  'ok' : undefined}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:197:<span className="sr-only">{pw.r[k]  ' : respectée' : ' : non respectée'}</span>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:208:<section className={`sl${back  ' back' : ''}`} aria-labelledby="signup-title2">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:213:label={asso  'Gouvernorat de l’association' : 'Gouvernorat'}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:216:className={f.ville  'filled' : ''}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:233:<div className={`nearby${near  ' on' : ''}`} aria-live="polite">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:264:<label className={`ck2 cgu${errs.cgu  ' shake' : ''}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:273:<small className="cgu-err" id="cgu-err" role={errs.cgu  'alert' : undefined}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\auth\components\SignupForm.jsx:293:<p className="sub2">{asso  'Votre compte est prêt. Voici où en est votre association :' : 'Votre compte citoyen est prêt. Par quoi voulez-vous commencer ?'}</p>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\components\Hero.jsx:77:navigate(q.trim()  `/campagnes?q=${encodeURIComponent(q.trim())}` : '/campagnes');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\components\Hero.jsx:124:placeholder={focused  '' : `${placeholder}${reduced  '' : '|'}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\components\Hero.jsx:172:<span style={{ width: started  `${p}%` : 0 }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\components\Hero.jsx:191:<div className={`dtoast${out  ' out' : ''}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\components\HomeCampaignCard.jsx:12:<button type="button" className="fav" aria-pressed={!!favori} aria-label={favori  `Retirer « ${c.titre} » des favoris` : `Enregistrer « ${c.titre} »`} onClick={onFavori}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\components\Reveal.jsx:7:<Tag ref={ref} className={`reveal${visible  ' vis' : ''} ${className}`} style={{ transitionDelay: `${delay}s`, ...style }} {...rest}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\pages\HomePage.jsx:68:const launchTo = !isAuthenticated  '/inscription' : role === 'organisateur'  '/organisateur/campagnes/nouvelle' : '/espace/devenir-organisateur';
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\pages\HomePage.jsx:74:toast(on  'Campagne enregistrée' : 'Retirée des favoris');
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\features\accueil\pages\HomePage.jsx:78:<div className={`home${inClass  ' in' : ''}`}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Avatar.jsx:16:role={label  'img' : undefined}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Avatar.jsx:32:<div className={`av${size === 'sm'  ' sm' : ''} ${className}`} role={label  'img' : undefined} aria-label={label}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Avatar.jsx:34:<span key={`${ini}-${i}`} className={isNew  'new' : undefined} style={{ background: col }} aria-hidden="true">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\BarChart.jsx:26:<div key={labels[i]} className={i === values.length - 1  'on' : undefined} style={{ height: i < shown  `${Math.round((v / top) * 100)}%` : 0 }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Chip.jsx:14:<button type="button" className={`chip${active  ' on' : ''} ${className}`} aria-pressed={!!active} {...rest}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Confetti.js:21:s.style.cssText = `position:fixed;left:${r.left + r.width / 2}px;top:${r.top + r.height / 2}px;background:${COLORS[i % 5]};--x:${Math.cos(a) * d}px;--y:${Math.sin(a) * d}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\DataTable.jsx:15:*     rowClassName={(u) => (u.flash  'ok-flash' : '')}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\DataTable.jsx:49:<div className={`bulk2${count  ' on' : ''}`} aria-hidden={!count} role="region" aria-label="Actions groupées">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\DataTable.jsx:86:<td key={c.key} style={{ textAlign: c.align || 'left', position: c.relative  'relative' : undefined }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\DateBadge.jsx:7:<div className={`dt2${light  ' light' : ''} ${className}`} style={style}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\EmptyState.jsx:10:<div className={`empty2${large  ' large' : ''} ${className}`} role="status">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Field.jsx:13:const describedBy = error  `${id}-err` : hint  `${id}-hint` : undefined;
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Field.jsx:23:className={`inp3${error  ' bad' : ''} ${className}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Field.jsx:34:) : hint  (
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Field.jsx:58:<Tag ref={ref} id={id} placeholder=" " aria-invalid={!!error || undefined} aria-describedby={error  `${id}-err` : undefined} {...rest}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Field.jsx:68:<small className="err" id={`${id}-err`} role={error  'alert' : undefined}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\MapPreview.jsx:7:<div className="sea" style={compact  { height: '30%' } : undefined} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\MapPreview.jsx:8:<i className="rd" style={{ left: 0, right: 0, top: compact  '45%' : '40%', height: 6 }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\MapPreview.jsx:9:<i className="rd" style={{ left: compact  '40%' : '30%', top: 0, bottom: compact  '30%' : '40%', width: 5 }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Menu.jsx:78:<button {...triggerProps} className={`dots${onDark  ' on-dark' : ''}`} aria-label={label}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Menu.jsx:87:className={`${menuClassName}${open  ' open' : ''}`}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Menu.jsx:103:className={it.danger  'danger' : undefined}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Modal.jsx:59:<div ref={ref} className="modal" role="dialog" aria-modal="true" aria-labelledby={`${id}-title`} style={width  { width: `min(${width}px, 100%)` } : undefined}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\ProgressBar.jsx:22:const customHeight = height && height !== 10 && height !== 6  { height } : {};
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\ProgressBar.jsx:34:<span style={{ width: `${w}%`, ...(color  { background: color } : {}) }} />
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Select.jsx:14:<label className={hideLabel  'sr-only' : 'lbl'} htmlFor={id}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\StatCard.jsx:30:{suffix  ` ${suffix}` : ''}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Stepper.jsx:18:<div className={`stepper${value > 0  ' has' : ''}`} role="group" aria-label={label  `Quantité : ${label}` : 'Quantité'}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Stepper.jsx:19:<button type="button" onClick={() => set(value - 1)} disabled={value <= min} aria-label={label  `Moins de ${label}` : 'Moins'}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Stepper.jsx:22:<output key={bump} className={bump  'bump' : ''} aria-live="polite">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Stepper.jsx:25:<button type="button" onClick={() => set(value + 1)} disabled={value >= max} aria-label={label  `Plus de ${label}` : 'Plus'}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\StepsBar.jsx:11:<ol className={`steps4${compact  ' compact' : ''}`} aria-label="Étapes">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\StepsBar.jsx:14:const state = n === current  'on' : n < current  'done' : '';
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\StepsBar.jsx:17:<li className={`st4 ${state}`} aria-current={n === current  'step' : undefined} style={{ listStyle: 'none' }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\StepsBar.jsx:23:<li className={`ln4${n < current  ' ok' : ''}`} aria-hidden="true" style={{ listStyle: 'none' }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Tabs.jsx:65:aria-controls={children  `${id}-panel` : undefined}
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Timeline.jsx:9:<li key={i} className={it.future  'fut' : undefined} style={{ listStyle: 'none' }}>
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\components\Toast.jsx:36:<div className={`toast${state.show  ' show' : ''}`} role="status" aria-live="polite" aria-atomic="true">
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\hooks\useHideOnScroll.js:43:document.documentElement.style.setProperty('--hdr', hidden  '0px' : `${height}px`);
+C:\Users\21650\Pictures\projet_software\Frontend\moubedra-template\src\design\hooks\useHideOnScroll.js:46:const show = () => setState((s) => (s.hidden  { ...s, hidden: false } : s));

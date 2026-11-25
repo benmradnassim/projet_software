@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, CircleCheck, Eye, Package, Plus, Send, ShieldCheck, Trash2, Upload, X } from 'lucide-react';
+import { ArrowRight, CircleCheck, Eye, Package, Plus, Save, Send, ShieldCheck, Trash2, Upload, X } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
 import { Breadcrumb, Button, Input, Panel, Select, StepsBar, Textarea, confetti, useToast } from '../../../design/components';
 import { formatNumber } from '../../../lib/format';
 import { getGouvernorats } from '../../auth';
-import { PHOTO_TYPES, createCampagne, getCategories, uploadPhotoCampagne, verifierPhoto } from '../api';
+import { PHOTO_TYPES, createCampagne, getCategories, updateCampagne, uploadPhotoCampagne, verifierPhoto } from '../api';
 import CampaignCard from '../components/CampaignCard';
 import '../campagnes.css';
 
@@ -81,110 +81,140 @@ export default function NewCampaignPage() {
   };
 
 
-  const next = async () => {
-    if (sending) return;
+  /* ---------- brouillon ----------
+   * Dès que l'étape 1 est valide, la campagne est créée en brouillon côté back,
+   * puis mise à jour à chaque étape. Si l'organisateur quitte la page (lien du menu,
+   * « Mes campagnes »…), les dernières saisies sont enregistrées : il la retrouve dans
+   * l'onglet « Brouillons » et la reprend avec « Modifier ».
+   */
+  const brouillonId = useRef(null);
+  const dernierEnvoi = useRef('');
+  const termine = useRef(false);
 
-    // Étape 1 : vérifier les informations essentielles
-    if (st === 1) {
+  const construirePayload = (x) => ({
+    titre: x.titre.trim(),
+    description: x.description.trim(),
+    categorie: x.categorie,
+    ville: x.ville,
+    besoins: x.besoins.filter((b) => b[0].trim()).map((b) => [b[0].trim(), b[1].trim()]),
+    point_collecte: x.point.trim(),
+    date_debut: x.debut,
+    date_fin: x.fin,
+    objectif_montant: x.objectif || '0',
+    // URL complète de la couverture choisie (remplacée par la photo si elle est envoyée)
+    image: x.cover ? new URL(`/media/covers/${x.cover}.webp`, window.location.origin).href : '',
+  });
+
+  /** Crée le brouillon au premier appel, puis le met à jour. Renvoie son id. */
+  const enregistrerBrouillon = async (x = d) => {
+    const payload = construirePayload(x);
+    const cle = JSON.stringify(payload);
+    if (brouillonId.current && cle === dernierEnvoi.current) return brouillonId.current;
+    if (brouillonId.current) {
+      await updateCampagne(brouillonId.current, payload);
+    } else {
+      const creee = await createCampagne(payload);
+      brouillonId.current = creee.id;
+    }
+    dernierEnvoi.current = cle;
+    return brouillonId.current;
+  };
+
+  // Sauvegarde automatique quand on quitte l'assistant sans le terminer.
+  const dRef = useRef(d);
+  dRef.current = d;
+  useEffect(
+    () => () => {
+      if (termine.current) return;
+      const x = dRef.current;
+      if (!x.titre.trim() || !x.description.trim()) return; // rien d'exploitable à garder
+      enregistrerBrouillon(x).catch(() => {
+        /* saisie incomplète (ex. dates incohérentes) : le dernier brouillon valide est conservé */
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const etapeValide = () => {
+    if (st >= 1) {
       if (!d.titre.trim()) {
         setTitleErr('Donnez un titre à votre campagne');
         toast('Donnez un titre à votre campagne');
-        document.getElementById('w-titre')?.focus();
-        return;
+        if (st === 1) document.getElementById('w-titre')?.focus();
+        return false;
       }
-
       if (!d.description.trim()) {
         toast('Veuillez saisir une description.');
-        return;
+        return false;
       }
     }
-
-    // Étape 2 : vérifier l'objectif et les dates
-    if (st === 2) {
-      if (Number(d.objectif) <= 0 || !d.objectif) {
+    if (st >= 2) {
+      if (!d.objectif || Number(d.objectif) <= 0) {
         toast("L'objectif financier doit être supérieur à zéro.");
-        return;
+        return false;
       }
-
       if (!d.debut || !d.fin || d.fin < d.debut) {
         toast('La date de fin doit être égale ou postérieure à la date de début.');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  /** Termine : enregistre, envoie la photo éventuelle, puis retourne à « Mes campagnes ». */
+  const terminer = async (messageOk) => {
+    const id = await enregistrerBrouillon();
+    termine.current = true;
+    let photoOk = true;
+    if (photo) {
+      try {
+        await uploadPhotoCampagne(id, photo.file);
+      } catch (err) {
+        photoOk = false;
+        toast(`Brouillon enregistré, mais la photo n’a pas été envoyée : ${err.message}`);
+      }
+    }
+    if (photoOk) toast(messageOk);
+    return photoOk;
+  };
+
+  const next = async () => {
+    if (sending || !etapeValide()) return;
+    setSending(true);
+    try {
+      if (st < 4) {
+        const premier = !brouillonId.current;
+        await enregistrerBrouillon();
+        if (premier) toast('Brouillon enregistré : vous pouvez le reprendre plus tard depuis « Mes campagnes ».');
+        setSt(st + 1);
         return;
       }
-    }
-
-    // Passer à l'étape suivante
-    if (st < 4) {
-      setSt(st + 1);
-      return;
-    }
-
-    // Construire une URL complète pour la couverture choisie
-    const imageUrl = d.cover
-      ? new URL(
-          `/media/covers/${d.cover}.webp`,
-          window.location.origin
-        ).href
-      : '';
-
-    // Préparer les champs attendus par Django
-
-const payload = {
-  titre: d.titre.trim(),
-  description: d.description.trim(),
-  categorie: d.categorie,
-  ville: d.ville,
-  besoins: d.besoins
-    .filter((b) => b[0].trim())
-    .map((b) => [b[0].trim(), b[1].trim()]),
-  point_collecte: d.point.trim(),
-  date_debut: d.debut,
-  date_fin: d.fin,
-  objectif_montant: d.objectif,
-  image: imageUrl,
-};
-
-
-    setSending(true);
-
-    try {
-     
-
-      const creee = await createCampagne(payload);
-
-      // La couverture reste l'image de secours si l'envoi de la photo échoue.
-      let photoOk = true;
-      if (photo) {
-        try {
-          await uploadPhotoCampagne(creee.id, photo.file);
-        } catch (err) {
-          photoOk = false;
-          toast(`Campagne créée, mais la photo n’a pas été envoyée : ${err.message}`);
-        }
-      }
-
-      if (photoOk) toast('Campagne créée en brouillon avec succès !');
-
+      await terminer('Campagne créée en brouillon avec succès !');
       confetti(sendRef.current);
-
-      setTimeout(() => {
-        navigate('/organisateur/campagnes');
-      }, 700);
-
+      setTimeout(() => navigate('/organisateur/campagnes'), 700);
     } catch (err) {
-      console.error('Erreur de création :', err);
-
-      toast(
-        err.message || 'Impossible de créer la campagne.'
-      );
-
+      toast(err.message || 'Impossible d’enregistrer la campagne.');
     } finally {
       setSending(false);
     }
   };
 
+  const enregistrerEtQuitter = async () => {
+    if (sending || !etapeValide()) return;
+    setSending(true);
+    try {
+      await terminer('Brouillon enregistré. Retrouvez-le dans l’onglet « Brouillons ».');
+      navigate('/organisateur/campagnes');
+    } catch (err) {
+      toast(err.message || 'Impossible d’enregistrer le brouillon.');
+    } finally {
+      setSending(false);
+    }
+  };
 
   const nav = (
-    <div className="row" style={{ marginTop: 22 }}>
+    <div className="row" style={{ marginTop: 22, flexWrap: 'wrap' }}>
       {st > 1 && (
         <Button variant="ghost" style={{ height: 52 }} onClick={() => setSt(st - 1)}>
           ← Retour
@@ -195,12 +225,17 @@ const payload = {
         style={{ flex: 1, justifyContent: 'center', height: 52 }}
         onClick={next}
         loading={sending}
-        loadingText="Envoi…"
+        loadingText="Enregistrement…"
         icon={st === 4 ? Send : undefined}
         iconRight={st < 4 ? ArrowRight : undefined}
       >
         {st < 4 ? 'Continuer' : 'Créer la campagne'}
       </Button>
+      {st < 4 && (
+        <Button variant="ghost" icon={Save} style={{ height: 52 }} onClick={enregistrerEtQuitter} disabled={sending}>
+          Enregistrer le brouillon
+        </Button>
+      )}
     </div>
   );
 

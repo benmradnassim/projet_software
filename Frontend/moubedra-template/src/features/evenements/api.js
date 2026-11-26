@@ -1,7 +1,23 @@
 import { api, IS_DEMO, unwrapList } from "../../lib/api";
+import { ago } from "../../lib/mock";
+import { listDemandesRecuesCampagnes, traiterParticipationCampagne } from "../campagnes";
+import { DEMANDES_RECUES, EVENEMENTS, MES_PARTICIPATIONS } from "./mockData";
 
-let demoEvents = [];
-let demoParticipations = [];
+/* ---------- données de démo (VITE_DEMO=true) ---------- */
+const DEMO_USER = 1; // Nour Saada dans les données fictives
+const COORDS_DEMO = { telephone: "+216 22 333 444", cin: "12345678", adresse: "12 rue Habib Bourguiba, Tunis" };
+const avecTitre = (p) => {
+  const e = EVENEMENTS.find((x) => x.id === p.evenement);
+  return { ...p, evenement_titre: e?.titre, evenement_date: e?.date_evenement, evenement_lieu: e?.lieu };
+};
+let demoEvents = EVENEMENTS.map((e) => ({ ...e, ma_participation: null }));
+let demoParticipations = [
+  ...MES_PARTICIPATIONS.map((p) => avecTitre({ ...p, utilisateur_nom: "Nour Saada", prenom: "Nour", nom: "Saada", ...COORDS_DEMO })),
+  ...DEMANDES_RECUES.map((p, i) => {
+    const [prenom, ...nom] = p.utilisateur_nom.split(" ");
+    return avecTitre({ ...p, utilisateur: 100 + i, prenom, nom: nom.join(" "), date_demande: ago({ h: i + 1 }), motif: p.motif.replace(/[«»]/g, "").trim(), type: "benevole", code_qr: null, ...COORDS_DEMO });
+  }),
+];
 let demoNextEventId = 1000;
 let demoNextPartId = 5000;
 
@@ -118,6 +134,11 @@ export async function createParticipation(payload) {
       date_demande: nowIso(),
       type: payload.type || "benevole",
       motif: payload.motif || "",
+      nom: payload.nom || "",
+      prenom: payload.prenom || "",
+      telephone: payload.telephone || "",
+      cin: payload.cin || "",
+      adresse: payload.adresse || "",
       statut: "en_attente",
       code_qr: null,
     };
@@ -173,4 +194,57 @@ export async function verifyParticipationQr(code_qr) {
 export function resetDemoEvents() {
   demoEvents = [];
   demoParticipations = [];
+}
+
+/* ---------- « Mes participations » et « Demandes reçues » (événements + campagnes) ---------- */
+
+/** Ajoute `type_liste` et `evenement_detail` (titre, date, lieu, statut) à une participation. */
+async function avecEvenement(p) {
+  const repli = { id: p.evenement, titre: p.evenement_titre || `Événement #${p.evenement}`, date_evenement: p.evenement_date, lieu: p.evenement_lieu || "" };
+  try {
+    const e = await getEvenement(p.evenement);
+    return { ...p, type_liste: "evenement", evenement_detail: e ? { ...repli, ...e } : repli };
+  } catch {
+    return { ...p, type_liste: "evenement", evenement_detail: repli };
+  }
+}
+
+/** Mes demandes de participation aux événements (celles que j'ai envoyées). */
+export async function listMesParticipations() {
+  const rows = IS_DEMO
+    ? demoParticipations.filter((p) => p.utilisateur === DEMO_USER)
+    : await listParticipations({ perimetre: "mes" });
+  return Promise.all(rows.map(avecEvenement));
+}
+
+export const annulerParticipation = (id) => cancelParticipation(id);
+
+/** Modifie une demande encore en attente (coordonnées, type, motif). */
+export async function modifierParticipation(id, data) {
+  if (IS_DEMO) {
+    demoParticipations = demoParticipations.map((p) => (p.id === Number(id) ? { ...p, ...data } : p));
+    return demoParticipations.find((p) => p.id === Number(id));
+  }
+  return api.patch(`/participations/evenements/${id}/`, data);
+}
+
+/**
+ * Organisateur : demandes en attente reçues sur ses événements et ses campagnes.
+ * params.evenement : limite aux demandes d'un événement (les campagnes sont alors exclues).
+ */
+export async function listDemandesRecues(params = {}) {
+  const evenements = IS_DEMO
+    ? demoParticipations.filter((p) => p.utilisateur !== DEMO_USER && p.statut === "en_attente" && (!params.evenement || p.evenement === Number(params.evenement)))
+    : await listParticipations({ statut: "en_attente", perimetre: "recues", ...(params.evenement ? { evenement: params.evenement } : {}) });
+  const [ev, camp] = await Promise.all([
+    Promise.all(evenements.map(avecEvenement)),
+    params.evenement ? [] : listDemandesRecuesCampagnes(),
+  ]);
+  return [...ev, ...camp].map((row) => ({ ...row, id_liste: `${row.type_liste}-${row.id}` }));
+}
+
+/** decision : 'acceptee' | 'refusee' ; type : 'evenement' | 'campagne' */
+export function deciderDemande(id, decision, type = "evenement") {
+  if (type === "campagne") return traiterParticipationCampagne(id, decision);
+  return traiterParticipation(id, decision === "acceptee" ? "accepter" : "refuser");
 }

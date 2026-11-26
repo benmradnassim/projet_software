@@ -4,6 +4,7 @@ import { useAuth } from "../../../app/AuthContext";
 import { Button, EmptyState, Input, PageHeader, Select, SkeletonList, useToast } from "../../../design/components";
 import { IS_DEMO } from "../../../lib/api";
 import { createEvenement, createParticipation, deleteEvenement, listEvenements, listParticipations, updateEvenement } from "../api";
+import ParticipationFormModal from "../components/ParticipationFormModal";
 import EventFormModal from "../components/EventFormModal";
 import EventRow from "../components/EventRow";
 import "../evenements.css";
@@ -74,15 +75,23 @@ export default function MyEventsPage() {
     }
   };
 
-  const onParticipate = async (event) => {
-    if (!isAuthenticated) { toast("Connectez-vous pour participer."); return; }
+  // Formulaire de participation (coordonnées exigées par le back).
+  const [participer, setParticiper] = useState(null);
+  const envoyerParticipation = async (payload) => {
     try {
-      await createParticipation({ evenement: event.id, type: "benevole", motif: "" });
-      toast("Demande de participation envoyée.");
-      await load();
+      await createParticipation({ ...payload, evenement: Number(participer.id) });
     } catch (err) {
       toast(err.message || "Impossible d'envoyer la demande.");
+      throw err;
     }
+    setParticiper(null);
+    toast("Demande de participation envoyée. Vous serez notifié·e de la réponse.");
+    await load();
+  };
+
+  const onParticipate = (event) => {
+    if (!isAuthenticated) { toast("Connectez-vous pour participer."); return; }
+    setParticiper(event);
   };
 
   const onManage = (event) => { window.location.href = `/organisateur/demandes?evenement=${event.id}`; };
@@ -165,6 +174,13 @@ export default function MyEventsPage() {
       </div>
 
       <EventFormModal open={modalOpen} onClose={() => setModalOpen(false)} initial={editing} onSaved={onSaved} />
+      <ParticipationFormModal
+        open={!!participer}
+        onClose={() => setParticiper(null)}
+        titre="Participer à l’événement"
+        sousTitre={participer?.titre}
+        onSubmit={envoyerParticipation}
+      />
     </div>
   );
 }

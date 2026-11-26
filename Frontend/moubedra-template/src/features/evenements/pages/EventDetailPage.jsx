@@ -5,6 +5,7 @@ import { useAuth } from "../../../app/AuthContext";
 import { Badge, Breadcrumb, Button, EmptyState, Modal, PageHeader, Panel, ProgressBar, Skeleton, useToast } from "../../../design/components";
 import { percent } from "../../../lib/format";
 import { cancelParticipation, createParticipation, getEvenement, listParticipations } from "../api";
+import ParticipationFormModal from "../components/ParticipationFormModal";
 import QrCodeModal from "../components/QrCodeModal";
 import "../evenements.css";
 
@@ -41,15 +42,23 @@ export default function EventDetailPage() {
   const isOwner = user && String(event?.organisateur) === String(user.id);
   const canParticipate = isAuthenticated && !isOwner && ["citoyen", "organisateur"].includes(user?.role) && event?.statut === "planifie" && !ma;
 
-  const onParticipate = async () => {
-    if (!isAuthenticated) { navigate("/connexion"); return; }
-    setActing(true);
+  // Formulaire de participation (coordonnées exigées par le back).
+  const [participer, setParticiper] = useState(null);
+  const envoyerParticipation = async (payload) => {
     try {
-      await createParticipation({ evenement: Number(id), type: "benevole", motif: "" });
-      toast("Demande de participation envoyée.");
-      await load();
-    } catch (err) { toast(err.message || "Impossible d'envoyer la demande."); }
-    finally { setActing(false); }
+      await createParticipation({ ...payload, evenement: Number(participer.id) });
+    } catch (err) {
+      toast(err.message || "Impossible d'envoyer la demande.");
+      throw err;
+    }
+    setParticiper(null);
+    toast("Demande de participation envoyée. Vous serez notifié·e de la réponse.");
+    await load();
+  };
+
+  const onParticipate = () => {
+    if (!isAuthenticated) { navigate("/connexion"); return; }
+    setParticiper(event);
   };
 
   const onCancel = async () => {
@@ -141,6 +150,13 @@ export default function EventDetailPage() {
           </ul>
         ) : <p>Aucune participation.</p>}
       </Modal>
+      <ParticipationFormModal
+        open={!!participer}
+        onClose={() => setParticiper(null)}
+        titre="Participer à l’événement"
+        sousTitre={participer?.titre}
+        onSubmit={envoyerParticipation}
+      />
     </div>
   );
 }

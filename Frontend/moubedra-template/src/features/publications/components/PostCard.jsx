@@ -5,19 +5,21 @@ import {
   Heart, Link as LinkIcon, MapPin, Megaphone, MessageCircle, Pencil, Pin, Quote, Share2, Sparkles, Trash2, TrendingUp, Trophy,
 } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
-import { AvatarStack, Button, DateBadge, Icon, Menu, ProgressBar, confetti, miniBurst, useToast } from '../../../design/components';
+import { Avatar, AvatarStack, Button, DateBadge, Icon, Menu, ProgressBar, confetti, miniBurst, useToast } from '../../../design/components';
 import { useInView } from '../../../design/hooks';
 import { formatRelative, percent, tnd } from '../../../lib/format';
-import { basculerMerci, getTypes, voter } from '../api';
+import { basculerMerci, getTypes, modifierPublication, voter } from '../api';
+import Comments from './Comments';
 import { creerSignalement } from '../../signalements';
 import '../publications.css';
 
 const TYPES = getTypes();
 
 /* ---------- en-tête de carte ---------- */
-function Head({ post, mine, onDelete }) {
+function Head({ post, mine, onDelete, onEdit }) {
   const toast = useToast();
-  const ty = TYPES[post.type];
+  const { role } = useAuth();
+  const ty = TYPES[post.type] || TYPES.story;
   const goal = post.type === 'goal';
   const copy = () => {
     navigator.clipboard?.writeText(`${window.location.origin}/communaute#publication-${post.id}`).catch(() => {});
@@ -25,7 +27,7 @@ function Head({ post, mine, onDelete }) {
   };
   const items = mine
     ? [
-        { icon: Pencil, label: 'Modifier', onSelect: () => toast('Modifier ✓') },
+        ...(onEdit ? [{ icon: Pencil, label: 'Modifier', onSelect: onEdit }] : []),
         { icon: Pin, label: 'Épingler sur mon profil', onSelect: () => toast('Épinglé sur votre profil ✓') },
         { icon: LinkIcon, label: 'Copier le lien', onSelect: copy },
         null,
@@ -48,13 +50,13 @@ function Head({ post, mine, onDelete }) {
             toast('Signalement envoyé à la modération');
           },
         },
+        // US 7.10 : un admin peut supprimer une publication inappropriée
+        ...(role === 'admin' && onDelete ? [{ icon: Trash2, label: 'Supprimer (modération)…', danger: true, onSelect: onDelete }] : []),
       ];
   return (
     <div className="top">
       <div className="who">
-        <span className="avatar" style={{ background: post.auteur_couleur, width: 40, height: 40, fontSize: 13 }} aria-hidden="true">
-          {post.auteur_initiales}
-        </span>
+        <Avatar name={post.auteur_nom} initials={post.auteur_initiales} color={post.auteur_couleur} size={40} style={{ fontSize: 13 }} />
         <div>
           <b>
             {post.auteur_nom}
@@ -75,14 +77,20 @@ function Head({ post, mine, onDelete }) {
 }
 
 /* ---------- pied : Merci / commentaires / partager ---------- */
-function Foot({ post }) {
+function Foot({ post, nbCommentaires, commentsOpen, onToggleComments }) {
   const toast = useToast();
-  const [on, setOn] = useState(false);
-  const [n, setN] = useState(post.nb_like);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [on, setOn] = useState(!!post.a_like);
+  const [n, setN] = useState(post.nb_like || 0);
   const [dir, setDir] = useState('');
   const [plus, setPlus] = useState(0);
   const ref = useRef(null);
   const toggle = () => {
+    if (!isAuthenticated) {
+      navigate('/connexion', { state: { from: '/communaute', message: 'Connectez-vous pour participer' } });
+      return;
+    }
     const next = !on;
     setOn(next);
     setN((x) => x + (next ? 1 : -1));
@@ -91,8 +99,16 @@ function Foot({ post }) {
       miniBurst(ref.current);
       setPlus((p) => p + 1);
     }
-    // TODO(API): POST /api/likes/ ou DELETE /api/likes/<id>/ — voir features/publications/api.js
-    basculerMerci(post.id, next);
+    // Mise à jour optimiste : on aligne sur la réponse du serveur, ou on annule en cas d'erreur.
+    basculerMerci(post.id, next)
+      .then((r) => {
+        if (typeof r?.nb_like === 'number') setN(r.nb_like);
+      })
+      .catch((err) => {
+        setOn(!next);
+        setN((x) => x + (next ? -1 : 1));
+        toast(err?.message || 'Action impossible pour le moment');
+      });
   };
   return (
     <div className="foot2">
@@ -114,8 +130,8 @@ function Foot({ post }) {
           </span>
         )}
       </button>
-      <button type="button" onClick={() => toast('Les commentaires arrivent bientôt')} aria-label={`${post.nb_commentaire} commentaires`}>
-        <MessageCircle size={16} aria-hidden="true" /> {post.nb_commentaire || 0}
+      <button type="button" onClick={onToggleComments} aria-expanded={commentsOpen} aria-label={`${nbCommentaires} commentaires`}>
+        <MessageCircle size={16} aria-hidden="true" /> {nbCommentaires}
       </button>
       <button type="button" onClick={() => toast('Lien copié, prêt à partager')}>
         <Share2 size={16} aria-hidden="true" /> Partager
@@ -576,18 +592,101 @@ const BODIES = {
  *   <PostCard post={p} onDelete={() => …} />       fil complet
  *   <PostCard post={p} compact />                  aperçu de l'accueil (sans pied)
  */
-export default function PostCard({ post, compact, onDelete, gone, fresh, enterDelay = 0, className = '' }) {
+/* ---------- modification d'une publication (US 7.3) ---------- */
+function EditForm({ post, onSaved, onCancel }) {
+  const toast = useToast();
+  const champ = post.type === 'poll' ? 'titre' : 'contenu';
+  const [texte, setTexte] = useState(post[champ] || '');
+  const [erreur, setErreur] = useState('');
+  const [envoi, setEnvoi] = useState(false);
+  const id = `edit-publication-${post.id}`;
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!texte.trim()) {
+      setErreur('Le message ne peut pas être vide.');
+      return;
+    }
+    setEnvoi(true);
+    setErreur('');
+    try {
+      const maj = await modifierPublication(post.id, { [champ]: texte.trim() });
+      toast(maj.statut === 'en_attente' ? 'Modification enregistrée : visible après vérification par la modération' : 'Publication modifiée');
+      onSaved(maj);
+    } catch (err) {
+      setErreur(err?.fields?.contenu || err?.fields?.titre || err?.message || 'Une erreur est survenue.');
+      setEnvoi(false);
+    }
+  };
+
+  return (
+    <form className="pc-edit" onSubmit={submit} onKeyDown={(e) => e.key === 'Escape' && onCancel()}>
+      <label htmlFor={id} className="lbl">
+        Modifier votre publication
+      </label>
+      <textarea
+        id={id}
+        className={`inp3${erreur ? ' bad' : ''}`}
+        value={texte}
+        maxLength={2000}
+        autoFocus
+        aria-invalid={!!erreur || undefined}
+        aria-describedby={erreur ? `${id}-err` : undefined}
+        onChange={(e) => setTexte(e.target.value)}
+      />
+      {erreur && (
+        <small className="field-err" id={`${id}-err`} role="alert">
+          {erreur}
+        </small>
+      )}
+      <div className="cmt-actions">
+        <Button type="submit" variant="navy" size="sm" loading={envoi} loadingText="Enregistrement…">
+          Enregistrer
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          Annuler
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export default function PostCard({ post: initial, compact, onDelete, gone, fresh, enterDelay = 0, className = '' }) {
   const { user } = useAuth();
   const [ref, visible] = useInView({ threshold: 0.25 });
+  const [post, setPost] = useState(initial);
+  const [editing, setEditing] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [nbCommentaires, setNbCommentaires] = useState(initial.nb_commentaire || 0);
+  useEffect(() => setPost(initial), [initial]);
+
   const mine = post.mine || (user && user.id === post.auteur);
-  const Body = BODIES[post.type] || StoryBody;
-  const head = <Head post={post} mine={mine} onDelete={onDelete} />;
+  // Sans `details` (publications venant du back), les cartes riches s'affichent au format « Histoire ».
+  const Body = (post.details || post.type === 'story' ? BODIES[post.type] : null) || StoryBody;
+  const head = <Head post={post} mine={mine} onDelete={onDelete} onEdit={compact ? undefined : () => setEditing(true)} />;
   const typeClass = post.type === 'thanks' ? 'thanks2' : post.type;
   const cls = ['pc', typeClass, fresh ? 'fresh' : 'enter', gone && 'gone', className].filter(Boolean).join(' ');
   return (
-    <article ref={ref} id={`publication-${post.id}`} className={cls} style={{ animationDelay: `${enterDelay}s` }} aria-label={`${TYPES[post.type]?.label} — ${post.auteur_nom}`} aria-hidden={gone || undefined}>
-      <Body post={post} head={head} visible={visible} />
-      {!compact && <Foot post={post} />}
+    <article ref={ref} id={`publication-${post.id}`} className={cls} style={{ animationDelay: `${enterDelay}s` }} aria-label={`${TYPES[post.type]?.label || 'Publication'} — ${post.auteur_nom}`} aria-hidden={gone || undefined}>
+      {editing ? (
+        <>
+          <div className="in">{head}</div>
+          <EditForm
+            post={post}
+            onCancel={() => setEditing(false)}
+            onSaved={(maj) => {
+              setPost((p) => ({ ...p, ...maj, details: p.details }));
+              setEditing(false);
+            }}
+          />
+        </>
+      ) : (
+        <Body post={post} head={head} visible={visible} />
+      )}
+      {!compact && (
+        <Foot post={post} nbCommentaires={nbCommentaires} commentsOpen={commentsOpen} onToggleComments={() => setCommentsOpen((o) => !o)} />
+      )}
+      {!compact && commentsOpen && <Comments publicationId={post.id} onCountChange={(d) => setNbCommentaires((x) => Math.max(0, x + d))} />}
     </article>
   );
 }

@@ -3,6 +3,9 @@ import { Check, Eye, Sparkles, Trash2 } from 'lucide-react';
 import { Avatar, Badge, Button, EmptyState, PageHeader, ProgressBar, SkeletonList, useToast } from '../../../design/components';
 import { useApi } from '../../../lib/useApi';
 import { listFileModeration, moderer } from '../api';
+
+/** Une publication et un commentaire peuvent avoir le même id : la clé combine les deux. */
+const cle = (m) => `${m.objet}-${m.id}`;
 import '../publications.css';
 
 /** Surligne les mots repérés par l'IA. */
@@ -20,20 +23,24 @@ const ACTIONS = {
 
 export default function ModerationPage() {
   const toast = useToast();
-  // TODO(API): remplacer par GET /api/publications/ + /api/commentaires/ filtrés sur score_toxicite — voir features/publications/api.js
   const { data: queue, loading, setData } = useApi(listFileModeration, [], []);
   const [cur, setCur] = useState(0);
   const [leaving, setLeaving] = useState(null);
 
   const act = useCallback(
-    (item, decision) => {
+    async (item, decision) => {
       if (!item || leaving) return;
-      setLeaving(item.id);
+      setLeaving(cle(item));
+      try {
+        await moderer(item, decision);
+      } catch (err) {
+        setLeaving(null);
+        toast(err?.message || 'Action impossible pour le moment');
+        return;
+      }
       toast(ACTIONS[decision]);
-      // TODO(API): PATCH du statut — voir features/publications/api.js (moderer)
-      moderer(item.id, decision);
       setTimeout(() => {
-        setData((q) => q.filter((x) => x.id !== item.id));
+        setData((q) => q.filter((x) => cle(x) !== cle(item)));
         setCur(0);
         setLeaving(null);
       }, 400);
@@ -85,8 +92,8 @@ export default function ModerationPage() {
             const col = sc > 70 ? '#d9472b' : sc > 40 ? '#e8963a' : '#4f7f42';
             return (
               <li
-                key={m.id}
-                className={`panel mqi${i === cur ? ' cur' : ''}${leaving === m.id ? ' leaving' : ''}`}
+                key={cle(m)}
+                className={`panel mqi${i === cur ? ' cur' : ''}${leaving === cle(m) ? ' leaving' : ''}`}
                 style={{ animationDelay: `${i * 0.06}s` }}
                 onClick={() => setCur(i)}
                 aria-current={i === cur || undefined}

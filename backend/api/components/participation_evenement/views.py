@@ -39,7 +39,7 @@ class DemandeParticipationEvenementViewSet(viewsets.ModelViewSet):
         if not evenement:
             raise ValidationError({"evenement": "Cet événement est requis."})
         if getattr(user, "role", None) == "organisateur" and evenement.organisateur_id == user.id:
-            raise ValidationError({"evenement": "Vous ne pouvez pas participer ? votre propre événement."})
+            raise ValidationError({"evenement": "Vous ne pouvez pas participer à votre propre événement."})
         if getattr(user, "role", None) not in {"citoyen", "organisateur"}:
             raise PermissionDenied("Vous ne pouvez pas créer cette participation.")
         try:
@@ -129,7 +129,7 @@ class DemandeParticipationEvenementViewSet(viewsets.ModelViewSet):
             return Response({"valide": False, "detail": "Code QR introuvable."}, status=status.HTTP_404_NOT_FOUND)
 
         if participation.evenement.organisateur_id != request.user.id:
-            return Response({"valide": False, "detail": "Ce QR code appartient ? un autre événement."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"valide": False, "detail": "Ce QR code appartient à un autre événement."}, status=status.HTTP_403_FORBIDDEN)
         if participation.statut != DemandeParticipationEvenement.Statut.ACCEPTEE:
             return Response({"valide": False, "detail": "Cette participation n'est pas acceptée."}, status=status.HTTP_400_BAD_REQUEST)
 

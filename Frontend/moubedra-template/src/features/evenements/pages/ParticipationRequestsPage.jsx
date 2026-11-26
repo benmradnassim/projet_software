@@ -101,7 +101,7 @@ export default function ParticipationRequestsPage() {
               </li>
             ))}
           </ul>
-        ) : <EmptyState title="Aucune demande" text="Aucune participation ? afficher." />}
+        ) : <EmptyState title="Aucune demande" text="Aucune participation à afficher." />}
       </Panel>
     </div>
   );

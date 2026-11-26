@@ -123,7 +123,8 @@ export default function MyEventsPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, fontWeight: 700, color: "var(--navy, #1f3a5f)" }}>
-            <Compass size={18} /> Découvrir d'autres événements ? </div>
+            <Compass size={18} /> Découvrir d'autres événements
+          </div>
           <div style={{ color: "var(--muted, #6b7280)", fontSize: 14 }}>Explorez les événements des autres organisateurs et participez.</div>
         </button>
       </div>

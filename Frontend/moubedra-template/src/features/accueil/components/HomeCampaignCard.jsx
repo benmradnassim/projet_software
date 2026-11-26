@@ -33,14 +33,17 @@ export default function HomeCampaignCard({ campagne: c, favori, onFavori, hidden
         <ProgressBar value={p} delay={300} label={`${p} % financé`} />
         <div className="foot">
           <span>
-            {p} % · {c.nb_donateurs} donateurs ? </span>
+            {p} % · {c.nb_donateurs} donateurs
+          </span>
           <span className="left">{c.jours_restants} jours</span>
         </div>
         <div className="acts">
           <Button size="sm" to={`/campagnes/${c.id}/don`}>
-            Donner ? </Button>
+            Donner
+          </Button>
           <Button size="sm" variant="ghost" to="/evenements">
-            Participer ? </Button>
+            Participer
+          </Button>
         </div>
       </div>
     </article>

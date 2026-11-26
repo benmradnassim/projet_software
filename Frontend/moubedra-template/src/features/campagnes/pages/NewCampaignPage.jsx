@@ -217,7 +217,8 @@ export default function NewCampaignPage() {
     <div className="row" style={{ marginTop: 22, flexWrap: 'wrap' }}>
       {st > 1 && (
         <Button variant="ghost" style={{ height: 52 }} onClick={() => setSt(st - 1)}>
-          ← Retour ? </Button>
+          ← Retour
+        </Button>
       )}
       <Button
         ref={sendRef}
@@ -232,7 +233,8 @@ export default function NewCampaignPage() {
       </Button>
       {st < 4 && (
         <Button variant="ghost" icon={Save} style={{ height: 52 }} onClick={enregistrerEtQuitter} disabled={sending}>
-          Enregistrer le brouillon ? </Button>
+          Enregistrer le brouillon
+        </Button>
       )}
     </div>
   );
@@ -263,7 +265,8 @@ export default function NewCampaignPage() {
                 />
                 {titleErr && <small className="cap4">{d.titre.length} / 70 · court et concret, c’est mieux</small>}
                 <span className="lbl" id="cat-lbl">
-                  Catégorie ? </span>
+                  Catégorie
+                </span>
                 <div className="catp" role="group" aria-labelledby="cat-lbl">
                   {CATS.map((c) => (
                     <button
@@ -299,7 +302,8 @@ export default function NewCampaignPage() {
                   <Package size={15} aria-hidden="true" /> Besoins matériels (facultatif)
                 </span>
                 <p className="cap4" style={{ marginBottom: 8 }}>
-                  Les citoyens pourront donner ces articles au lieu de l’argent. ? </p>
+                  Les citoyens pourront donner ces articles au lieu de l’argent.
+                </p>
                 {d.besoins.map((b, i) => (
                   <div className="needrow" key={i}>
                     <input
@@ -324,7 +328,8 @@ export default function NewCampaignPage() {
                   </div>
                 ))}
                 <Button variant="ghost" size="sm" icon={Plus} onClick={() => setD((x) => ({ ...x, besoins: [...x.besoins, ['', '']] }))}>
-                  Ajouter un article ? </Button>
+                  Ajouter un article
+                </Button>
                 <Input label="Point de collecte" value={d.point} onChange={set('point')} />
               </>
             )}
@@ -349,7 +354,8 @@ export default function NewCampaignPage() {
                       <small className="cap4">{photo.file.size < 1024 * 1024 ? `${Math.max(1, Math.round(photo.file.size / 1024))} Ko` : `${(photo.file.size / 1024 / 1024).toFixed(1).replace('.', ',')} Mo`} · envoyée à la création</small>
                     </div>
                     <Button variant="ghost" size="sm" icon={Upload} onClick={() => fileRef.current?.click()}>
-                      Changer ? </Button>
+                      Changer
+                    </Button>
                     <button type="button" className="kob" aria-label="Retirer la photo" onClick={() => setPhoto(null)}>
                       <Trash2 size={16} aria-hidden="true" />
                     </button>
@@ -376,7 +382,8 @@ export default function NewCampaignPage() {
                     <br />
                     <b style={{ color: 'var(--navy)' }}>{survol ? 'Déposez la photo' : 'Glissez votre photo ici ou cliquez pour choisir'}</b>
                     <br />
-                    JPG, PNG ou WebP · 5 Mo max · une vraie photo de votre action donne confiance ? </button>
+                    JPG, PNG ou WebP · 5 Mo max · une vraie photo de votre action donne confiance
+                  </button>
                 )}
                 <span className="lbl" id="cov-lbl" style={{ marginTop: 16 }}>
                   {photo ? 'Ou utilisez plutôt une couverture moubedra' : 'Pas encore de photo ? Utilisez une couverture moubedra'}
@@ -431,17 +438,20 @@ export default function NewCampaignPage() {
         </div>
         <aside className="sticky2" aria-label="Aperçu en direct">
           <div className="prevlbl">
-            <Eye size={14} aria-hidden="true" /> Aperçu en direct ? </div>
+            <Eye size={14} aria-hidden="true" /> Aperçu en direct
+          </div>
           <CampaignCard campagne={preview} preview />
           {besoins.length > 0 && (
             <Panel style={{ marginTop: 10, padding: 14 }}>
               <b style={{ font: '700 14px var(--display)', color: 'var(--navy)', display: 'flex', gap: 6, alignItems: 'center' }}>
-                <Package size={15} aria-hidden="true" /> Besoins matériels ? </b>
+                <Package size={15} aria-hidden="true" /> Besoins matériels
+              </b>
               <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 4 }}>{besoins.map((b) => `${b[1] || '?'} ${b[0].toLowerCase()}`).join(' · ')}</div>
             </Panel>
           )}
           <p className="cap4" style={{ marginTop: 10 }}>
-            <ShieldCheck size={14} aria-hidden="true" /> Chaque campagne est vérifiée par l’équipe avant publication. ? </p>
+            <ShieldCheck size={14} aria-hidden="true" /> Chaque campagne est vérifiée par l’équipe avant publication.
+          </p>
         </aside>
       </div>
     </div>

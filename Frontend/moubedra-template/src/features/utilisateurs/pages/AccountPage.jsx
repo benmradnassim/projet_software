@@ -113,7 +113,8 @@ export default function AccountPage() {
               </div>
             </div>
             <h3 className="h" style={{ marginTop: 14, fontSize: 20 }}>
-              Informations personnelles ? </h3>
+              Informations personnelles
+            </h3>
             <div className="fg2">
               {orga && (
                 <div style={{ gridColumn: '1 / -1' }}>
@@ -147,12 +148,14 @@ export default function AccountPage() {
                 <small className="muted">Modifié il y a 3 mois</small>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setPwdOpen(true)}>
-                Modifier ? </Button>
+                Modifier
+              </Button>
             </div>
           </Panel>
           <Panel className="danger" style={{ marginTop: 16 }}>
             <h3 className="h" style={{ color: 'var(--no-fg)' }}>
-              Zone sensible ? </h3>
+              Zone sensible
+            </h3>
             <div className="row">
               <div className="gw">
                 <h4 style={{ font: '700 16px var(--display)', color: 'var(--navy)' }}>Supprimer mon compte</h4>
@@ -164,10 +167,13 @@ export default function AccountPage() {
             </div>
           </Panel>
           <div className={`savebar${dirty ? ' on' : ''}`} role="region" aria-label="Modifications non enregistrées" aria-hidden={!dirty}>
-            <Info size={17} aria-hidden="true" /> Modifications non enregistrées ? <Button size="sm" variant="on-dark" style={{ marginLeft: 'auto' }} onClick={() => setForm(initial)} tabIndex={dirty ? 0 : -1}>
-              Annuler ? </Button>
+            <Info size={17} aria-hidden="true" /> Modifications non enregistrées
+            <Button size="sm" variant="on-dark" style={{ marginLeft: 'auto' }} onClick={() => setForm(initial)} tabIndex={dirty ? 0 : -1}>
+              Annuler
+            </Button>
             <Button size="sm" loading={saving} loadingText="Enregistrement…" onClick={save} tabIndex={dirty ? 0 : -1}>
-              Enregistrer ? </Button>
+              Enregistrer
+            </Button>
           </div>
         </div>
         <aside className="sticky2" aria-label="Préférences">
@@ -211,9 +217,11 @@ export default function AccountPage() {
           ))}
           <div className="actions">
             <Button variant="ghost" onClick={() => setPwdOpen(false)}>
-              Annuler ? </Button>
+              Annuler
+            </Button>
             <Button type="submit" variant="navy" loading={pwdBusy} loadingText="Enregistrement…">
-              Enregistrer ? </Button>
+              Enregistrer
+            </Button>
           </div>
         </form>
       </Modal>
@@ -224,7 +232,8 @@ export default function AccountPage() {
         actions={
           <>
             <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
-              Annuler ? </Button>
+              Annuler
+            </Button>
             <Button
               variant="danger-soft"
               onClick={() => {
@@ -232,7 +241,8 @@ export default function AccountPage() {
                 toast('Demande de suppression envoyée');
               }}
             >
-              Supprimer définitivement ? </Button>
+              Supprimer définitivement
+            </Button>
           </>
         }
       >

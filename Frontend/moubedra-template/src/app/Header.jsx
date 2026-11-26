@@ -56,7 +56,8 @@ export default function Header() {
   return (
     <>
       <a className="skip" href="#contenu">
-        Aller au contenu ? </a>
+        Aller au contenu
+      </a>
       <header className={`site-header${hidden ? ' hide' : ''}${shadow ? ' shadow' : ''}`} onFocus={show}>
         <div className="logo-wrap" ref={logoRef}>
           <button
@@ -81,13 +82,15 @@ export default function Header() {
             </NavLink>
           ))}
           <Link to="/#comment-ca-marche" className={pathname === '/' && hash === '#comment-ca-marche' ? 'active' : ''}>
-            Comment ça marche ? </Link>
+            Comment ça marche
+          </Link>
         </nav>
 
         <div className="hr">
           {!isAuthenticated ? (
             <Button to="/connexion" variant="ghost">
-              Connexion ? </Button>
+              Connexion
+            </Button>
           ) : (
             <>
               <Link to="/espace/notifications" className="bellb notif" aria-label={unread ? `Notifications, ${unread} non lues` : 'Notifications'}>
@@ -124,7 +127,8 @@ export default function Header() {
             </>
           )}
           <Button to="/campagnes" icon={Heart}>
-            Faire un don ? </Button>
+            Faire un don
+          </Button>
         </div>
       </header>
     </>

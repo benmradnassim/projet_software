@@ -19,7 +19,8 @@ export default function AdminDashboardPage() {
         subtitle={`La plateforme en un coup d’œil · ${today()}`}
         actions={
           <Button variant="ghost" size="sm" icon={Download} onClick={() => toast('Rapport mensuel en préparation')}>
-            Rapport mensuel ? </Button>
+            Rapport mensuel
+          </Button>
         }
       />
       {loading || !data ? (

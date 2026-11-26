@@ -118,7 +118,8 @@ function Foot({ post }) {
         <MessageCircle size={16} aria-hidden="true" /> {post.nb_commentaire || 0}
       </button>
       <button type="button" onClick={() => toast('Lien copié, prêt à partager')}>
-        <Share2 size={16} aria-hidden="true" /> Partager ? </button>
+        <Share2 size={16} aria-hidden="true" /> Partager
+      </button>
     </div>
   );
 }
@@ -195,7 +196,8 @@ function UrgentBody({ post, head }) {
             {helped ? 'Vous êtes inscrit·e' : 'Je viens aider'}
           </Button>
           <Button variant="ghost" icon={Heart} onClick={() => navigate(`/campagnes/${post.campagne}/don`)}>
-            Je fais un don ? </Button>
+            Je fais un don
+          </Button>
         </div>
       </div>
     </>
@@ -233,7 +235,8 @@ function EventBody({ post, head }) {
         <AvatarStack people={people} size="sm" />
         <div className="places">
           <small>
-            <b style={{ color: 'var(--navy)' }}>{inscrits}</b> participants · {d.capacite - inscrits} places restantes ? </small>
+            <b style={{ color: 'var(--navy)' }}>{inscrits}</b> participants · {d.capacite - inscrits} places restantes
+          </small>
           <ProgressBar value={percent(inscrits, d.capacite)} style={{ marginTop: 6 }} delay={250} />
         </div>
       </div>
@@ -251,7 +254,8 @@ function EventBody({ post, head }) {
           {joined ? 'Inscrit·e · samedi 08:30' : 'Je participe'}
         </Button>
         <Button variant="ghost" icon={MapPin} onClick={() => navigate(`/evenements/${d.evenement}`)}>
-          Itinéraire ? </Button>
+          Itinéraire
+        </Button>
       </div>
     </div>
   );
@@ -296,13 +300,16 @@ function UpdateBody({ post, head, visible }) {
             <i style={{ left: `${base}%`, width: `${w}%` }} />
           </div>
           <div className="wk">
-            <TrendingUp size={14} aria-hidden="true" /> +{tnd(d.semaine)} cette semaine · {d.jours_restants} jours restants ? </div>
+            <TrendingUp size={14} aria-hidden="true" /> +{tnd(d.semaine)} cette semaine · {d.jours_restants} jours restants
+          </div>
         </div>
         <div className="ctaRow">
           <Button icon={Heart} onClick={() => navigate(`/campagnes/${post.campagne}/don`)}>
-            Donner ? </Button>
+            Donner
+          </Button>
           <Button variant="ghost" icon={Bell} onClick={() => toast('Vous suivez cette campagne')}>
-            Suivre la campagne ? </Button>
+            Suivre la campagne
+          </Button>
         </div>
       </div>
     </>
@@ -345,9 +352,11 @@ function GoalBody({ post, head, visible }) {
       </div>
       <div className="ctaRow">
         <Button variant="goal-w" icon={Sparkles} to={`/campagnes/${post.campagne}`}>
-          Voir l’impact ? </Button>
+          Voir l’impact
+        </Button>
         <Button variant="goal-o" icon={ArrowRight} to="/campagnes">
-          Campagnes similaires ? </Button>
+          Campagnes similaires
+        </Button>
       </div>
     </div>
   );
@@ -424,7 +433,8 @@ function BeforeAfterBody({ post, head, visible }) {
           ))}
         </div>
         <span className="lab2" style={{ left: 12 }}>
-          Avant ? </span>
+          Avant
+        </span>
         <span className="lab2" style={{ right: 12 }}>
           Après
         </span>
@@ -434,7 +444,8 @@ function BeforeAfterBody({ post, head, visible }) {
           </span>
         </div>
         <span className="hint" style={{ opacity: touched ? 0 : 1 }}>
-          Glissez pour comparer ? </span>
+          Glissez pour comparer
+        </span>
       </div>
       <div className="in" style={{ paddingTop: 12 }}>
         <div className="stat3">

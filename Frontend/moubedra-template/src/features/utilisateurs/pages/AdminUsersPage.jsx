@@ -78,7 +78,8 @@ export default function AdminUsersPage() {
         subtitle={resume ? `${formatNumber(resume.total)} comptes${resume.nouveaux_semaine ? ` · ${resume.nouveaux_semaine} nouveaux cette semaine` : ''}` : '…'}
         actions={
           <Button variant="ghost" size="sm" icon={Download} onClick={() => toast('Export CSV en préparation')}>
-            Exporter CSV ? </Button>
+            Exporter CSV
+          </Button>
         }
       />
       <div className="fbar2" style={{ marginBottom: 14 }} role="search">
@@ -103,9 +104,11 @@ export default function AdminUsersPage() {
             bulkActions={(ids, clear) => (
               <>
                 <Button size="sm" icon={Ban} onClick={() => setASuspendre({ ids: ids.filter((id) => id !== moi?.id), clear })}>
-                  Suspendre ? </Button>
+                  Suspendre
+                </Button>
                 <Button size="sm" icon={Mail} onClick={() => toast(`Message préparé pour ${ids.length} compte(s)`)}>
-                  Message ? </Button>
+                  Message
+                </Button>
               </>
             )}
             columns={[
@@ -171,9 +174,11 @@ export default function AdminUsersPage() {
         actions={
           <>
             <Button variant="ghost" onClick={() => setASuspendre(null)}>
-              Annuler ? </Button>
+              Annuler
+            </Button>
             <Button variant="danger-soft" icon={Ban} loading={busy} loadingText="Suspension…" onClick={confirmerSuspension} disabled={!nomsASuspendre.length}>
-              Suspendre ? </Button>
+              Suspendre
+            </Button>
           </>
         }
       >

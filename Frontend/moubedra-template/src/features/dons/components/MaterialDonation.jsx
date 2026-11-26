@@ -66,7 +66,8 @@ export default function MaterialDonation({ campagne: c, besoins, initial = [] })
                   <NeedsList besoins={besoins} quantites={qty} onChange={(k, v) => setQty((q) => q.map((x, i) => (i === k ? v : x)))} />
                 </div>
                 <span className="lbl" id="etat-lbl">
-                  État des articles ? </span>
+                  État des articles
+                </span>
                 <div className="chips" role="group" aria-labelledby="etat-lbl">
                   {ETATS.map((x) => (
                     <Chip key={x} active={x === etat} onClick={() => setEtat(x)}>
@@ -91,7 +92,8 @@ export default function MaterialDonation({ campagne: c, besoins, initial = [] })
                     setSt(2);
                   }}
                 >
-                  Continuer ? </Button>
+                  Continuer
+                </Button>
               </>
             )}
             {st === 2 && (
@@ -128,9 +130,11 @@ export default function MaterialDonation({ campagne: c, besoins, initial = [] })
                 )}
                 <div className="row" style={{ marginTop: 20 }}>
                   <Button variant="ghost" style={{ height: 54 }} onClick={() => setSt(1)}>
-                    ← Retour ? </Button>
+                    ← Retour
+                  </Button>
                   <Button icon={PackageCheck} loading={sending} loadingText="Envoi…" style={{ flex: 1, justifyContent: 'center', height: 54, fontSize: 17 }} onClick={confirm}>
-                    Confirmer mon don ? </Button>
+                    Confirmer mon don
+                  </Button>
                 </div>
               </>
             )}
@@ -175,9 +179,11 @@ export default function MaterialDonation({ campagne: c, besoins, initial = [] })
                 </div>
                 <div className="row" style={{ justifyContent: 'center', marginTop: 18, gap: 10, flexWrap: 'wrap' }}>
                   <Button variant="ghost" size="sm" icon={CalendarPlus} onClick={() => toast('Rappel ajouté à votre agenda')}>
-                    Rappel dans l’agenda ? </Button>
+                    Rappel dans l’agenda
+                  </Button>
                   <Button variant="navy" size="sm" to="/espace/dons?onglet=materiel">
-                    Voir mes dons ? </Button>
+                    Voir mes dons
+                  </Button>
                 </div>
               </div>
             )}
@@ -187,7 +193,8 @@ export default function MaterialDonation({ campagne: c, besoins, initial = [] })
           <div className="panel don-side">
             <img src={c.image} alt="" style={{ objectPosition: c.image_position, height: 140 }} />
             <span className="eyebrow" style={{ display: 'block', marginTop: 14 }}>
-              Votre don matériel pour ? </span>
+              Votre don matériel pour
+            </span>
             <h3 style={{ marginBottom: 10 }}>{c.titre}</h3>
             <div aria-live="polite">
               {lignes.map(([l, q]) => (

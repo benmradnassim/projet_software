@@ -37,7 +37,8 @@ function Rail() {
             {c.urgent && (
               <span className="pill urg">
                 <i aria-hidden="true" />
-                Urgent ? </span>
+                Urgent
+              </span>
             )}
           </Link>
         ))}
@@ -45,7 +46,8 @@ function Rail() {
       <div className="panel">
         <h3>Qui peut publier quoi ?</h3>
         <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.7 }}>
-          <b>Tout le monde :</b> Merci, Photo / histoire, Question. ? <br />
+          <b>Tout le monde :</b> Merci, Photo / histoire, Question.
+          <br />
           <b>Organisateurs vérifiés :</b> Avancement, Appel urgent, Événement, Transparence, Objectif atteint (automatique).
         </p>
       </div>
@@ -130,16 +132,19 @@ export default function FeedPage() {
           <div className="panel comp comp-guest">
             <p>Connectez-vous pour remercier, raconter ou poser une question à la communauté.</p>
             <Button to="/connexion" variant="navy" size="sm" icon={LogIn} state={{ from: '/communaute' }}>
-              Se connecter ? </Button>
+              Se connecter
+            </Button>
           </div>
         )}
 
         <Tabs variant="pill" label="Filtrer le fil" tabs={FILTRES} value={filter} onChange={setFilter} />
         <span className="sr-only" aria-live="polite">
-          {counts[filter] || 0} publications ? </span>
+          {counts[filter] || 0} publications
+        </span>
 
         <button type="button" className={`newpill${pill ? ' show' : ''}`} onClick={showIncoming} tabIndex={pill ? 0 : -1} aria-hidden={!pill}>
-          <ArrowUp size={16} aria-hidden="true" /> 1 nouvelle publication ? </button>
+          <ArrowUp size={16} aria-hidden="true" /> 1 nouvelle publication
+        </button>
 
         <div aria-busy={loading} key={filter}>
           {loading ? (

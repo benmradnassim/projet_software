@@ -121,7 +121,8 @@ export default function MyDonationsPage() {
                       </Button>
                     ) : (
                       <Button variant="ghost" size="sm" onClick={() => toast('Nouvelle demande de paiement envoyée à D17')}>
-                        Relancer D17 ? </Button>
+                        Relancer D17
+                      </Button>
                     )}
                   </li>
                 );
@@ -135,7 +136,8 @@ export default function MyDonationsPage() {
             text={tab === 'rec' ? 'Un petit don chaque mois aide les associations à prévoir leurs actions. Vous pouvez arrêter quand vous voulez.' : 'Tous vos dons sont confirmés.'}
             actions={
               <Button size="sm" icon={Heart} to="/campagnes">
-                Choisir une campagne ? </Button>
+                Choisir une campagne
+              </Button>
             }
           />
         )}

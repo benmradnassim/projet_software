@@ -37,7 +37,8 @@ export default function NotificationsPage() {
         subtitle={unread ? `Ce qui s’est passé pour vous · ${unread} non lue${unread > 1 ? 's' : ''}` : 'Ce qui s’est passé pour vous.'}
         actions={
           <Button variant="ghost" size="sm" icon={CheckCheck} onClick={readAll} disabled={!unread}>
-            Tout marquer comme lu ? </Button>
+            Tout marquer comme lu
+          </Button>
         }
       />
       <div className="panel" style={{ padding: '10px 12px' }}>

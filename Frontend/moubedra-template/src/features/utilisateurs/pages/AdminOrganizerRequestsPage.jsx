@@ -108,11 +108,14 @@ export default function AdminOrganizerRequestsPage() {
                 {r.statut === 'en_attente' ? (
                   <div className="row" style={{ marginTop: 14, gap: 10, flexWrap: 'wrap' }}>
                     <Button variant="ghost" icon={X} onClick={() => decide('refusee')}>
-                      Refuser ? </Button>
+                      Refuser
+                    </Button>
                     <Button variant="ghost" icon={Mail} onClick={() => decide('infos')}>
-                      Demander des infos ? </Button>
+                      Demander des infos
+                    </Button>
                     <Button ref={okRef} icon={BadgeCheck} style={{ flex: 1, justifyContent: 'center' }} onClick={() => decide('acceptee')}>
-                      Valider et donner le badge ? </Button>
+                      Valider et donner le badge
+                    </Button>
                   </div>
                 ) : (
                   <p style={{ marginTop: 14 }}>

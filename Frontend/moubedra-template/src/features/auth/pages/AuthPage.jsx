@@ -34,9 +34,11 @@ export default function AuthPage({ mode }) {
           <nav className={`seg2${mode === 'signup' ? ' right' : ''}`} aria-label="Connexion ou inscription">
             <span className="ind2" aria-hidden="true" />
             <Link to="/connexion" state={state} aria-current={mode === 'login' ? 'page' : undefined}>
-              Connexion ? </Link>
+              Connexion
+            </Link>
             <Link to="/inscription" state={state} aria-current={mode === 'signup' ? 'page' : undefined}>
-              Créer un compte ? </Link>
+              Créer un compte
+            </Link>
           </nav>
           {mode === 'login' ? <LoginForm /> : <SignupForm acct={acct} setAcct={setAcct} />}
         </div>

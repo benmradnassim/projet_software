@@ -155,7 +155,8 @@ function CampagneRow({
             icon={Eye}
             to={`/campagnes/${c.id}`}
           >
-            Voir ? </Button>
+            Voir
+          </Button>
 
           <Button
             size="sm"
@@ -164,7 +165,8 @@ function CampagneRow({
             disabled={busyId !== null}
             onClick={() => onModifier(c)}
           >
-            Modifier ? </Button>
+            Modifier
+          </Button>
 
           <Button
             size="sm"
@@ -173,7 +175,8 @@ function CampagneRow({
             disabled={busyId !== null}
             onClick={() => onSupprimer(c)}
           >
-            Supprimer ? </Button>
+            Supprimer
+          </Button>
         </div>
       </td>
     </tr>
@@ -217,7 +220,8 @@ function FormulaireModification({
       }}
     >
       <h3 style={{ marginBottom: 18 }}>
-        Modifier la campagne ? </h3>
+        Modifier la campagne
+      </h3>
 
       <div
         style={{
@@ -229,7 +233,8 @@ function FormulaireModification({
       >
         <div>
           <label style={labelStyle} htmlFor="admin-titre">
-            Titre ? </label>
+            Titre
+          </label>
           <input
             id="admin-titre"
             style={champStyle}
@@ -240,7 +245,8 @@ function FormulaireModification({
 
         <div>
           <label style={labelStyle} htmlFor="admin-categorie">
-            Catégorie ? </label>
+            Catégorie
+          </label>
           <input
             id="admin-categorie"
             style={champStyle}
@@ -251,7 +257,8 @@ function FormulaireModification({
 
 <div>
   <label style={labelStyle} htmlFor="admin-ville">
-    Ville ? </label>
+    Ville
+  </label>
   <input
     id="admin-ville"
     style={champStyle}
@@ -264,7 +271,8 @@ function FormulaireModification({
 
 <div>
   <label style={labelStyle} htmlFor="admin-point">
-    Point de collecte ? </label>
+    Point de collecte
+  </label>
   <input
     id="admin-point"
     style={champStyle}
@@ -294,7 +302,8 @@ function FormulaireModification({
 
         <div>
           <label style={labelStyle} htmlFor="admin-debut">
-            Date de début ? </label>
+            Date de début
+          </label>
           <input
             id="admin-debut"
             type="date"
@@ -306,7 +315,8 @@ function FormulaireModification({
 
         <div>
           <label style={labelStyle} htmlFor="admin-fin">
-            Date de fin ? </label>
+            Date de fin
+          </label>
           <input
             id="admin-fin"
             type="date"
@@ -333,7 +343,8 @@ function FormulaireModification({
 
       <div style={{ marginTop: 16 }}>
         <label style={labelStyle} htmlFor="admin-description">
-          Description ? </label>
+          Description
+        </label>
         
         <textarea
           id="admin-description"
@@ -423,7 +434,8 @@ function FormulaireModification({
       }))
     }
   >
-    + Ajouter un article ? </Button>
+    + Ajouter un article
+  </Button>
 </div>
 
 
@@ -441,7 +453,8 @@ function FormulaireModification({
           disabled={saving}
           onClick={onAnnuler}
         >
-          Annuler ? </Button>
+          Annuler
+        </Button>
 
         <Button
           icon={Save}
@@ -656,16 +669,20 @@ await updateCampagne(editingId, {
                 }}
               >
                 <th style={{ padding: 12, width: '42%' }}>
-                  Campagne / Organisateur ? </th>
+                  Campagne / Organisateur
+                </th>
 
                 <th style={{ padding: 12, width: '13%' }}>
-                  Statut ? </th>
+                  Statut
+                </th>
 
                 <th style={{ padding: 12, width: '17%' }}>
-                  Objectif ? </th>
+                  Objectif
+                </th>
 
                 <th style={{ padding: 12, width: '28%' }}>
-                  Actions ? </th>
+                  Actions
+                </th>
               </tr>
             </thead>
 

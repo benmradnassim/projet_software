@@ -78,9 +78,11 @@ const act = async (s, decision) => {
                   ) : (
                     <div className="row" style={{ gap: 6, justifyContent: 'flex-end' }}>
                       <Button variant="ghost" size="sm" onClick={() => act(s, 'classer')}>
-                        Classer ? </Button>
+                        Classer
+                      </Button>
                       <Button variant="navy" size="sm" onClick={() => act(s, 'retirer')}>
-                        Retirer ? </Button>
+                        Retirer
+                      </Button>
                     </div>
                   ),
               },

@@ -49,7 +49,8 @@ export default function OrganizerRequestPage() {
               <h2 style={{ fontSize: 26 }}>Demande envoyée</h2>
               <p style={{ color: 'var(--muted)', marginTop: 6 }}>{nom} · examen sous 48 h. En attendant, préparez votre première campagne en brouillon.</p>
               <Button icon={Megaphone} style={{ marginTop: 16 }} onClick={() => toast('Le brouillon sera disponible après validation du badge')}>
-                Préparer un brouillon ? </Button>
+                Préparer un brouillon
+              </Button>
             </div>
           ) : (
             <>
@@ -84,7 +85,8 @@ export default function OrganizerRequestPage() {
                 Glissez le récépissé ou le JORT (PDF, image)
               </button>
               <Button size="wide" icon={Send} style={{ marginTop: 18, height: 52 }} loading={sending} loadingText="Envoi…" onClick={send}>
-                Envoyer ma demande ? </Button>
+                Envoyer ma demande
+              </Button>
             </>
           )}
         </Panel>

@@ -45,7 +45,8 @@ export default function ReceivedDonationsPage() {
         subtitle="Argent et matériel, tout est tracé pour la transparence."
         actions={
           <Button variant="ghost" size="sm" icon={Download} onClick={() => toast('Export CSV en préparation')}>
-            Exporter CSV ? </Button>
+            Exporter CSV
+          </Button>
         }
       />
       {resume && (
@@ -98,7 +99,8 @@ export default function ReceivedDonationsPage() {
                     render: (d) =>
                       d.statut === 'en_attente' && (
                         <Button variant="navy" size="sm" onClick={() => verify(d)} aria-label={`Vérifier le don de ${d.donateur_nom}`}>
-                          Vérifier ? </Button>
+                          Vérifier
+                        </Button>
                       ),
                   },
                 ]}
@@ -124,7 +126,8 @@ export default function ReceivedDonationsPage() {
                       <Badge tone="ok">✓ Réceptionné</Badge>
                     ) : (
                       <Button variant="navy" size="sm" icon={PackageCheck} onClick={() => receive(m)}>
-                        Réceptionner ? </Button>
+                        Réceptionner
+                      </Button>
                     )}
                   </li>
                 ))}
@@ -133,7 +136,8 @@ export default function ReceivedDonationsPage() {
             <Panel title="Besoins de « Cartable »">
               <NeedsList besoins={besoins} />
               <Button variant="ghost" size="sm" block icon={Pencil} style={{ marginTop: 12 }} onClick={() => toast('Modification des besoins : bientôt disponible')}>
-                Modifier les besoins ? </Button>
+                Modifier les besoins
+              </Button>
             </Panel>
           </div>
         )}

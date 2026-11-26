@@ -27,9 +27,11 @@ export default function OrgReportsPage() {
                 {s.a_traiter && (
                   <div className="row" style={{ gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
                     <Button variant="navy" size="sm" icon={Image} onClick={() => toast('Remplacement de photo : bientôt disponible')}>
-                      Remplacer la photo ? </Button>
+                      Remplacer la photo
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => toast('Réponse envoyée à la modération')}>
-                      Répondre à la modération ? </Button>
+                      Répondre à la modération
+                    </Button>
                   </div>
                 )}
               </ReportItem>

@@ -86,9 +86,11 @@ export default function CampaignsPage() {
             </Chip>
           ))}
           <Chip active={k === 'mat'} icon={Package} onClick={() => setK('mat')}>
-            Dons matériels ? </Chip>
+            Dons matériels
+          </Chip>
           <Chip active={k === 'fav'} icon={Heart} onClick={() => setK('fav')}>
-            Mes favoris ? </Chip>
+            Mes favoris
+          </Chip>
         </div>
       </div>
 
@@ -112,9 +114,11 @@ export default function CampaignsPage() {
           actions={
             <>
               <Button variant="navy" size="sm" icon={Bell} onClick={() => toast('Alerte créée : vous serez prévenu·e')}>
-                Créer une alerte ? </Button>
+                Créer une alerte
+              </Button>
               <Button variant="ghost" size="sm" onClick={reset}>
-                Tout effacer ? </Button>
+                Tout effacer
+              </Button>
             </>
           }
         />

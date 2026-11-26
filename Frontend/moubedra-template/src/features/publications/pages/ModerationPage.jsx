@@ -63,11 +63,13 @@ export default function ModerationPage() {
         title="Modération IA"
         subtitle={
           <>
-            L’IA signale, un humain décide. Raccourcis : <kbd>G</kbd> garder · <kbd>M</kbd> masquer · <kbd>S</kbd> supprimer + avertir ? </>
+            L’IA signale, un humain décide. Raccourcis : <kbd>G</kbd> garder · <kbd>M</kbd> masquer · <kbd>S</kbd> supprimer + avertir
+          </>
         }
         actions={
           <Badge tone="info" icon={Sparkles}>
-            14 analysés aujourd’hui ? </Badge>
+            14 analysés aujourd’hui
+          </Badge>
         }
       />
       {loading ? (

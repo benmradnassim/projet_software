@@ -2,6 +2,7 @@ from django.db import models
 
 class Commentaire(models.Model):
     class Statut(models.TextChoices):
+        EN_ATTENTE = "en_attente", "En attente"
         PUBLIE = "publie", "Publié"
         MASQUE = "masque", "Masqué"
         SUPPRIME = "supprime", "Supprimé"

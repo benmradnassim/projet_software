@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { ArrowUp, LogIn } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
 import { Button, EmptyState, Icon, SkeletonPost, Tabs, useToast } from '../../../design/components';
+import { IS_DEMO } from '../../../lib/api';
+import { plural } from '../../../lib/format';
 import { useApi } from '../../../lib/useApi';
-import { getFiltres, getPublicationEntrante, getRail, getTypes, listPublications, supprimerPublication } from '../api';
+import { getFiltres, getRail, getTypes, listPublications, listPublicationsEntrantes, supprimerPublication } from '../api';
 import Composer from '../components/Composer';
 import PostCard from '../components/PostCard';
 import '../publications.css';
@@ -58,54 +60,71 @@ function Rail() {
 export default function FeedPage() {
   const { isAuthenticated } = useAuth();
   const toast = useToast();
-  // TODO(API): remplacer par GET /api/publications/ — voir features/publications/api.js (listPublications)
-  const { data: posts, loading, setData } = useApi(listPublications, [], []);
+  const { data: posts, loading, error, reload, setData } = useApi(listPublications, [], []);
   const [filter, setFilter] = useState('all');
   const [gone, setGone] = useState(() => new Set());
   const [fresh, setFresh] = useState(() => new Set());
-  const [pill, setPill] = useState(false);
+  const [incoming, setIncoming] = useState([]);
   const pending = useRef(new Map());
+  const postsRef = useRef(posts);
+  postsRef.current = posts;
 
-  // pastille « 1 nouvelle publication » après 4,5 s (démo)
+  // pastille « N nouvelles publications » : une fois après 4,5 s en démo, toutes les 30 s avec le back
   useEffect(() => {
-    if (loading) return undefined;
-    const t = setTimeout(() => setPill(true), 4500);
-    return () => clearTimeout(t);
-  }, [loading]);
+    if (loading || error) return undefined;
+    const check = () =>
+      listPublicationsEntrantes(new Set(postsRef.current.map((p) => p.id)))
+        .then((list) => list.length && setIncoming(list))
+        .catch(() => {});
+    if (IS_DEMO) {
+      const t = setTimeout(check, 4500);
+      return () => clearTimeout(t);
+    }
+    const t = setInterval(check, 30000);
+    return () => clearInterval(t);
+  }, [loading, error]);
+  const pill = incoming.length > 0;
 
   // suppression différée : l'appel DELETE part à la fin du délai d'annulation
   useEffect(() => () => pending.current.forEach((t) => clearTimeout(t)), []);
+
+  const unhide = (id) =>
+    setGone((s) => {
+      const n = new Set(s);
+      n.delete(id);
+      return n;
+    });
 
   const remove = (p) => {
     setGone((s) => new Set(s).add(p.id));
     const t = setTimeout(() => {
       pending.current.delete(p.id);
-      setData((list) => list.filter((x) => x.id !== p.id));
-      supprimerPublication(p.id);
+      supprimerPublication(p.id)
+        .then(() => setData((list) => list.filter((x) => x.id !== p.id)))
+        .catch((err) => {
+          unhide(p.id);
+          toast(err?.message || 'Suppression impossible pour le moment');
+        });
     }, UNDO_MS + 300);
     pending.current.set(p.id, t);
     toast('Publication supprimée', {
       undo: () => {
         clearTimeout(pending.current.get(p.id));
         pending.current.delete(p.id);
-        setGone((s) => {
-          const n = new Set(s);
-          n.delete(p.id);
-          return n;
-        });
+        unhide(p.id);
       },
     });
   };
 
-  const add = (p) => {
-    setFresh((s) => new Set(s).add(p.id));
-    setData((list) => [p, ...list]);
+  const add = (list) => {
+    const ids = new Set(list.map((p) => p.id));
+    setFresh((s) => new Set([...s, ...ids]));
+    setData((current) => [...list, ...current.filter((x) => !ids.has(x.id))]);
   };
 
-  const showIncoming = async () => {
-    setPill(false);
-    const p = await getPublicationEntrante();
-    add(p);
+  const showIncoming = () => {
+    add(incoming);
+    setIncoming([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -127,7 +146,7 @@ export default function FeedPage() {
         <p className="intro">Chaque publication a une forme adaptée à ce qu’elle demande : aider, venir, donner, remercier ou décider.</p>
 
         {isAuthenticated ? (
-          <Composer onPublished={add} />
+          <Composer onPublished={(p) => add([p])} />
         ) : (
           <div className="panel comp comp-guest">
             <p>Connectez-vous pour remercier, raconter ou poser une question à la communauté.</p>
@@ -143,7 +162,7 @@ export default function FeedPage() {
         </span>
 
         <button type="button" className={`newpill${pill ? ' show' : ''}`} onClick={showIncoming} tabIndex={pill ? 0 : -1} aria-hidden={!pill}>
-          <ArrowUp size={16} aria-hidden="true" /> 1 nouvelle publication
+          <ArrowUp size={16} aria-hidden="true" /> {plural(incoming.length || 1, 'nouvelle publication', 'nouvelles publications')}
         </button>
 
         <div aria-busy={loading} key={filter}>
@@ -152,6 +171,17 @@ export default function FeedPage() {
               <SkeletonPost />
               <SkeletonPost />
             </>
+          ) : error ? (
+            <EmptyState
+              image="fil"
+              title="Le fil n’a pas pu être chargé"
+              text={error.message}
+              actions={
+                <Button variant="navy" size="sm" onClick={reload}>
+                  Réessayer
+                </Button>
+              }
+            />
           ) : visible.length ? (
             visible.map((p, i) => (
               <PostCard key={p.id} post={p} gone={gone.has(p.id)} fresh={fresh.has(p.id)} enterDelay={Math.min(i, 3) * 0.08} onDelete={() => remove(p)} />

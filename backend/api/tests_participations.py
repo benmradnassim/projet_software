@@ -297,4 +297,106 @@ class ParticipationCrudTests(APITestCase):
         accepted_count = DemandeParticipationEvenement.objects.filter(evenement=self.evenement, statut="acceptee").count()
         self.assertLessEqual(accepted_count, self.evenement.capacite)
 
+    def test_owner_can_edit_pending_event_and_campaign_participations(self):
+        event_participation = DemandeParticipationEvenement.objects.create(
+            utilisateur=self.citoyen,
+            evenement=self.evenement,
+            nom="Ancien",
+            prenom="Nom",
+            telephone="22333444",
+            cin="12345678",
+            adresse="Ancienne adresse, Tunis",
+            motif="Ancien motif suffisamment long.",
+        )
+        campaign_participation = DemandeParticipationCampagne.objects.create(
+            utilisateur=self.citoyen,
+            campagne=self.campagne,
+            nom="Ancien",
+            prenom="Nom",
+            telephone="22333444",
+            cin="12345678",
+            adresse="Ancienne adresse, Tunis",
+            motif="Ancien motif suffisamment long.",
+        )
+        payload = {
+            "nom": "Saada",
+            "prenom": "Nour",
+            "telephone": "+216 22 333 444",
+            "cin": "87654321",
+            "adresse": "12 rue nouvelle, Tunis",
+            "motif": "Je peux participer régulièrement.",
+        }
 
+        self.client.force_authenticate(self.citoyen)
+        event_response = self.client.patch(
+            f"/api/participations/evenements/{event_participation.id}/",
+            payload,
+            format="json",
+        )
+        campaign_response = self.client.patch(
+            f"/api/participations/campagnes/{campaign_participation.id}/",
+            payload,
+            format="json",
+        )
+
+        self.assertEqual(event_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(campaign_response.status_code, status.HTTP_200_OK)
+        event_participation.refresh_from_db()
+        campaign_participation.refresh_from_db()
+        self.assertEqual(event_participation.nom, "Saada")
+        self.assertEqual(campaign_participation.cin, "87654321")
+        self.assertEqual(event_participation.statut, "en_attente")
+        self.assertEqual(campaign_participation.statut, "en_attente")
+
+        self.client.force_authenticate(self.organisateur)
+        event_requests = self.client.get(
+            "/api/participations/evenements/",
+            {"evenement": self.evenement.id, "statut": "en_attente"},
+        )
+        campaign_requests = self.client.get(
+            "/api/participations/campagnes/",
+            {"campagne": self.campagne.id, "statut": "en_attente"},
+        )
+        event_rows = event_requests.data.get("results", event_requests.data)
+        campaign_rows = campaign_requests.data.get("results", campaign_requests.data)
+        self.assertEqual(event_rows[0]["nom"], "Saada")
+        self.assertEqual(event_rows[0]["motif"], payload["motif"])
+        self.assertEqual(campaign_rows[0]["cin"], "87654321")
+
+    def test_processed_participation_cannot_be_edited(self):
+        participation = DemandeParticipationEvenement.objects.create(
+            utilisateur=self.citoyen,
+            evenement=self.evenement,
+            statut=DemandeParticipationEvenement.Statut.ACCEPTEE,
+        )
+        self.client.force_authenticate(self.citoyen)
+
+        response = self.client.patch(
+            f"/api/participations/evenements/{participation.id}/",
+            {"motif": "Je souhaite changer ce motif."},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        participation.refresh_from_db()
+        self.assertEqual(participation.motif, "")
+
+    def test_event_participation_requires_valid_participant_details(self):
+        self.client.force_authenticate(self.citoyen)
+        base = {
+            "evenement": self.evenement.id,
+            "nom": "Saada",
+            "prenom": "Nour",
+            "telephone": "+216 22 333 444",
+            "cin": "12345678",
+            "adresse": "12 rue Habib Bourguiba, Tunis",
+            "motif": "Je souhaite aider à l'organisation.",
+        }
+        for champ, valeur in (("cin", "1234"), ("telephone", "12"), ("nom", "S"), ("adresse", "x"), ("motif", "court")):
+            response = self.client.post("/api/participations/evenements/", {**base, champ: valeur}, format="json")
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, champ)
+            self.assertIn(champ, response.data)
+        response = self.client.post("/api/participations/evenements/", base, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data["cin"], "12345678")
+        self.assertIsNone(response.data["code_qr"])  # QR généré seulement à l'acceptation

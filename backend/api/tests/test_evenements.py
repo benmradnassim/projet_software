@@ -10,6 +10,17 @@ from rest_framework.test import APITestCase
 
 from api.models import DemandeParticipationEvenement, Evenement, Utilisateur
 
+# Coordonnées obligatoires d'une demande de participation (validation de Nour).
+PARTICIPANT = {
+    "type": "benevole",
+    "motif": "Je souhaite aider à l'organisation.",
+    "nom": "Saada",
+    "prenom": "Nour",
+    "telephone": "+216 22 333 444",
+    "cin": "12345678",
+    "adresse": "12 rue Habib Bourguiba, Tunis",
+}
+
 
 def make_image(name="test.png", size=(10, 10)):
     buf = BytesIO()
@@ -149,7 +160,7 @@ class EvenementSpecTests(APITestCase):
     def test_qr_only_on_accept_and_access_verify_rules(self):
         # create participation
         self.client.force_authenticate(self.citoyen)
-        res = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, "type": "benevole", "motif": ""}, format="json")
+        res = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, **PARTICIPANT}, format="json")
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         pid = res.data["id"]
         self.assertIsNone(res.data["code_qr"])
@@ -193,17 +204,17 @@ class EvenementSpecTests(APITestCase):
     def test_organizer_join_other_not_own_and_capacity_atomic(self):
         self.client.force_authenticate(self.organisateur)
         # cannot join own
-        res = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, "type": "benevole", "motif": ""}, format="json")
+        res = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, **PARTICIPANT}, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
         # can join other's event
         other_event = Evenement.objects.create(organisateur=self.other_organisateur, titre="Autre", description="", date_evenement=timezone.now()+timedelta(days=2), lieu="Sfax", ville="Sfax", capacite=1, statut=Evenement.Statut.PLANIFIE)
-        res = self.client.post("/api/participations/evenements/", {"evenement": other_event.id, "type": "benevole", "motif": ""}, format="json")
+        res = self.client.post("/api/participations/evenements/", {"evenement": other_event.id, **PARTICIPANT}, format="json")
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         # capacity enforced
         self.client.force_authenticate(self.citoyen)
-        res = self.client.post("/api/participations/evenements/", {"evenement": other_event.id, "type": "benevole", "motif": ""}, format="json")
+        res = self.client.post("/api/participations/evenements/", {"evenement": other_event.id, **PARTICIPANT}, format="json")
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         pid2 = res.data["id"]
 
@@ -217,7 +228,7 @@ class EvenementSpecTests(APITestCase):
 
     def test_admin_denied_on_participations_and_verify(self):
         self.client.force_authenticate(self.citoyen)
-        res = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, "type": "benevole", "motif": ""}, format="json")
+        res = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, **PARTICIPANT}, format="json")
         pid = res.data["id"]
         self.client.force_authenticate(self.organisateur)
         self.client.post(f"/api/participations/evenements/{pid}/traiter/", {"action": "accepter"}, format="json")
@@ -232,11 +243,11 @@ class EvenementSpecTests(APITestCase):
     def test_review_permissions(self):
         # citizen sees only own participation
         self.client.force_authenticate(self.citoyen)
-        r1 = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, "type": "benevole", "motif": ""}, format="json")
+        r1 = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, **PARTICIPANT}, format="json")
         self.assertEqual(r1.status_code, status.HTTP_201_CREATED)
         pid = r1.data["id"]
         self.client.force_authenticate(self.autre_citoyen)
-        r2 = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, "type": "benevole", "motif": ""}, format="json")
+        r2 = self.client.post("/api/participations/evenements/", {"evenement": self.event.id, **PARTICIPANT}, format="json")
         self.assertEqual(r2.status_code, status.HTTP_201_CREATED)
 
         self.client.force_authenticate(self.citoyen)
@@ -253,3 +264,17 @@ class EvenementSpecTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(any(r["id"] == r2.data["id"] for r in res.data["results"]))
 
+    def test_perimetre_mes_et_recues(self):
+        """Un organisateur distingue ses propres demandes de celles reçues sur ses événements."""
+        from api.models import DemandeParticipationEvenement, Evenement
+        autre = Evenement.objects.create(
+            organisateur=self.other_organisateur, titre="Autre", description="d", date_evenement=self.event.date_evenement,
+            lieu="Sfax", capacite=5,
+        )
+        recue = DemandeParticipationEvenement.objects.create(utilisateur=self.citoyen, evenement=self.event, **{k: v for k, v in PARTICIPANT.items()})
+        envoyee = DemandeParticipationEvenement.objects.create(utilisateur=self.organisateur, evenement=autre, **{k: v for k, v in PARTICIPANT.items()})
+        self.client.force_authenticate(self.organisateur)
+        ids = lambda p: {r["id"] for r in (lambda d: d.get("results", d) if isinstance(d, dict) else d)(self.client.get("/api/participations/evenements/", {"perimetre": p}).data)}
+        self.assertEqual(ids("mes"), {envoyee.id})
+        self.assertEqual(ids("recues"), {recue.id})
+        self.assertEqual(ids(""), {envoyee.id, recue.id})

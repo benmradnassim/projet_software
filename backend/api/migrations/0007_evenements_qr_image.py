@@ -42,11 +42,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="demandeparticipationevenement",
-            name="cin",
-            field=models.CharField(blank=True, default="", max_length=8),
-        ),
-        migrations.AlterField(
-            model_name="demandeparticipationevenement",
             name="code_qr",
             field=models.UUIDField(blank=True, default=None, editable=False, null=True, unique=True),
         ),
@@ -54,11 +49,6 @@ class Migration(migrations.Migration):
             model_name="demandeparticipationevenement",
             name="statut",
             field=models.CharField(choices=[("en_attente", "En attente"), ("acceptee", "Acceptée"), ("refusee", "Refusée"), ("annulee", "Annulée")], default="en_attente", max_length=12),
-        ),
-        migrations.AlterField(
-            model_name="demandeparticipationevenement",
-            name="telephone",
-            field=models.CharField(blank=True, default="", max_length=30),
         ),
         migrations.AlterField(
             model_name="evenement",

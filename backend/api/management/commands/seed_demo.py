@@ -1,4 +1,5 @@
 """Create a reusable set of fictional Moubedra data for local testing."""
+import uuid
 from datetime import timedelta
 from decimal import Decimal
 
@@ -243,6 +244,8 @@ class Command(BaseCommand):
             DemandeParticipationEvenement.objects.get_or_create(
                 utilisateur=people[email], evenement=events[event_index],
                 defaults={"statut": DemandeParticipationEvenement.Statut.ACCEPTEE if i % 2 == 0 else DemandeParticipationEvenement.Statut.EN_ATTENTE,
+                          # le QR code n'existe que pour une participation acceptée
+                          "code_qr": uuid.uuid4() if i % 2 == 0 else None,
                           "motif": "Je souhaite participer à cet événement."},
             )[1]
             for i, (email, event_index) in enumerate([

@@ -5,7 +5,7 @@ import { useAuth } from '../../../app/AuthContext';
 import { Avatar, Badge, BarChart, Button, DateBadge, Icon, PageHeader, Panel, ProgressBar, SkeletonList, StatCard, TodoCards, confetti, useToast } from '../../../design/components';
 import { formatTime, percent } from '../../../lib/format';
 import { useApi } from '../../../lib/useApi';
-import { getEvenement, listParticipations, traiterParticipation } from '../../evenements';
+import { deciderDemande, getEvenement, listDemandesRecues } from '../../evenements';
 import { getOrgDashboard } from '../api';
 import '../campagnes.css';
 
@@ -15,7 +15,7 @@ export default function OrgDashboardPage() {
   // TODO(API): agrégats organisateur — voir features/campagnes/api.js (getOrgDashboard)
   const { data } = useApi(getOrgDashboard, []);
   // TODO(API): GET /api/participations/evenements/?statut=en_attente — voir features/evenements/api.js
-  const { data: demandes, setData: setDemandes, loading, error: demandesError, reload: reloadDemandes } = useApi(async () => { const rows = await listParticipations({ statut: 'en_attente' }); return (Array.isArray(rows)?rows:[]).map((d)=>({ ...d, id_liste: `evenement-${d.id}`, type_liste: 'evenement' })); }, [], []);
+  const { data: demandes, setData: setDemandes, loading, error: demandesError, reload: reloadDemandes } = useApi(listDemandesRecues, [], []);
   const { data: ev } = useApi(() => getEvenement(3), []);
   const [leaving, setLeaving] = useState(null);
 
@@ -30,7 +30,7 @@ export default function OrgDashboardPage() {
   const decide = async (d, ok, element) => {
     setLeaving(d.id_liste);
     try {
-      await traiterParticipation(d.id, ok ? 'accepter' : 'refuser');
+      await deciderDemande(d.id, ok ? 'acceptee' : 'refusee', d.type_liste);
       if (ok) confetti(element);
       toast(ok ? 'Participation acceptée.' : 'Participation refusée.');
       setTimeout(() => {
@@ -99,15 +99,15 @@ export default function OrgDashboardPage() {
                 <li key={d.id_liste} className={`it${leaving === d.id_liste ? ' leaving' : ''}`}>
                   <Avatar name={`${d.prenom || ''} ${d.nom || ''}`.trim()} color={d.couleur} />
                   <div className="gw">
-                    <h4>{d.utilisateur_nom || `Participant #${d.utilisateur}`}</h4>
+                    <h4>{`${d.prenom || ''} ${d.nom || ''}`.trim() || `Participant #${d.utilisateur}`}</h4>
                     <small>
                       {d.campagne_detail?.titre || d.evenement_detail?.titre || 'Participation'} · {d.type}
                     </small>
                   </div>
-                  <button type="button" className="kob" aria-label={`Refuser ${d.utilisateur_nom || 'la participation'}`} disabled={leaving === d.id_liste} onClick={(e) => decide(d, false, e.currentTarget)}>
+                  <button type="button" className="kob" aria-label={`Refuser ${d.nom || 'la participation'}`} disabled={leaving === d.id_liste} onClick={(e) => decide(d, false, e.currentTarget)}>
                     <X size={18} aria-hidden="true" />
                   </button>
-                  <button type="button" className="okb" aria-label={`Accepter ${d.utilisateur_nom || 'la participation'}`} disabled={leaving === d.id_liste} onClick={(e) => decide(d, true, e.currentTarget)}>
+                  <button type="button" className="okb" aria-label={`Accepter ${d.nom || 'la participation'}`} disabled={leaving === d.id_liste} onClick={(e) => decide(d, true, e.currentTarget)}>
                     <Check size={18} aria-hidden="true" />
                   </button>
                 </li>

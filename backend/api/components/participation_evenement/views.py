@@ -2,10 +2,12 @@
 import uuid
 
 from django.db import IntegrityError, transaction
+from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 
 from api.models import DemandeParticipationEvenement, Evenement
@@ -17,6 +19,10 @@ class DemandeParticipationEvenementViewSet(viewsets.ModelViewSet):
     queryset = DemandeParticipationEvenement.objects.all()
     serializer_class = DemandeParticipationEvenementSerializer
     permission_classes = [CanManageParticipationEvenement]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["evenement", "statut", "type"]
+    search_fields = ["motif", "type", "nom", "prenom", "evenement__titre", "utilisateur__email"]
+    ordering_fields = ["date_demande", "statut", "type"]
     ordering = ["-date_demande"]
 
     def get_queryset(self):
@@ -28,9 +34,12 @@ class DemandeParticipationEvenementViewSet(viewsets.ModelViewSet):
             qs = qs.filter(utilisateur=user)
         else:
             return qs.none()
-        evenement_id = self.request.query_params.get("evenement")
-        if evenement_id:
-            qs = qs.filter(evenement_id=evenement_id)
+        # ?perimetre=mes : mes demandes · ?perimetre=recues : demandes reçues sur mes événements
+        perimetre = self.request.query_params.get("perimetre")
+        if perimetre == "mes":
+            qs = qs.filter(utilisateur=user)
+        elif perimetre == "recues":
+            qs = qs.filter(evenement__organisateur=user)
         return qs.order_by("-date_demande")
 
     def perform_create(self, serializer):

@@ -27,7 +27,7 @@ def dedupe_and_null_qr(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("api", "0005_campagnes_photo"),
+        ("api", "0006_publications_type_moderation"),
     ]
 
     operations = [
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="demandeparticipationevenement",
             name="statut",
-            field=models.CharField(choices=[("en_attente", "En attente"), ("acceptee", "Accept?e"), ("refusee", "Refus?e"), ("annulee", "Annul?e")], default="en_attente", max_length=12),
+            field=models.CharField(choices=[("en_attente", "En attente"), ("acceptee", "Acceptée"), ("refusee", "Refusée"), ("annulee", "Annulée")], default="en_attente", max_length=12),
         ),
         migrations.AlterField(
             model_name="demandeparticipationevenement",
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="evenement",
             name="statut",
-            field=models.CharField(choices=[("planifie", "Planifi?"), ("complet", "Complet"), ("annule", "Annul?"), ("termine", "Termin?")], default="planifie", max_length=12),
+            field=models.CharField(choices=[("planifie", "Planifié"), ("complet", "Complet"), ("annule", "Annulé"), ("termine", "Terminé")], default="planifie", max_length=12),
         ),
         migrations.RunPython(dedupe_and_null_qr, migrations.RunPython.noop),
         migrations.AddConstraint(

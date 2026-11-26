@@ -2,19 +2,19 @@ import { forwardRef, useId } from 'react';
 
 /**
  * Champs de formulaire.
- *  - <Input label="Prénom" value onChange error hint />        champ standard (« inp3 »)
+ *  - <Input label="Prénom" value onChange error hint />        champ standard (« inp3 ») ; hideLabel = libellé lu seulement par les lecteurs d’écran
  *  - <Textarea label="Description" … />
  *  - <FloatingField label="Adresse e-mail" icon={Mail} … />     libellé flottant (connexion / inscription)
  * L'erreur est reliée au champ par aria-describedby + aria-invalid.
  */
-export function Input({ label, error, hint, className = '', id: idProp, as: Tag = 'input', children, ...rest }) {
+export function Input({ label, hideLabel, error, hint, className = '', id: idProp, as: Tag = 'input', children, ...rest }) {
   const auto = useId();
   const id = idProp || auto;
   const describedBy = error ? `${id}-err` : hint ? `${id}-hint` : undefined;
   return (
     <>
       {label && (
-        <label className="lbl" htmlFor={id}>
+        <label className={hideLabel ? 'sr-only' : 'lbl'} htmlFor={id}>
           {label}
         </label>
       )}

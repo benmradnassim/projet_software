@@ -51,3 +51,57 @@ class IsAdminRole(BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.est_admin)
+
+
+class CanManageEvenement(BasePermission):
+    """SAFE methods public. Unsafe: authenticated organisateur only; object unsafe only owner."""
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and getattr(request.user, "role", None) == "organisateur"
+        )
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and getattr(request.user, "role", None) == "organisateur"
+            and obj.organisateur_id == request.user.id
+        )
+
+
+class CanManageParticipationEvenement(BasePermission):
+    """Authenticated citizen/organizer only; admin denied."""
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and getattr(request.user, "role", None) in {"citoyen", "organisateur"}
+        )
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        role = getattr(user, "role", None)
+        if role not in {"citoyen", "organisateur"}:
+            return False
+
+        if getattr(view, "action", None) == "traiter":
+            return role == "organisateur" and obj.evenement.organisateur_id == user.id
+
+        is_owner = obj.utilisateur_id == user.id
+        is_event_owner = role == "organisateur" and obj.evenement.organisateur_id == user.id
+
+        if request.method in SAFE_METHODS:
+            return is_owner or is_event_owner
+
+        if request.method == "DELETE":
+            return is_owner
+
+        return is_owner

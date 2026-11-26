@@ -8,4 +8,6 @@ export default [
   { to: '/organisateur/evenements', label: 'Mes événements', icon: CalendarDays, roles: ['organisateur'], group: 'Mes actions', order: 1 },
   // TODO(API): compteur = demandes en attente
   { to: '/organisateur/demandes', label: 'Demandes', icon: Users, roles: ['organisateur'], group: 'Mes actions', order: 2, badge: 4, pulse: true },
+  // Un organisateur peut aussi participer aux événements des autres organisateurs.
+  { to: '/espace/participations', label: 'Mes participations', icon: HandHeart, roles: ['organisateur'], group: 'Mes actions', order: 5 },
 ];

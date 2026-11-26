@@ -1,8 +1,8 @@
 import uuid
 
-from django.db import models
-from django.db.models import Q
 from django.core.validators import RegexValidator
+from django.db import models
+
 
 class DemandeParticipationEvenement(models.Model):
     class Statut(models.TextChoices):
@@ -32,13 +32,12 @@ class DemandeParticipationEvenement(models.Model):
     )
     adresse = models.CharField(max_length=255, blank=True, default="")
     statut = models.CharField(max_length=12, choices=Statut.choices, default=Statut.EN_ATTENTE)
-    code_qr = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    code_qr = models.UUIDField(null=True, blank=True, default=None, unique=True, editable=False)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["utilisateur", "evenement"],
-                condition=~Q(statut="annulee"),
                 name="unique_participation_evenement",
             )
         ]

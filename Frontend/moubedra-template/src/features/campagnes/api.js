@@ -171,6 +171,26 @@ export function listMesParticipationsCampagnes() {
   return mockResponse([]);
 }
 
+/** Organisateur : demandes de participation reçues sur ses campagnes (en attente). */
+export function listDemandesRecuesCampagnes() {
+  if (IS_DEMO) return mockResponse([]);
+  return api.get('/participations/campagnes/', { params: { statut: 'en_attente' } }).then((data) =>
+    Promise.all(unwrapList(data).map(async (p) => {
+      try {
+        return { ...p, type_liste: 'campagne', campagne_detail: await api.get(`/campagnes/${p.campagne}/`) };
+      } catch {
+        return { ...p, type_liste: 'campagne' };
+      }
+    })),
+  );
+}
+
+/** decision : 'acceptee' | 'refusee' */
+export function traiterParticipationCampagne(id, decision) {
+  if (IS_DEMO) return mockResponse({ id, statut: decision }, 200);
+  return api.post(`/participations/campagnes/${id}/traiter/`, { statut: decision });
+}
+
 /** Toutes les campagnes qui acceptent du matériel → { [id]: besoins } */
 export function listBesoins() {
   // TODO(API): idem getBesoins

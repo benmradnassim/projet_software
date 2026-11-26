@@ -85,7 +85,7 @@ class ParticipationCrudTests(APITestCase):
         self.client.force_authenticate(self.organisateur)
         response = self.client.post(
             f"/api/participations/evenements/{participation.id}/traiter/",
-            {"statut": "acceptee"},
+            {"action": "accepter"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -93,10 +93,9 @@ class ParticipationCrudTests(APITestCase):
         self.assertEqual(participation.statut, "acceptee")
 
         self.client.force_authenticate(self.citoyen)
-        cancel = self.client.post(f"/api/participations/evenements/{participation.id}/annuler/", {}, format="json")
-        self.assertEqual(cancel.status_code, status.HTTP_200_OK)
-        participation.refresh_from_db()
-        self.assertEqual(participation.statut, "annulee")
+        cancel = self.client.delete(f"/api/participations/evenements/{participation.id}/")
+        self.assertEqual(cancel.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(DemandeParticipationEvenement.objects.filter(pk=participation.pk).exists())
 
     def test_campaign_organizer_can_accept_participation(self):
         participation = DemandeParticipationCampagne.objects.create(
@@ -175,11 +174,6 @@ class ParticipationCrudTests(APITestCase):
 
     def test_cancelled_participations_can_be_submitted_again(self):
         self.client.force_authenticate(self.citoyen)
-        event_cancelled = DemandeParticipationEvenement.objects.create(
-            utilisateur=self.citoyen,
-            evenement=self.evenement,
-            statut=DemandeParticipationEvenement.Statut.ANNULEE,
-        )
         campaign_cancelled = DemandeParticipationCampagne.objects.create(
             utilisateur=self.citoyen,
             campagne=self.campagne,
@@ -195,20 +189,13 @@ class ParticipationCrudTests(APITestCase):
             "cin": "12345678",
             "adresse": "12 rue Habib Bourguiba, Tunis",
         }
-        event_response = self.client.post(
-            "/api/participations/evenements/",
-            {**payload, "evenement": self.evenement.id},
-            format="json",
-        )
         campaign_response = self.client.post(
             "/api/participations/campagnes/",
             {**payload, "campagne": self.campagne.id},
             format="json",
         )
 
-        self.assertEqual(event_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(campaign_response.status_code, status.HTTP_201_CREATED)
-        self.assertNotEqual(event_response.data["id"], event_cancelled.id)
         self.assertNotEqual(campaign_response.data["id"], campaign_cancelled.id)
 
     def test_cancellation_removes_requests_from_organizer_pending_lists(self):
@@ -234,7 +221,7 @@ class ParticipationCrudTests(APITestCase):
         self.assertIn(campaign_participation.id, [row["id"] for row in campaign_list.data["results"]])
 
         self.client.force_authenticate(self.citoyen)
-        self.client.post(f"/api/participations/evenements/{event_participation.id}/annuler/", {}, format="json")
+        self.client.delete(f"/api/participations/evenements/{event_participation.id}/")
         self.client.post(f"/api/participations/campagnes/{campaign_participation.id}/annuler/", {}, format="json")
 
         self.client.force_authenticate(self.organisateur)
@@ -300,7 +287,7 @@ class ParticipationCrudTests(APITestCase):
         for participation in (first, second):
             response = self.client.post(
                 f"/api/participations/evenements/{participation.id}/traiter/",
-                {"statut": "acceptee"},
+                {"action": "accepter"},
                 format="json",
             )
             if response.status_code == status.HTTP_409_CONFLICT:
@@ -393,3 +380,23 @@ class ParticipationCrudTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         participation.refresh_from_db()
         self.assertEqual(participation.motif, "")
+
+    def test_event_participation_requires_valid_participant_details(self):
+        self.client.force_authenticate(self.citoyen)
+        base = {
+            "evenement": self.evenement.id,
+            "nom": "Saada",
+            "prenom": "Nour",
+            "telephone": "+216 22 333 444",
+            "cin": "12345678",
+            "adresse": "12 rue Habib Bourguiba, Tunis",
+            "motif": "Je souhaite aider à l'organisation.",
+        }
+        for champ, valeur in (("cin", "1234"), ("telephone", "12"), ("nom", "S"), ("adresse", "x"), ("motif", "court")):
+            response = self.client.post("/api/participations/evenements/", {**base, champ: valeur}, format="json")
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, champ)
+            self.assertIn(champ, response.data)
+        response = self.client.post("/api/participations/evenements/", base, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data["cin"], "12345678")
+        self.assertIsNone(response.data["code_qr"])  # QR généré seulement à l'acceptation

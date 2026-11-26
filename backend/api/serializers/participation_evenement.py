@@ -2,7 +2,13 @@ from rest_framework import serializers
 
 from api.models import DemandeParticipationEvenement
 
+
 class DemandeParticipationEvenementSerializer(serializers.ModelSerializer):
+    evenement_titre = serializers.CharField(source="evenement.titre", read_only=True)
+    evenement_date = serializers.DateTimeField(source="evenement.date_evenement", read_only=True)
+    evenement_lieu = serializers.CharField(source="evenement.lieu", read_only=True)
+    utilisateur_nom = serializers.SerializerMethodField()
+
     class Meta:
         model = DemandeParticipationEvenement
         fields = [
@@ -19,45 +25,26 @@ class DemandeParticipationEvenementSerializer(serializers.ModelSerializer):
             "adresse",
             "statut",
             "code_qr",
+            "evenement_titre",
+            "evenement_date",
+            "evenement_lieu",
+            "utilisateur_nom",
         ]
         read_only_fields = ["id", "utilisateur", "date_demande", "statut", "code_qr"]
 
+    CHAMPS_PARTICIPANT = ("nom", "prenom", "cin", "telephone", "adresse", "motif")
+
     def validate(self, attrs):
-        request = self.context.get("request")
+        # Modification par le participant : seulement en attente, sans changer d'événement.
         if self.instance is not None:
-            if self.instance.statut != self.instance.Statut.EN_ATTENTE:
+            if self.instance.statut != DemandeParticipationEvenement.Statut.EN_ATTENTE:
                 raise serializers.ValidationError({"detail": "Seules les participations en attente peuvent être modifiées."})
-            if "evenement" in attrs:
+            if "evenement" in attrs and attrs["evenement"] != self.instance.evenement:
                 raise serializers.ValidationError({"evenement": "L'événement d'une demande existante ne peut pas être modifié."})
-            values = {
-                field: attrs.get(field, getattr(self.instance, field))
-                for field in ("nom", "prenom", "cin", "telephone", "adresse", "motif")
-            }
-            self._validate_participant(values)
-            return attrs
-
-        values = {
-            field: attrs.get(field, "")
-            for field in ("nom", "prenom", "cin", "telephone", "adresse", "motif")
-        }
-        self._validate_participant(values)
-
-        evenement = attrs.get("evenement")
-        if request is None or evenement is None:
-            return attrs
-
-        if evenement.organisateur_id == request.user.id:
-            raise serializers.ValidationError({"evenement": "Vous ne pouvez pas participer à votre propre événement."})
-        if evenement.statut in {"annule", "termine", "complet"}:
-            raise serializers.ValidationError({"evenement": "Cet événement n'accepte pas de nouvelles participations."})
-        if DemandeParticipationEvenement.objects.filter(
-            utilisateur=request.user,
-            evenement=evenement,
-        ).exclude(statut=DemandeParticipationEvenement.Statut.ANNULEE).exists():
-            raise serializers.ValidationError({"evenement": "Vous avez déjà envoyé une demande pour cet événement."})
-        accepted = DemandeParticipationEvenement.objects.filter(evenement=evenement, statut="acceptee").count()
-        if accepted >= evenement.capacite:
-            raise serializers.ValidationError({"evenement": "La capacité maximale de cet événement est atteinte."})
+            valeurs = {f: attrs.get(f, getattr(self.instance, f)) for f in self.CHAMPS_PARTICIPANT}
+        else:
+            valeurs = {f: attrs.get(f, "") for f in self.CHAMPS_PARTICIPANT}
+        self._validate_participant(valeurs)
         return attrs
 
     @staticmethod
@@ -74,12 +61,27 @@ class DemandeParticipationEvenementSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"prenom": "Le prénom doit contenir au moins 2 caractères."})
         if not cin.isdigit() or len(cin) != 8:
             raise serializers.ValidationError({"cin": "Le CIN doit contenir exactement 8 chiffres."})
-        phone_digits = "".join(ch for ch in telephone if ch.isdigit())
-        if phone_digits.startswith("216"):
-            phone_digits = phone_digits[3:]
-        if len(phone_digits) != 8:
+        chiffres = "".join(ch for ch in telephone if ch.isdigit())
+        if chiffres.startswith("216"):
+            chiffres = chiffres[3:]
+        if len(chiffres) != 8:
             raise serializers.ValidationError({"telephone": "Le téléphone doit contenir 8 chiffres."})
         if len(adresse) < 5:
             raise serializers.ValidationError({"adresse": "Saisissez une adresse complète."})
         if len(motif) < 10:
             raise serializers.ValidationError({"motif": "Le motif doit contenir au moins 10 caractères."})
+
+    def get_utilisateur_nom(self, obj):
+        user = getattr(obj, "utilisateur", None)
+        if not user:
+            return ""
+        full = getattr(user, "nom_complet", "") or ""
+        if full.strip():
+            return full.strip()
+        return getattr(user, "email", "")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.statut != DemandeParticipationEvenement.Statut.ACCEPTEE:
+            data["code_qr"] = None
+        return data

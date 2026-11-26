@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Image, Lock, Megaphone, Send, ShieldCheck } from 'lucide-react';
+import { Image, Lock, Megaphone, Send, ShieldAlert, ShieldCheck, ShieldX } from 'lucide-react';
 import { useAuth } from '../../../app/AuthContext';
 import { Avatar, Button, Icon, useToast } from '../../../design/components';
 import { creerPublication, getTypesComposer, verifierTexte } from '../api';
@@ -16,22 +16,42 @@ export default function Composer({ onPublished }) {
   const toast = useToast();
   const [type, setType] = useState('thanks');
   const [text, setText] = useState('');
-  const [ai, setAi] = useState(null); // null | 'checking' | 'ok'
+  const [ai, setAi] = useState(null); // null | 'checking' | { verdict: 'ok' | 'revue' | 'bloque', motif }
+  const [erreur, setErreur] = useState('');
   const [state, setState] = useState('idle'); // idle | sending | done
   const taRef = useRef(null);
   const aiTimer = useRef();
+  const aiAbort = useRef();
   const canOrganize = role === 'organisateur' || role === 'admin';
   const current = TYPES.find((t) => t.type === type);
 
-  useEffect(() => () => clearTimeout(aiTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(aiTimer.current);
+      aiAbort.current?.abort();
+    },
+    [],
+  );
 
+  // US 7.6 : vérification IA côté serveur, 600 ms après la dernière frappe
   const onChange = (e) => {
     const v = e.target.value.slice(0, MAX);
     setText(v);
-    setAi('checking');
+    setErreur('');
     clearTimeout(aiTimer.current);
-    // TODO(API): le score de toxicité est calculé par le back à la création — voir features/publications/api.js
-    aiTimer.current = setTimeout(() => verifierTexte(v).then(() => setAi('ok')), 0);
+    aiAbort.current?.abort();
+    if (!v.trim()) {
+      setAi(null);
+      return;
+    }
+    setAi('checking');
+    aiTimer.current = setTimeout(() => {
+      const ctrl = new AbortController();
+      aiAbort.current = ctrl;
+      verifierTexte(v, { signal: ctrl.signal })
+        .then(setAi)
+        .catch((err) => err?.name !== 'AbortError' && setAi(null));
+    }, 600);
   };
 
   const pick = (t) => {
@@ -45,21 +65,33 @@ export default function Composer({ onPublished }) {
 
   const publish = async () => {
     if (state !== 'idle') return;
+    const contenu = text.trim();
+    if (!contenu) {
+      setErreur('Écrivez un message avant de publier.');
+      taRef.current?.focus();
+      return;
+    }
     setState('sending');
-    const contenu = text.trim() || 'Première matinée à la cuisine solidaire de Bab El Khadra, une équipe incroyable ! 🍲';
-    const kind = ['thanks', 'story', 'poll'].includes(type) ? type : 'story';
-    // TODO(API): POST /api/publications/ — voir features/publications/api.js (creerPublication)
-    const p = await creerPublication({
-      type: kind,
-      contenu,
-      auteur: { ...user, initiales: user.nom_complet.split(' ').map((w) => w[0]).join('').slice(0, 2) },
-    });
-    if (kind === 'story' && type !== 'story') p.titre = current.label;
-    onPublished?.(p);
-    setText('');
-    setAi(null);
-    setState('done');
-    setTimeout(() => setState('idle'), 1400);
+    setErreur('');
+    try {
+      const p = await creerPublication({
+        type,
+        contenu,
+        auteur: { ...user, initiales: user.nom_complet.split(' ').map((w) => w[0]).join('').slice(0, 2) },
+      });
+      if (p.statut === 'en_attente') {
+        toast('Merci ! Votre publication sera visible après vérification par la modération.');
+      } else {
+        onPublished?.(p);
+      }
+      setText('');
+      setAi(null);
+      setState('done');
+      setTimeout(() => setState('idle'), 1400);
+    } catch (err) {
+      setErreur(err?.fields?.contenu || err?.fields?.type || err?.message || 'Publication impossible pour le moment.');
+      setState('idle');
+    }
   };
 
   return (
@@ -70,7 +102,21 @@ export default function Composer({ onPublished }) {
           <label htmlFor="composer" className="sr-only">
             Votre publication
           </label>
-          <textarea id="composer" ref={taRef} value={text} onChange={onChange} placeholder={current.placeholder} maxLength={MAX} />
+          <textarea
+            id="composer"
+            ref={taRef}
+            value={text}
+            onChange={onChange}
+            placeholder={current.placeholder}
+            maxLength={MAX}
+            aria-invalid={!!erreur || undefined}
+            aria-describedby={erreur ? 'composer-err' : undefined}
+          />
+          {erreur && (
+            <small className="field-err" id="composer-err" role="alert">
+              {erreur}
+            </small>
+          )}
         </div>
       </div>
       <div className="ctypes" role="group" aria-label="Type de publication">
@@ -124,10 +170,20 @@ export default function Composer({ onPublished }) {
             <span className="sp" aria-hidden="true" /> Vérification IA…
           </>
         )}
-        {ai === 'ok' && (
+        {ai?.verdict === 'ok' && (
           <>
             <ShieldCheck size={15} aria-hidden="true" /> Aucun problème détecté
           </>
+        )}
+        {ai?.verdict === 'revue' && (
+          <span style={{ color: 'var(--wait-fg)' }}>
+            <ShieldAlert size={15} aria-hidden="true" /> {ai.motif || 'Contenu sensible'} : votre message sera vérifié avant d’être publié
+          </span>
+        )}
+        {ai?.verdict === 'bloque' && (
+          <span style={{ color: 'var(--no-fg)' }}>
+            <ShieldX size={15} aria-hidden="true" /> {ai.motif || 'Contenu inapproprié'} : ce message sera bloqué, reformulez-le
+          </span>
         )}
       </div>
     </div>

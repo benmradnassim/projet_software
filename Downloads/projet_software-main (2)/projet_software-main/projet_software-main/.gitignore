@@ -1,0 +1,11 @@
+# React / Node
+node_modules/
+build/
+dist/
+
+# Python (au cas où)
+venv/
+env/
+
+# Divers
+.vscode/
